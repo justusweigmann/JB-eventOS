@@ -33,15 +33,22 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
     final public const LOCATION_DETAILS = 'location_details';
     final public const ONLINE_EVENT_CONNECTION_DETAILS = 'online_event_connection_details';
     final public const IS_ONLINE_EVENT = 'is_online_event';
+    final public const EVENT_LOCATION_TYPE = 'event_location_type';
+    final public const HYBRID_STREAM_URL = 'hybrid_stream_url';
+    final public const HYBRID_VENUE_INSTRUCTIONS = 'hybrid_venue_instructions';
     final public const ALLOW_SEARCH_ENGINE_INDEXING = 'allow_search_engine_indexing';
     final public const SEO_TITLE = 'seo_title';
     final public const SEO_DESCRIPTION = 'seo_description';
     final public const SOCIAL_MEDIA_HANDLES = 'social_media_handles';
     final public const SHOW_SOCIAL_MEDIA_HANDLES = 'show_social_media_handles';
     final public const SEO_KEYWORDS = 'seo_keywords';
+    final public const META_PIXEL_ID = 'meta_pixel_id';
     final public const NOTIFY_ORGANIZER_OF_NEW_ORDERS = 'notify_organizer_of_new_orders';
+    final public const DISABLE_ATTENDEE_TICKET_EMAIL = 'disable_attendee_ticket_email';
     final public const PRICE_DISPLAY_MODE = 'price_display_mode';
+    final public const HIDE_GETTING_STARTED_PAGE = 'hide_getting_started_page';
     final public const SHOW_SHARE_BUTTONS = 'show_share_buttons';
+    final public const HIDE_START_DATE = 'hide_start_date';
     final public const HOMEPAGE_BODY_BACKGROUND_COLOR = 'homepage_body_background_color';
     final public const HOMEPAGE_BACKGROUND_TYPE = 'homepage_background_type';
     final public const ENABLE_INVOICING = 'enable_invoicing';
@@ -66,10 +73,46 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
     final public const WAITLIST_ENABLED = 'waitlist_enabled';
     final public const WAITLIST_AUTO_PROCESS = 'waitlist_auto_process';
     final public const WAITLIST_OFFER_TIMEOUT_MINUTES = 'waitlist_offer_timeout_minutes';
-    final public const ALLOW_COPY_DETAILS_TO_ALL_ATTENDEES = 'allow_copy_details_to_all_attendees';
-    final public const SHOW_AVAILABLE_OCCURRENCE_CAPACITY = 'show_available_occurrence_capacity';
-    final public const HIDE_SOLD_OUT_OCCURRENCES = 'hide_sold_out_occurrences';
-    final public const GET_TICKETS_BUTTON_TEXT = 'get_tickets_button_text';
+    final public const EVENT_PASSWORD = 'event_password';
+    final public const STRIPE_PAYMENT_METHOD_ORDER = 'stripe_payment_method_order';
+    final public const REQUIRE_ORDER_APPROVAL = 'require_order_approval';
+    final public const EXTERNAL_TICKET_URL = 'external_ticket_url';
+    final public const ORDER_MIN_TICKETS = 'order_min_tickets';
+    final public const ORDER_MAX_TICKETS = 'order_max_tickets';
+    final public const CHECKOUT_VALIDATION_WEBHOOK_URL = 'checkout_validation_webhook_url';
+    final public const REQUIRE_ATTENDEE_NAME = 'require_attendee_name';
+    final public const FREE_TICKET_EXPIRATION_MINUTES = 'free_ticket_expiration_minutes';
+    final public const SALES_REPORT_FREQUENCY = 'sales_report_frequency';
+    final public const SALES_REPORT_RECIPIENT_EMAILS = 'sales_report_recipient_emails';
+    final public const CERTIFICATE_ENABLED = 'certificate_enabled';
+    final public const CERTIFICATE_TITLE = 'certificate_title';
+    final public const CERTIFICATE_BODY_TEMPLATE = 'certificate_body_template';
+    final public const CERTIFICATE_SIGNATORY_NAME = 'certificate_signatory_name';
+    final public const CERTIFICATE_SIGNATORY_TITLE = 'certificate_signatory_title';
+    final public const PROVISIONAL_BOOKING_ENABLED = 'provisional_booking_enabled';
+    final public const PROVISIONAL_BOOKING_THRESHOLD = 'provisional_booking_threshold';
+    final public const PROVISIONAL_BOOKING_DEADLINE = 'provisional_booking_deadline';
+    final public const PROVISIONAL_BOOKING_MESSAGE = 'provisional_booking_message';
+    final public const MULTI_STEP_CHECKOUT_ENABLED = 'multi_step_checkout_enabled';
+    final public const CHECKOUT_STEPS_CONFIG = 'checkout_steps_config';
+    final public const IS_PRIVATE_EVENT = 'is_private_event';
+    final public const PRIVATE_ACCESS_CODE = 'private_access_code';
+    final public const HIDE_EVENT_DETAILS_UNTIL_ACCESS = 'hide_event_details_until_access';
+    final public const HIDE_LOCATION_UNTIL_PURCHASE = 'hide_location_until_purchase';
+    final public const SHOW_PROMO_CODE_INPUT_ALWAYS = 'show_promo_code_input_always';
+    final public const VENUE_LATITUDE = 'venue_latitude';
+    final public const VENUE_LONGITUDE = 'venue_longitude';
+    final public const SHOW_MAP_ON_EVENT_PAGE = 'show_map_on_event_page';
+    final public const MAPS_EMBED_TYPE = 'maps_embed_type';
+    final public const LOW_CAPACITY_ALERTS_ENABLED = 'low_capacity_alerts_enabled';
+    final public const LOW_CAPACITY_ALERT_SENT_THRESHOLDS = 'low_capacity_alert_sent_thresholds';
+    final public const INVOICE_HIDE_TAX_DETAILS = 'invoice_hide_tax_details';
+    final public const INVOICE_SHOW_FEES_SEPARATELY = 'invoice_show_fees_separately';
+    final public const INVOICE_CUSTOM_LABEL = 'invoice_custom_label';
+    final public const INVOICE_COMPANY_INFO = 'invoice_company_info';
+    final public const WAITLIST_AUTO_OFFER_SEATS = 'waitlist_auto_offer_seats';
+    final public const WAITLIST_AUTO_OFFER_DELAY_MINUTES = 'waitlist_auto_offer_delay_minutes';
+    final public const TRACKING_INTEGRATIONS = 'tracking_integrations';
 
     protected int $id;
     protected int $event_id;
@@ -94,15 +137,22 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
     protected array|string|null $location_details = null;
     protected ?string $online_event_connection_details = null;
     protected bool $is_online_event = false;
+    protected string $event_location_type = 'IN_PERSON';
+    protected ?string $hybrid_stream_url = null;
+    protected ?string $hybrid_venue_instructions = null;
     protected bool $allow_search_engine_indexing = true;
     protected ?string $seo_title = null;
     protected ?string $seo_description = null;
     protected array|string|null $social_media_handles = null;
     protected ?bool $show_social_media_handles = null;
     protected ?string $seo_keywords = null;
+    protected ?string $meta_pixel_id = null;
     protected bool $notify_organizer_of_new_orders = true;
+    protected bool $disable_attendee_ticket_email = false;
     protected string $price_display_mode = 'INCLUSIVE';
+    protected bool $hide_getting_started_page = false;
     protected bool $show_share_buttons = true;
+    protected bool $hide_start_date = false;
     protected ?string $homepage_body_background_color = null;
     protected string $homepage_background_type = 'COLOR';
     protected bool $enable_invoicing = false;
@@ -127,10 +177,46 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
     protected bool $waitlist_enabled = false;
     protected bool $waitlist_auto_process = false;
     protected ?int $waitlist_offer_timeout_minutes = null;
-    protected bool $allow_copy_details_to_all_attendees = true;
-    protected bool $show_available_occurrence_capacity = false;
-    protected bool $hide_sold_out_occurrences = false;
-    protected ?string $get_tickets_button_text = null;
+    protected ?string $event_password = null;
+    protected ?array $stripe_payment_method_order = null;
+    protected bool $require_order_approval = false;
+    protected ?string $external_ticket_url = null;
+    protected ?int $order_min_tickets = null;
+    protected ?int $order_max_tickets = null;
+    protected ?string $checkout_validation_webhook_url = null;
+    protected bool $require_attendee_name = true;
+    protected ?int $free_ticket_expiration_minutes = null;
+    protected ?string $sales_report_frequency = null;
+    protected array|string|null $sales_report_recipient_emails = null;
+    protected bool $certificate_enabled = false;
+    protected ?string $certificate_title = null;
+    protected ?string $certificate_body_template = null;
+    protected ?string $certificate_signatory_name = null;
+    protected ?string $certificate_signatory_title = null;
+    protected bool $provisional_booking_enabled = false;
+    protected ?int $provisional_booking_threshold = null;
+    protected ?string $provisional_booking_deadline = null;
+    protected ?string $provisional_booking_message = null;
+    protected bool $multi_step_checkout_enabled = false;
+    protected array|string|null $checkout_steps_config = null;
+    protected bool $is_private_event = false;
+    protected ?string $private_access_code = null;
+    protected bool $hide_event_details_until_access = false;
+    protected bool $hide_location_until_purchase = false;
+    protected bool $show_promo_code_input_always = false;
+    protected ?float $venue_latitude = null;
+    protected ?float $venue_longitude = null;
+    protected bool $show_map_on_event_page = false;
+    protected string $maps_embed_type = 'static';
+    protected bool $low_capacity_alerts_enabled = false;
+    protected array|string|null $low_capacity_alert_sent_thresholds = null;
+    protected bool $invoice_hide_tax_details = false;
+    protected bool $invoice_show_fees_separately = false;
+    protected ?string $invoice_custom_label = null;
+    protected ?string $invoice_company_info = null;
+    protected ?int $waitlist_auto_offer_seats = null;
+    protected ?int $waitlist_auto_offer_delay_minutes = 5;
+    protected array|string|null $tracking_integrations = null;
 
     public function toArray(): array
     {
@@ -158,15 +244,22 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
                     'location_details' => $this->location_details ?? null,
                     'online_event_connection_details' => $this->online_event_connection_details ?? null,
                     'is_online_event' => $this->is_online_event ?? null,
+                    'event_location_type' => $this->event_location_type ?? null,
+                    'hybrid_stream_url' => $this->hybrid_stream_url ?? null,
+                    'hybrid_venue_instructions' => $this->hybrid_venue_instructions ?? null,
                     'allow_search_engine_indexing' => $this->allow_search_engine_indexing ?? null,
                     'seo_title' => $this->seo_title ?? null,
                     'seo_description' => $this->seo_description ?? null,
                     'social_media_handles' => $this->social_media_handles ?? null,
                     'show_social_media_handles' => $this->show_social_media_handles ?? null,
                     'seo_keywords' => $this->seo_keywords ?? null,
+                    'meta_pixel_id' => $this->meta_pixel_id ?? null,
                     'notify_organizer_of_new_orders' => $this->notify_organizer_of_new_orders ?? null,
+                    'disable_attendee_ticket_email' => $this->disable_attendee_ticket_email ?? null,
                     'price_display_mode' => $this->price_display_mode ?? null,
+                    'hide_getting_started_page' => $this->hide_getting_started_page ?? null,
                     'show_share_buttons' => $this->show_share_buttons ?? null,
+                    'hide_start_date' => $this->hide_start_date ?? null,
                     'homepage_body_background_color' => $this->homepage_body_background_color ?? null,
                     'homepage_background_type' => $this->homepage_background_type ?? null,
                     'enable_invoicing' => $this->enable_invoicing ?? null,
@@ -191,10 +284,45 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
                     'waitlist_enabled' => $this->waitlist_enabled ?? null,
                     'waitlist_auto_process' => $this->waitlist_auto_process ?? null,
                     'waitlist_offer_timeout_minutes' => $this->waitlist_offer_timeout_minutes ?? null,
-                    'allow_copy_details_to_all_attendees' => $this->allow_copy_details_to_all_attendees ?? null,
-                    'show_available_occurrence_capacity' => $this->show_available_occurrence_capacity ?? null,
-                    'hide_sold_out_occurrences' => $this->hide_sold_out_occurrences ?? null,
-                    'get_tickets_button_text' => $this->get_tickets_button_text ?? null,
+                    'event_password' => $this->event_password ?? null,
+                    'stripe_payment_method_order' => $this->stripe_payment_method_order ?? null,
+                    'require_order_approval' => $this->require_order_approval ?? null,
+                    'external_ticket_url' => $this->external_ticket_url ?? null,
+                    'order_min_tickets' => $this->order_min_tickets ?? null,
+                    'order_max_tickets' => $this->order_max_tickets ?? null,
+                    'checkout_validation_webhook_url' => $this->checkout_validation_webhook_url ?? null,
+                    'require_attendee_name' => $this->require_attendee_name ?? null,
+                    'free_ticket_expiration_minutes' => $this->free_ticket_expiration_minutes ?? null,
+                    'sales_report_frequency' => $this->sales_report_frequency ?? null,
+                    'sales_report_recipient_emails' => $this->sales_report_recipient_emails ?? null,
+                    'certificate_enabled' => $this->certificate_enabled ?? null,
+                    'certificate_title' => $this->certificate_title ?? null,
+                    'certificate_body_template' => $this->certificate_body_template ?? null,
+                    'certificate_signatory_name' => $this->certificate_signatory_name ?? null,
+                    'certificate_signatory_title' => $this->certificate_signatory_title ?? null,
+                    'provisional_booking_enabled' => $this->provisional_booking_enabled ?? null,
+                    'provisional_booking_threshold' => $this->provisional_booking_threshold ?? null,
+                    'provisional_booking_deadline' => $this->provisional_booking_deadline ?? null,
+                    'provisional_booking_message' => $this->provisional_booking_message ?? null,
+                    'multi_step_checkout_enabled' => $this->multi_step_checkout_enabled ?? null,
+                    'checkout_steps_config' => $this->checkout_steps_config ?? null,
+                    'is_private_event' => $this->is_private_event ?? false,
+                    'private_access_code' => $this->private_access_code ?? null,
+                    'hide_event_details_until_access' => $this->hide_event_details_until_access ?? false,
+                    'hide_location_until_purchase' => $this->hide_location_until_purchase ?? false,
+                    'show_promo_code_input_always' => $this->show_promo_code_input_always ?? false,
+                    'venue_latitude' => $this->venue_latitude ?? null,
+                    'venue_longitude' => $this->venue_longitude ?? null,
+                    'show_map_on_event_page' => $this->show_map_on_event_page ?? false,
+                    'maps_embed_type' => $this->maps_embed_type ?? 'static',
+                    'low_capacity_alerts_enabled' => $this->low_capacity_alerts_enabled ?? false,
+                    'low_capacity_alert_sent_thresholds' => $this->low_capacity_alert_sent_thresholds ?? null,
+                    'invoice_hide_tax_details' => $this->invoice_hide_tax_details ?? false,
+                    'invoice_show_fees_separately' => $this->invoice_show_fees_separately ?? false,
+                    'invoice_custom_label' => $this->invoice_custom_label ?? null,
+                    'invoice_company_info' => $this->invoice_company_info ?? null,
+                    'waitlist_auto_offer_seats' => $this->waitlist_auto_offer_seats ?? null,
+                    'waitlist_auto_offer_delay_minutes' => $this->waitlist_auto_offer_delay_minutes ?? 5,
                 ];
     }
 
@@ -451,6 +579,39 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
         return $this->is_online_event;
     }
 
+    public function setEventLocationType(string $event_location_type): self
+    {
+        $this->event_location_type = $event_location_type;
+        return $this;
+    }
+
+    public function getEventLocationType(): string
+    {
+        return $this->event_location_type;
+    }
+
+    public function setHybridStreamUrl(?string $hybrid_stream_url): self
+    {
+        $this->hybrid_stream_url = $hybrid_stream_url;
+        return $this;
+    }
+
+    public function getHybridStreamUrl(): ?string
+    {
+        return $this->hybrid_stream_url;
+    }
+
+    public function setHybridVenueInstructions(?string $hybrid_venue_instructions): self
+    {
+        $this->hybrid_venue_instructions = $hybrid_venue_instructions;
+        return $this;
+    }
+
+    public function getHybridVenueInstructions(): ?string
+    {
+        return $this->hybrid_venue_instructions;
+    }
+
     public function setAllowSearchEngineIndexing(bool $allow_search_engine_indexing): self
     {
         $this->allow_search_engine_indexing = $allow_search_engine_indexing;
@@ -537,6 +698,17 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
     public function getPriceDisplayMode(): string
     {
         return $this->price_display_mode;
+    }
+
+    public function setHideGettingStartedPage(bool $hide_getting_started_page): self
+    {
+        $this->hide_getting_started_page = $hide_getting_started_page;
+        return $this;
+    }
+
+    public function getHideGettingStartedPage(): bool
+    {
+        return $this->hide_getting_started_page;
     }
 
     public function setShowShareButtons(bool $show_share_buttons): self
@@ -815,47 +987,476 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
         return $this->waitlist_offer_timeout_minutes;
     }
 
-    public function setAllowCopyDetailsToAllAttendees(bool $allow_copy_details_to_all_attendees): self
+    public function setHideStartDate(bool $hide_start_date): self
     {
-        $this->allow_copy_details_to_all_attendees = $allow_copy_details_to_all_attendees;
+        $this->hide_start_date = $hide_start_date;
         return $this;
     }
 
-    public function getAllowCopyDetailsToAllAttendees(): bool
+    public function getHideStartDate(): bool
     {
-        return $this->allow_copy_details_to_all_attendees;
+        return $this->hide_start_date;
     }
 
-    public function setShowAvailableOccurrenceCapacity(bool $show_available_occurrence_capacity): self
+    public function setDisableAttendeeTicketEmail(bool $disable_attendee_ticket_email): self
     {
-        $this->show_available_occurrence_capacity = $show_available_occurrence_capacity;
+        $this->disable_attendee_ticket_email = $disable_attendee_ticket_email;
         return $this;
     }
 
-    public function getShowAvailableOccurrenceCapacity(): bool
+    public function getDisableAttendeeTicketEmail(): bool
     {
-        return $this->show_available_occurrence_capacity;
+        return $this->disable_attendee_ticket_email;
     }
 
-    public function setHideSoldOutOccurrences(bool $hide_sold_out_occurrences): self
+    public function setMetaPixelId(?string $meta_pixel_id): self
     {
-        $this->hide_sold_out_occurrences = $hide_sold_out_occurrences;
+        $this->meta_pixel_id = $meta_pixel_id;
         return $this;
     }
 
-    public function getHideSoldOutOccurrences(): bool
+    public function getMetaPixelId(): ?string
     {
-        return $this->hide_sold_out_occurrences;
+        return $this->meta_pixel_id;
     }
 
-    public function setGetTicketsButtonText(?string $get_tickets_button_text): self
+    public function setEventPassword(?string $event_password): self
     {
-        $this->get_tickets_button_text = $get_tickets_button_text;
+        $this->event_password = $event_password;
         return $this;
     }
 
-    public function getGetTicketsButtonText(): ?string
+    public function getEventPassword(): ?string
     {
-        return $this->get_tickets_button_text;
+        return $this->event_password;
+    }
+
+    public function setStripePaymentMethodOrder(?array $stripe_payment_method_order): self
+    {
+        $this->stripe_payment_method_order = $stripe_payment_method_order;
+        return $this;
+    }
+
+    public function getStripePaymentMethodOrder(): ?array
+    {
+        return $this->stripe_payment_method_order;
+    }
+
+    public function setRequireOrderApproval(bool $require_order_approval): self
+    {
+        $this->require_order_approval = $require_order_approval;
+        return $this;
+    }
+
+    public function getRequireOrderApproval(): bool
+    {
+        return $this->require_order_approval;
+    }
+
+    public function setExternalTicketUrl(?string $external_ticket_url): self
+    {
+        $this->external_ticket_url = $external_ticket_url;
+        return $this;
+    }
+
+    public function getExternalTicketUrl(): ?string
+    {
+        return $this->external_ticket_url;
+    }
+
+    public function setOrderMinTickets(?int $order_min_tickets): self
+    {
+        $this->order_min_tickets = $order_min_tickets;
+        return $this;
+    }
+
+    public function getOrderMinTickets(): ?int
+    {
+        return $this->order_min_tickets;
+    }
+
+    public function setOrderMaxTickets(?int $order_max_tickets): self
+    {
+        $this->order_max_tickets = $order_max_tickets;
+        return $this;
+    }
+
+    public function getOrderMaxTickets(): ?int
+    {
+        return $this->order_max_tickets;
+    }
+
+    public function setCheckoutValidationWebhookUrl(?string $checkout_validation_webhook_url): self
+    {
+        $this->checkout_validation_webhook_url = $checkout_validation_webhook_url;
+        return $this;
+    }
+
+    public function getCheckoutValidationWebhookUrl(): ?string
+    {
+        return $this->checkout_validation_webhook_url;
+    }
+
+    public function setRequireAttendeeName(bool $require_attendee_name): self
+    {
+        $this->require_attendee_name = $require_attendee_name;
+        return $this;
+    }
+
+    public function getRequireAttendeeName(): bool
+    {
+        return $this->require_attendee_name;
+    }
+
+    public function setFreeTicketExpirationMinutes(?int $free_ticket_expiration_minutes): self
+    {
+        $this->free_ticket_expiration_minutes = $free_ticket_expiration_minutes;
+        return $this;
+    }
+
+    public function getFreeTicketExpirationMinutes(): ?int
+    {
+        return $this->free_ticket_expiration_minutes;
+    }
+
+    public function setSalesReportFrequency(?string $sales_report_frequency): self
+    {
+        $this->sales_report_frequency = $sales_report_frequency;
+        return $this;
+    }
+
+    public function getSalesReportFrequency(): ?string
+    {
+        return $this->sales_report_frequency;
+    }
+
+    public function setSalesReportRecipientEmails(array|string|null $sales_report_recipient_emails): self
+    {
+        $this->sales_report_recipient_emails = $sales_report_recipient_emails;
+        return $this;
+    }
+
+    public function getSalesReportRecipientEmails(): array|string|null
+    {
+        return $this->sales_report_recipient_emails;
+    }
+
+    public function setCertificateEnabled(bool $certificate_enabled): self
+    {
+        $this->certificate_enabled = $certificate_enabled;
+        return $this;
+    }
+
+    public function getCertificateEnabled(): bool
+    {
+        return $this->certificate_enabled;
+    }
+
+    public function setCertificateTitle(?string $certificate_title): self
+    {
+        $this->certificate_title = $certificate_title;
+        return $this;
+    }
+
+    public function getCertificateTitle(): ?string
+    {
+        return $this->certificate_title;
+    }
+
+    public function setCertificateBodyTemplate(?string $certificate_body_template): self
+    {
+        $this->certificate_body_template = $certificate_body_template;
+        return $this;
+    }
+
+    public function getCertificateBodyTemplate(): ?string
+    {
+        return $this->certificate_body_template;
+    }
+
+    public function setCertificateSignatoryName(?string $certificate_signatory_name): self
+    {
+        $this->certificate_signatory_name = $certificate_signatory_name;
+        return $this;
+    }
+
+    public function getCertificateSignatoryName(): ?string
+    {
+        return $this->certificate_signatory_name;
+    }
+
+    public function setCertificateSignatoryTitle(?string $certificate_signatory_title): self
+    {
+        $this->certificate_signatory_title = $certificate_signatory_title;
+        return $this;
+    }
+
+    public function getCertificateSignatoryTitle(): ?string
+    {
+        return $this->certificate_signatory_title;
+    }
+
+    public function setProvisionalBookingEnabled(bool $provisional_booking_enabled): self
+    {
+        $this->provisional_booking_enabled = $provisional_booking_enabled;
+        return $this;
+    }
+
+    public function getProvisionalBookingEnabled(): bool
+    {
+        return $this->provisional_booking_enabled;
+    }
+
+    public function setProvisionalBookingThreshold(?int $provisional_booking_threshold): self
+    {
+        $this->provisional_booking_threshold = $provisional_booking_threshold;
+        return $this;
+    }
+
+    public function getProvisionalBookingThreshold(): ?int
+    {
+        return $this->provisional_booking_threshold;
+    }
+
+    public function setProvisionalBookingDeadline(?string $provisional_booking_deadline): self
+    {
+        $this->provisional_booking_deadline = $provisional_booking_deadline;
+        return $this;
+    }
+
+    public function getProvisionalBookingDeadline(): ?string
+    {
+        return $this->provisional_booking_deadline;
+    }
+
+    public function setProvisionalBookingMessage(?string $provisional_booking_message): self
+    {
+        $this->provisional_booking_message = $provisional_booking_message;
+        return $this;
+    }
+
+    public function getProvisionalBookingMessage(): ?string
+    {
+        return $this->provisional_booking_message;
+    }
+
+    public function setMultiStepCheckoutEnabled(bool $multi_step_checkout_enabled): self
+    {
+        $this->multi_step_checkout_enabled = $multi_step_checkout_enabled;
+        return $this;
+    }
+
+    public function getMultiStepCheckoutEnabled(): bool
+    {
+        return $this->multi_step_checkout_enabled;
+    }
+
+    public function setCheckoutStepsConfig(array|string|null $checkout_steps_config): self
+    {
+        $this->checkout_steps_config = $checkout_steps_config;
+        return $this;
+    }
+
+    public function getCheckoutStepsConfig(): array|string|null
+    {
+        return $this->checkout_steps_config;
+    }
+
+    public function setIsPrivateEvent(bool $is_private_event): self
+    {
+        $this->is_private_event = $is_private_event;
+        return $this;
+    }
+
+    public function getIsPrivateEvent(): bool
+    {
+        return $this->is_private_event;
+    }
+
+    public function setPrivateAccessCode(?string $private_access_code): self
+    {
+        $this->private_access_code = $private_access_code;
+        return $this;
+    }
+
+    public function getPrivateAccessCode(): ?string
+    {
+        return $this->private_access_code;
+    }
+
+    public function setHideEventDetailsUntilAccess(bool $hide_event_details_until_access): self
+    {
+        $this->hide_event_details_until_access = $hide_event_details_until_access;
+        return $this;
+    }
+
+    public function getHideEventDetailsUntilAccess(): bool
+    {
+        return $this->hide_event_details_until_access;
+    }
+
+    public function setHideLocationUntilPurchase(bool $hide_location_until_purchase): self
+    {
+        $this->hide_location_until_purchase = $hide_location_until_purchase;
+        return $this;
+    }
+
+    public function getHideLocationUntilPurchase(): bool
+    {
+        return $this->hide_location_until_purchase;
+    }
+
+    public function setShowPromoCodeInputAlways(bool $show_promo_code_input_always): self
+    {
+        $this->show_promo_code_input_always = $show_promo_code_input_always;
+        return $this;
+    }
+
+    public function getShowPromoCodeInputAlways(): bool
+    {
+        return $this->show_promo_code_input_always;
+    }
+
+    public function setVenueLatitude(?float $venue_latitude): self
+    {
+        $this->venue_latitude = $venue_latitude;
+        return $this;
+    }
+
+    public function getVenueLatitude(): ?float
+    {
+        return $this->venue_latitude;
+    }
+
+    public function setVenueLongitude(?float $venue_longitude): self
+    {
+        $this->venue_longitude = $venue_longitude;
+        return $this;
+    }
+
+    public function getVenueLongitude(): ?float
+    {
+        return $this->venue_longitude;
+    }
+
+    public function setShowMapOnEventPage(bool $show_map_on_event_page): self
+    {
+        $this->show_map_on_event_page = $show_map_on_event_page;
+        return $this;
+    }
+
+    public function getShowMapOnEventPage(): bool
+    {
+        return $this->show_map_on_event_page;
+    }
+
+    public function setMapsEmbedType(string $maps_embed_type): self
+    {
+        $this->maps_embed_type = $maps_embed_type;
+        return $this;
+    }
+
+    public function getMapsEmbedType(): string
+    {
+        return $this->maps_embed_type;
+    }
+
+    public function setLowCapacityAlertsEnabled(bool $low_capacity_alerts_enabled): self
+    {
+        $this->low_capacity_alerts_enabled = $low_capacity_alerts_enabled;
+        return $this;
+    }
+
+    public function getLowCapacityAlertsEnabled(): bool
+    {
+        return $this->low_capacity_alerts_enabled;
+    }
+
+    public function setLowCapacityAlertSentThresholds(array|string|null $low_capacity_alert_sent_thresholds): self
+    {
+        $this->low_capacity_alert_sent_thresholds = $low_capacity_alert_sent_thresholds;
+        return $this;
+    }
+
+    public function getLowCapacityAlertSentThresholds(): array|string|null
+    {
+        return $this->low_capacity_alert_sent_thresholds;
+    }
+
+    public function setInvoiceHideTaxDetails(bool $invoice_hide_tax_details): self
+    {
+        $this->invoice_hide_tax_details = $invoice_hide_tax_details;
+        return $this;
+    }
+
+    public function getInvoiceHideTaxDetails(): bool
+    {
+        return $this->invoice_hide_tax_details;
+    }
+
+    public function setInvoiceShowFeesSeparately(bool $invoice_show_fees_separately): self
+    {
+        $this->invoice_show_fees_separately = $invoice_show_fees_separately;
+        return $this;
+    }
+
+    public function getInvoiceShowFeesSeparately(): bool
+    {
+        return $this->invoice_show_fees_separately;
+    }
+
+    public function setInvoiceCustomLabel(?string $invoice_custom_label): self
+    {
+        $this->invoice_custom_label = $invoice_custom_label;
+        return $this;
+    }
+
+    public function getInvoiceCustomLabel(): ?string
+    {
+        return $this->invoice_custom_label;
+    }
+
+    public function setInvoiceCompanyInfo(?string $invoice_company_info): self
+    {
+        $this->invoice_company_info = $invoice_company_info;
+        return $this;
+    }
+
+    public function getInvoiceCompanyInfo(): ?string
+    {
+        return $this->invoice_company_info;
+    }
+
+    public function setWaitlistAutoOfferSeats(?int $waitlist_auto_offer_seats): self
+    {
+        $this->waitlist_auto_offer_seats = $waitlist_auto_offer_seats;
+        return $this;
+    }
+
+    public function getWaitlistAutoOfferSeats(): ?int
+    {
+        return $this->waitlist_auto_offer_seats;
+    }
+
+    public function setWaitlistAutoOfferDelayMinutes(?int $waitlist_auto_offer_delay_minutes): self
+    {
+        $this->waitlist_auto_offer_delay_minutes = $waitlist_auto_offer_delay_minutes;
+        return $this;
+    }
+
+    public function getWaitlistAutoOfferDelayMinutes(): ?int
+    {
+        return $this->waitlist_auto_offer_delay_minutes;
+    }
+
+    public function setTrackingIntegrations(array|string|null $tracking_integrations): self
+    {
+        $this->tracking_integrations = $tracking_integrations;
+        return $this;
+    }
+
+    public function getTrackingIntegrations(): array|string|null
+    {
+        return $this->tracking_integrations;
     }
 }

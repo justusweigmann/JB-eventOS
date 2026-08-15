@@ -22,8 +22,10 @@ class GetUserInvitationAction extends BaseAction
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
         private readonly EncryptedPayloadService $encryptedPayloadService,
-        private readonly LoggerInterface $logger,
-    ) {}
+        private readonly LoggerInterface         $logger,
+    )
+    {
+    }
 
     public function __invoke(string $inviteToken): JsonResponse
     {

@@ -14,7 +14,9 @@ class GetOrganizerOrdersAction extends BaseAction
 {
     public function __construct(
         private readonly GetOrganizerOrdersHandler $handler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(Request $request, int $organizerId): JsonResponse
     {

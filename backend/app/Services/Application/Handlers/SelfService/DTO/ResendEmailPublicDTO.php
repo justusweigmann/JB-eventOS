@@ -12,5 +12,6 @@ class ResendEmailPublicDTO extends BaseDataObject
         public readonly ?string $attendeeShortId,
         public readonly string $ipAddress,
         public readonly ?string $userAgent,
-    ) {}
+    ) {
+    }
 }

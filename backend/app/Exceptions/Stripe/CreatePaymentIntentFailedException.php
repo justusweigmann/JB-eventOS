@@ -4,4 +4,7 @@ namespace HiEvents\Exceptions\Stripe;
 
 use Exception;
 
-class CreatePaymentIntentFailedException extends Exception {}
+class CreatePaymentIntentFailedException extends Exception
+{
+
+}

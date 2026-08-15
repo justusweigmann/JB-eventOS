@@ -20,7 +20,9 @@ class CreateAffiliateAction extends BaseAction
 {
     public function __construct(
         private readonly CreateAffiliateHandler $createAffiliateHandler
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws ValidationException

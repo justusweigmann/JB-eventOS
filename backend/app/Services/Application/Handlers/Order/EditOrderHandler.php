@@ -12,8 +12,10 @@ class EditOrderHandler
 {
     public function __construct(
         private readonly EditOrderService $editOrderService,
-        private readonly LoggerInterface $logger,
-    ) {}
+        private readonly LoggerInterface  $logger,
+    )
+    {
+    }
 
     /**
      * @throws Throwable

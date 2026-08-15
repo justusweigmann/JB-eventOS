@@ -14,7 +14,9 @@ class ConfirmEmailWithCodeAction extends BaseAction
 {
     public function __construct(
         private readonly ConfirmEmailWithCodeHandler $confirmEmailWithCodeHandler
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws ValidationException

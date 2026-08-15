@@ -4,7 +4,6 @@ import {t} from "@lingui/macro";
 import {IconPhotoPlus} from "@tabler/icons-react";
 import {Button, FileButton, Group, Image, Loader, Modal, Portal, Stack, Tabs, Text, TextInput} from "@mantine/core";
 import {useUploadImage} from "../../../../../mutations/useUploadImage.ts";
-import {extractImageUploadErrors, validateImageFile} from "../../../../../utilites/imageUploadValidation.ts";
 
 export const InsertImageControl = () => {
     const editor = useRichTextEditorContext();
@@ -55,11 +54,6 @@ export const InsertImageControl = () => {
             setUploadError(t`Please select an image.`);
             return;
         }
-        const validationError = validateImageFile(file);
-        if (validationError) {
-            setUploadError(validationError);
-            return;
-        }
         setIsUploading(true);
         setUploadError(null);
         uploadMutation.mutate({image: file}, {
@@ -69,7 +63,8 @@ export const InsertImageControl = () => {
                 setIsUploading(false);
             },
             onError: (error: any) => {
-                setUploadError(extractImageUploadErrors(error).join(" "));
+                const message = error?.response?.data?.message ?? t`Failed to upload image.`;
+                setUploadError(message);
                 setIsUploading(false);
             }
         });
@@ -103,7 +98,7 @@ export const InsertImageControl = () => {
                     }}
                     title={t`Insert Image`}
                 >
-                    <Tabs value={tab} onChange={(value) => setTab(value ?? 'url')} variant="outline">
+                    <Tabs value={tab} onChange={setTab} variant="outline">
                         <Tabs.List grow>
                             <Tabs.Tab value="url">{t`Paste URL`}</Tabs.Tab>
                             <Tabs.Tab value="upload">{t`Upload Image`}</Tabs.Tab>

@@ -7,8 +7,10 @@ use HiEvents\DataTransferObjects\BaseDTO;
 class EditQuestionAnswerDTO extends BaseDTO
 {
     public function __construct(
-        public int $questionAnswerId,
-        public int $eventId,
+        public int               $questionAnswerId,
+        public int               $eventId,
         public null|array|string $answer,
-    ) {}
+    )
+    {
+    }
 }

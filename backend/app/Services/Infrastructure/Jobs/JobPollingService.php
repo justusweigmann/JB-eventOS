@@ -24,15 +24,11 @@ class JobPollingService
         );
     }
 
-    public function checkJobStatus(string $jobUuid, ?string $filePath = null, ?string $expectedName = null): JobPollingResultDTO
+    public function checkJobStatus(string $jobUuid, ?string $filePath = null): JobPollingResultDTO
     {
         $batch = Bus::findBatch($jobUuid);
 
-        if ($batch && $expectedName !== null && $batch->name !== $expectedName) {
-            $batch = null;
-        }
-
-        if (! $batch) {
+        if (!$batch) {
             return new JobPollingResultDTO(
                 status: JobStatusEnum::NOT_FOUND,
                 message: __('Job not found'),
@@ -40,16 +36,8 @@ class JobPollingService
             );
         }
 
-        if ($batch->cancelled() || $batch->failedJobs > 0) {
-            return new JobPollingResultDTO(
-                status: JobStatusEnum::FAILED,
-                message: __('Job failed'),
-                jobUuid: $jobUuid,
-            );
-        }
-
         if ($batch->finished()) {
-            if ($filePath && ! Storage::disk(self::STORAGE_DISK)->exists($filePath)) {
+            if ($filePath && !Storage::disk(self::STORAGE_DISK)->exists($filePath)) {
                 return new JobPollingResultDTO(
                     status: JobStatusEnum::NOT_FOUND,
                     message: __('Export file not found'),

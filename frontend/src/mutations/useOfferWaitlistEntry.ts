@@ -8,12 +8,11 @@ export const useOfferWaitlistEntry = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({eventId, productPriceId, quantity, eventOccurrenceId}: {
+        mutationFn: ({eventId, productPriceId, quantity}: {
             eventId: IdParam,
             productPriceId: number,
             quantity?: number,
-            eventOccurrenceId?: IdParam | null,
-        }) => waitlistClient.offerNext(eventId, productPriceId, quantity, eventOccurrenceId),
+        }) => waitlistClient.offerNext(eventId, productPriceId, quantity),
 
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({queryKey: [GET_EVENT_WAITLIST_ENTRIES_QUERY_KEY, variables.eventId]});

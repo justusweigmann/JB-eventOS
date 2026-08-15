@@ -13,8 +13,10 @@ class MarkOrderAsPaidHandler
 {
     public function __construct(
         private readonly MarkOrderAsPaidService $markOrderAsPaidService,
-        private readonly LoggerInterface $logger,
-    ) {}
+        private readonly LoggerInterface        $logger,
+    )
+    {
+    }
 
     /**
      * @throws ResourceConflictException|Throwable

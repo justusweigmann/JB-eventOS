@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use HiEvents\Helper\IdHelper;
-use HiEvents\Models\Order;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use HiEvents\Helper\IdHelper;
+use HiEvents\Models\Order;
 
 class OrderFactory extends Factory
 {

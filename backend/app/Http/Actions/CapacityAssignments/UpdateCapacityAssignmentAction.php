@@ -16,7 +16,9 @@ class UpdateCapacityAssignmentAction extends BaseAction
 {
     public function __construct(
         private readonly UpdateCapacityAssignmentHandler $updateCapacityAssignmentHandler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $eventId, int $capacityAssignmentId, UpsertCapacityAssignmentRequest $request): JsonResponse
     {

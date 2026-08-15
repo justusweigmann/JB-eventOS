@@ -1,8 +1,7 @@
 import {useForm} from "@mantine/form";
 import {GenericModalProps, User,} from "../../../types.ts";
 import {Modal} from "../../common/Modal";
-import {Button, Select, TextInput} from "@mantine/core";
-import {Callout} from "../../common/Callout";
+import {Alert, Button, Select, TextInput} from "@mantine/core";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
 import {t, Trans} from "@lingui/macro";
 import {CustomSelect, ItemProps} from "../../common/CustomSelect";
@@ -62,9 +61,9 @@ export const EditUserModal = ({onClose, user}: EditUserModalProps) => {
     return (
         <Modal heading={t`Edit User`} onClose={onClose} opened>
             {user.status === 'INVITED' && (
-                <Callout variant="info">
+                <Alert mb={20}>
                     <Trans>This user is not active, as they have not accepted their invitation.</Trans>
-                </Callout>
+                </Alert>
             )}
             <form onSubmit={form.onSubmit(values => handleCreate(values))}>
                 <fieldset disabled={ediMutation.isPending}>
@@ -85,9 +84,9 @@ export const EditUserModal = ({onClose, user}: EditUserModalProps) => {
                     />
 
                     {user.is_account_owner && (
-                        <Callout variant="info">
+                        <Alert mb={20}>
                             {t`You cannot edit the role or status of the account owner.`}
-                        </Callout>
+                        </Alert>
                     )}
 
                     <CustomSelect

@@ -32,7 +32,6 @@ class StripeIncomingWebhookAction extends BaseAction
 
         } catch (Throwable $exception) {
             logger()?->error($exception->getMessage(), $exception->getTrace());
-
             return $this->noContentResponse(ResponseCodes::HTTP_BAD_REQUEST);
         }
 

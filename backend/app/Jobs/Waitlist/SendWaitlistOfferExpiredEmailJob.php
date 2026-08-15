@@ -7,7 +7,6 @@ use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\WaitlistEntryDomainObject;
 use HiEvents\Mail\Waitlist\WaitlistOfferExpiredMail;
 use HiEvents\Repository\Eloquent\Value\Relationship;
-use HiEvents\Repository\Interfaces\EventOccurrenceRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\ProductPriceRepositoryInterface;
 use HiEvents\Repository\Interfaces\ProductRepositoryInterface;
@@ -26,15 +25,17 @@ class SendWaitlistOfferExpiredEmailJob implements ShouldQueue
 
     public function __construct(
         private readonly WaitlistEntryDomainObject $entry,
-    ) {}
+    )
+    {
+    }
 
     public function handle(
-        EventRepositoryInterface $eventRepository,
+        EventRepositoryInterface      $eventRepository,
         ProductPriceRepositoryInterface $productPriceRepository,
-        ProductRepositoryInterface $productRepository,
-        EventOccurrenceRepositoryInterface $occurrenceRepository,
-        Mailer $mailer,
-    ): void {
+        ProductRepositoryInterface    $productRepository,
+        Mailer                        $mailer,
+    ): void
+    {
         $event = $eventRepository
             ->loadRelation(new Relationship(OrganizerDomainObject::class, name: 'organizer'))
             ->loadRelation(new Relationship(EventSettingDomainObject::class))
@@ -47,10 +48,6 @@ class SendWaitlistOfferExpiredEmailJob implements ShouldQueue
             $product = $productRepository->findById($productPrice->getProductId());
         }
 
-        $occurrence = $this->entry->getEventOccurrenceId() !== null
-            ? $occurrenceRepository->findById($this->entry->getEventOccurrenceId())
-            : null;
-
         $mailer
             ->to($this->entry->getEmail())
             ->locale($this->entry->getLocale())
@@ -61,7 +58,6 @@ class SendWaitlistOfferExpiredEmailJob implements ShouldQueue
                 productPrice: $productPrice,
                 organizer: $event->getOrganizer(),
                 eventSettings: $event->getEventSettings(),
-                occurrence: $occurrence,
             ));
     }
 }

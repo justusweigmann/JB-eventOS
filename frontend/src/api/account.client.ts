@@ -1,5 +1,5 @@
 import {api} from "./client.ts";
-import {Account, AccountDeletionRequest, AccountDeletionStatus, GenericDataResponse, User} from "../types.ts";
+import {Account, GenericDataResponse, IdParam, User, StripeConnectAccountsResponse} from "../types.ts";
 
 interface CreateAccountRequest {
     first_name: string;
@@ -21,16 +21,14 @@ export const accountClient = {
         const response = await api.put<GenericDataResponse<Account>>('accounts', account);
         return response.data;
     },
-    getDeletionStatus: async () => {
-        const response = await api.get<GenericDataResponse<AccountDeletionStatus>>('accounts/deletion-request');
+    getStripeConnectDetails: async (accountId: IdParam, platform?: string) => {
+        const response = await api.post<GenericDataResponse<any>>(`accounts/${accountId}/stripe/connect`, {
+            platform
+        });
         return response.data;
     },
-    requestDeletion: async (payload: { confirmation: string; reason?: string }) => {
-        const response = await api.post<GenericDataResponse<AccountDeletionRequest>>('accounts/deletion-request', payload);
+    getStripeConnectAccounts: async (accountId: IdParam) => {
+        const response = await api.get<GenericDataResponse<StripeConnectAccountsResponse>>(`accounts/${accountId}/stripe/connect_accounts`);
         return response.data;
-    },
-    cancelDeletion: async () => {
-        const response = await api.delete<GenericDataResponse<AccountDeletionRequest>>('accounts/deletion-request');
-        return response.data;
-    },
+    }
 }

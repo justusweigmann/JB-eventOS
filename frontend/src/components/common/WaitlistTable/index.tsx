@@ -4,8 +4,8 @@ import {IconDotsVertical, IconEye, IconSend, IconTrash} from "@tabler/icons-reac
 import {useMemo, useState} from "react";
 import {CellContext} from "@tanstack/react-table";
 import {useDisclosure} from "@mantine/hooks";
-import {Event, EventType, IdParam, WaitlistEntry, WaitlistEntryStatus} from "../../../types.ts";
-import {prettyDate, relativeDate} from "../../../utilites/dates.ts";
+import {IdParam, WaitlistEntry, WaitlistEntryStatus} from "../../../types.ts";
+import {relativeDate} from "../../../utilites/dates.ts";
 import {NoResultsSplash} from "../NoResultsSplash";
 import {confirmationDialog} from "../../../utilites/confirmationDialog.tsx";
 import {useRemoveWaitlistEntry} from "../../../mutations/useRemoveWaitlistEntry.ts";
@@ -18,7 +18,6 @@ import classes from './WaitlistTable.module.scss';
 interface WaitlistTableProps {
     eventId: IdParam;
     entries: WaitlistEntry[];
-    event?: Event;
 }
 
 const statusLabelMap: Record<string, () => string> = {
@@ -85,9 +84,7 @@ const ActionMenu = ({entry, onOffer, onRemove, onViewOrder}: {
     );
 };
 
-export const WaitlistTable = ({eventId, entries, event}: WaitlistTableProps) => {
-    const isRecurring = event?.type === EventType.RECURRING;
-    const timezone = event?.timezone || 'UTC';
+export const WaitlistTable = ({eventId, entries}: WaitlistTableProps) => {
     const removeMutation = useRemoveWaitlistEntry();
     const offerMutation = useOfferSpecificWaitlistEntry();
     const [isOrderModalOpen, orderModal] = useDisclosure(false);
@@ -179,27 +176,6 @@ export const WaitlistTable = ({eventId, entries, event}: WaitlistTableProps) => 
                     return label ? `${title} - ${label}` : title;
                 }
             },
-            ...(isRecurring ? [{
-                id: 'occurrence',
-                header: t`Date`,
-                enableHiding: true,
-                cell: (info: CellContext<WaitlistEntry, unknown>) => {
-                    const entry = info.row.original;
-                    const occurrence = entry.event_occurrence;
-                    if (!occurrence) {
-                        return <Text size="sm" c="dimmed">—</Text>;
-                    }
-                    const dateText = prettyDate(occurrence.start_date, timezone);
-                    return (
-                        <Text size="sm">
-                            {occurrence.label ? `${dateText} (${occurrence.label})` : dateText}
-                        </Text>
-                    );
-                },
-                meta: {
-                    headerStyle: {minWidth: 180},
-                },
-            } as TanStackTableColumn<WaitlistEntry>] : []),
             {
                 id: 'status',
                 header: t`Status`,
@@ -251,7 +227,7 @@ export const WaitlistTable = ({eventId, entries, event}: WaitlistTableProps) => 
                 },
             },
         ],
-        [eventId, isRecurring, timezone]
+        [eventId]
     );
 
     if (entries.length === 0) {

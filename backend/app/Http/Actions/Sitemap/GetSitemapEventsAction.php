@@ -15,7 +15,9 @@ class GetSitemapEventsAction extends BaseAction
 
     public function __construct(
         private readonly GetSitemapEventsHandler $handler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $page): Response
     {

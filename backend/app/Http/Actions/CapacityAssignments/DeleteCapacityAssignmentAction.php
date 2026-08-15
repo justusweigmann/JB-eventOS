@@ -11,7 +11,9 @@ class DeleteCapacityAssignmentAction extends BaseAction
 {
     public function __construct(
         private readonly DeleteCapacityAssignmentHandler $deleteCapacityAssignmentHandler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $eventId, int $capacityAssignmentId): Response
     {

@@ -24,8 +24,8 @@ use Illuminate\Support\Carbon;
  */
 class AccountVatSetting extends BaseModel
 {
-    use HasFactory;
     use SoftDeletes;
+    use HasFactory;
 
     protected function getFillableFields(): array
     {

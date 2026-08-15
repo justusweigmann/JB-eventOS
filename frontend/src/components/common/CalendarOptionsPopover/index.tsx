@@ -1,17 +1,16 @@
 import {t} from "@lingui/macro";
 import {Button, Popover, Stack, Text} from "@mantine/core";
 import {IconBrandGoogle, IconDownload} from "@tabler/icons-react";
-import {Event, EventOccurrence} from "../../../types.ts";
+import {Event} from "../../../types.ts";
 import {createGoogleCalendarUrl, downloadICSFile} from "../../../utilites/calendar.ts";
 import {ReactNode} from "react";
 
 interface CalendarOptionsPopoverProps {
     event: Event;
-    occurrence?: EventOccurrence;
     children: ReactNode;
 }
 
-export const CalendarOptionsPopover = ({event, occurrence, children}: CalendarOptionsPopoverProps) => {
+export const CalendarOptionsPopover = ({event, children}: CalendarOptionsPopoverProps) => {
     return (
         <Popover width={200} position="bottom" withArrow shadow="md">
             <Popover.Target>
@@ -24,7 +23,7 @@ export const CalendarOptionsPopover = ({event, occurrence, children}: CalendarOp
                         variant="light"
                         size="xs"
                         leftSection={<IconBrandGoogle size={16}/>}
-                        onClick={() => window?.open(createGoogleCalendarUrl(event, occurrence), '_blank')}
+                        onClick={() => window?.open(createGoogleCalendarUrl(event), '_blank')}
                         fullWidth
                     >
                         {t`Google Calendar`}
@@ -33,7 +32,7 @@ export const CalendarOptionsPopover = ({event, occurrence, children}: CalendarOp
                         variant="light"
                         size="xs"
                         leftSection={<IconDownload size={16}/>}
-                        onClick={() => downloadICSFile(event, occurrence)}
+                        onClick={() => downloadICSFile(event)}
                         fullWidth
                     >
                         {t`Download .ics`}

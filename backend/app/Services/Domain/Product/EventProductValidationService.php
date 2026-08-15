@@ -9,8 +9,10 @@ use HiEvents\Services\Domain\Product\Exception\UnrecognizedProductIdException;
 class EventProductValidationService
 {
     public function __construct(
-        private readonly ProductRepositoryInterface $productRepository,
-    ) {}
+        readonly private ProductRepositoryInterface $productRepository,
+    )
+    {
+    }
 
     /**
      * @throws UnrecognizedProductIdException
@@ -19,12 +21,12 @@ class EventProductValidationService
     {
         $validProductIds = $this->productRepository->findWhere([
             'event_id' => $eventId,
-        ])->map(fn (ProductDomainObject $product) => $product->getId())
+        ])->map(fn(ProductDomainObject $product) => $product->getId())
             ->toArray();
 
         $invalidProductIds = array_diff($productIds, $validProductIds);
 
-        if (! empty($invalidProductIds)) {
+        if (!empty($invalidProductIds)) {
             throw new UnrecognizedProductIdException(
                 __('Invalid product ids: :ids', ['ids' => implode(', ', $invalidProductIds)])
             );

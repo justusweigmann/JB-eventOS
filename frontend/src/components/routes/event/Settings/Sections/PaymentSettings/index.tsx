@@ -1,5 +1,5 @@
 import {t} from "@lingui/macro";
-import {Button, Card as MantineCard, Checkbox, NumberInput, Paper, Stack, Switch, Text, TextInput} from "@mantine/core";
+import {Button, Card as MantineCard, Checkbox, NumberInput, Paper, Stack, Switch, TagsInput, Text, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {useParams} from "react-router";
 import {useEffect} from "react";
@@ -11,7 +11,6 @@ import {useUpdateEventSettings} from "../../../../../../mutations/useUpdateEvent
 import {useGetEventSettings} from "../../../../../../queries/useGetEventSettings.ts";
 import {HeadingWithDescription} from "../../../../../common/Card/CardHeading";
 import {Editor} from "../../../../../common/Editor";
-import {LiquidTokenControl} from "../../../../../common/Editor/Controls/LiquidTokenControl";
 import {InputLabelWithHelp} from "../../../../../common/InputLabelWithHelp";
 import {isEmptyHtml} from "../../../../../../utilites/helpers.ts";
 
@@ -34,6 +33,7 @@ export const PaymentAndInvoicingSettings = () => {
             invoice_tax_details: "",
             invoice_payment_terms_days: null as number | null,
             invoice_notes: "",
+            stripe_payment_method_order: [] as string[],
         },
         transformValues: (values) => ({
             ...values,
@@ -41,6 +41,7 @@ export const PaymentAndInvoicingSettings = () => {
             offline_payment_instructions: isEmptyHtml(values.offline_payment_instructions) ? null : values.offline_payment_instructions,
             invoice_notes: isEmptyHtml(values.invoice_notes) ? null : values.invoice_notes,
             invoice_tax_details: isEmptyHtml(values.invoice_tax_details) ? null : values.invoice_tax_details,
+            stripe_payment_method_order: values.stripe_payment_method_order?.length ? values.stripe_payment_method_order : null,
         }),
     });
 
@@ -62,6 +63,7 @@ export const PaymentAndInvoicingSettings = () => {
                 organization_name: eventSettingsQuery.data.organization_name || "",
                 organization_address: eventSettingsQuery.data.organization_address || "",
                 invoice_tax_details: eventSettingsQuery.data.invoice_tax_details || "",
+                stripe_payment_method_order: eventSettingsQuery.data.stripe_payment_method_order || [],
             });
         }
     }, [eventSettingsQuery.isFetched]);
@@ -153,15 +155,6 @@ export const PaymentAndInvoicingSettings = () => {
                                                                    helpText={t`This information will be shown on the payment page, order summary page, and order confirmation email.`}/>}
                                         description={t`Add instructions for offline payments (e.g., bank transfer details, where to send checks, payment deadlines)`}
                                         onChange={(value) => form.setFieldValue('offline_payment_instructions', value)}
-                                        additionalToolbarControls={
-                                            <LiquidTokenControl
-                                                templateType={'order_confirmation'}
-                                                excludeTokens={[
-                                                    '{{ settings.offline_payment_instructions }}',
-                                                    '{{ settings.post_checkout_message }}',
-                                                ]}
-                                            />
-                                        }
                                     />
                                     <Switch
                                         label={t`Allow attendees associated with unpaid orders to check in`}
@@ -182,6 +175,19 @@ export const PaymentAndInvoicingSettings = () => {
                                 onChange={(event) => form.setFieldValue('require_billing_address', event.currentTarget.checked)}
                             />
                         </Paper>
+
+                        {form.values.payment_providers?.includes("STRIPE") && (
+                            <Paper withBorder p="md" radius="md">
+                                <Text size="lg" fw={500} mb="md">{t`Stripe Payment Method Order`}</Text>
+                                <TagsInput
+                                    label={t`Preferred Payment Method Order`}
+                                    description={t`Enter Stripe payment method types in your preferred display order (e.g., bancontact, card, ideal, klarna, sepa_debit). Leave empty for default order.`}
+                                    placeholder={t`Type a method name and press Enter`}
+                                    data={['card', 'bancontact', 'ideal', 'sepa_debit', 'sofort', 'giropay', 'eps', 'p24', 'klarna', 'affirm', 'afterpay_clearpay', 'apple_pay', 'google_pay']}
+                                    {...form.getInputProps('stripe_payment_method_order')}
+                                />
+                            </Paper>
+                        )}
 
                         <Paper withBorder p="md" radius="md">
                             <Text size="lg" fw={500} mb="md">{t`Invoice Settings`}</Text>

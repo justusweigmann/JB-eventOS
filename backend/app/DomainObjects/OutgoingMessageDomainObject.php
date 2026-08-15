@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class OutgoingMessageDomainObject extends Generated\OutgoingMessageDomainObjectAbstract {}
+class OutgoingMessageDomainObject extends Generated\OutgoingMessageDomainObjectAbstract
+{
+}

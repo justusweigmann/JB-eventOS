@@ -8,51 +8,29 @@ namespace HiEvents\DomainObjects;
 class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
 {
     final public const SINGULAR_NAME = 'question_and_answer_view';
-
     final public const PLURAL_NAME = 'question_and_answer_views';
 
     private ?int $product_id;
-
     private ?string $product_title;
-
     private int $question_id;
-
     private ?int $order_id;
-
     private ?string $order_first_name;
-
     private ?string $order_last_name;
-
     private ?string $order_email;
-
     private ?string $order_public_id;
-
     private string $title;
-
     private bool $question_required;
-
     private ?string $question_description = null;
-
     private ?int $attendee_id = null;
-
     private ?string $attendee_public_id = null;
-
     private ?string $first_name = null;
-
     private ?string $last_name = null;
-
     private ?string $attendee_email = null;
-
     private array|string $answer;
-
     private string $belongs_to;
-
     private string $question_type;
-
     private int $event_id;
-
     private int $question_answer_id;
-
     private ?array $question_options = null;
 
     private ?AttendeeDomainObject $attendee = null;
@@ -67,7 +45,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setQuestionId(int $question_id): QuestionAndAnswerViewDomainObject
     {
         $this->question_id = $question_id;
-
         return $this;
     }
 
@@ -79,7 +56,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setOrderId(?int $order_id): QuestionAndAnswerViewDomainObject
     {
         $this->order_id = $order_id;
-
         return $this;
     }
 
@@ -91,7 +67,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setTitle(string $title): QuestionAndAnswerViewDomainObject
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -103,7 +78,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setLastName(?string $last_name): QuestionAndAnswerViewDomainObject
     {
         $this->last_name = $last_name;
-
         return $this;
     }
 
@@ -115,7 +89,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setAnswer(array|string $answer): QuestionAndAnswerViewDomainObject
     {
         $this->answer = $answer;
-
         return $this;
     }
 
@@ -127,7 +100,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setBelongsTo(string $belongs_to): QuestionAndAnswerViewDomainObject
     {
         $this->belongs_to = $belongs_to;
-
         return $this;
     }
 
@@ -139,7 +111,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setAttendeeId(?int $attendee_id): QuestionAndAnswerViewDomainObject
     {
         $this->attendee_id = $attendee_id;
-
         return $this;
     }
 
@@ -151,7 +122,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setQuestionType(string $question_type): QuestionAndAnswerViewDomainObject
     {
         $this->question_type = $question_type;
-
         return $this;
     }
 
@@ -163,7 +133,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setFirstName(?string $first_name): QuestionAndAnswerViewDomainObject
     {
         $this->first_name = $first_name;
-
         return $this;
     }
 
@@ -175,7 +144,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setEventId(int $event_id): QuestionAndAnswerViewDomainObject
     {
         $this->event_id = $event_id;
-
         return $this;
     }
 
@@ -187,7 +155,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setProductId(?int $product_id): QuestionAndAnswerViewDomainObject
     {
         $this->product_id = $product_id;
-
         return $this;
     }
 
@@ -199,7 +166,6 @@ class QuestionAndAnswerViewDomainObject extends AbstractDomainObject
     public function setProductTitle(?string $product_title): QuestionAndAnswerViewDomainObject
     {
         $this->product_title = $product_title;
-
         return $this;
     }
 

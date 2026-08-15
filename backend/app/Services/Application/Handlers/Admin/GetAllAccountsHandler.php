@@ -10,7 +10,9 @@ class GetAllAccountsHandler
 {
     public function __construct(
         private readonly AccountRepositoryInterface $accountRepository,
-    ) {}
+    )
+    {
+    }
 
     public function handle(GetAllAccountsDTO $dto): LengthAwarePaginator
     {

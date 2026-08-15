@@ -9,16 +9,16 @@ use HiEvents\Http\ResponseCodes;
 use HiEvents\Services\Application\Handlers\EmailTemplate\DeleteEmailTemplateHandler;
 use HiEvents\Services\Application\Handlers\EmailTemplate\DTO\DeleteEmailTemplateDTO;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response as LaravelResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeleteOrganizerEmailTemplateAction extends BaseEmailTemplateAction
 {
     public function __construct(
         private readonly DeleteEmailTemplateHandler $handler
-    ) {}
+    ) {
+    }
 
-    public function __invoke(int $organizerId, int $templateId): JsonResponse|LaravelResponse
+    public function __invoke(int $organizerId, int $templateId): JsonResponse
     {
         $this->isActionAuthorized($organizerId, OrganizerDomainObject::class);
 
@@ -42,6 +42,6 @@ class DeleteOrganizerEmailTemplateAction extends BaseEmailTemplateAction
             );
         }
 
-        return $this->deletedResponse();
+        return response()->json(['message' => 'Template deleted successfully'], ResponseCodes::HTTP_OK);
     }
 }

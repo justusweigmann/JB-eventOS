@@ -29,14 +29,16 @@ class SendEventEmailMessagesService
     private array $sentEmails = [];
 
     public function __construct(
-        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly OrderRepositoryInterface    $orderRepository,
         private readonly AttendeeRepositoryInterface $attendeeRepository,
-        private readonly EventRepositoryInterface $eventRepository,
-        private readonly MessageRepositoryInterface $messageRepository,
-        private readonly UserRepositoryInterface $userRepository,
-        private readonly Logger $logger,
-        private readonly Dispatcher $dispatcher,
-    ) {}
+        private readonly EventRepositoryInterface    $eventRepository,
+        private readonly MessageRepositoryInterface  $messageRepository,
+        private readonly UserRepositoryInterface     $userRepository,
+        private readonly Logger                      $logger,
+        private readonly Dispatcher                  $dispatcher,
+    )
+    {
+    }
 
     /**
      * @throws UnableToSendMessageException
@@ -56,7 +58,7 @@ class SendEventEmailMessagesService
             'event_id' => $messageData->event_id,
         ]);
 
-        if ((! $order && $messageData->type === MessageTypeEnum::ORDER_OWNER) || ! $messageData->id) {
+        if ((!$order && $messageData->type === MessageTypeEnum::ORDER_OWNER) || !$messageData->id) {
             $message = 'Unable to send message. Order or message ID not present.';
             $this->logger->error($message, $messageData->toArray());
             $this->updateMessageStatus($messageData, MessageStatus::FAILED);
@@ -80,6 +82,9 @@ class SendEventEmailMessagesService
             case MessageTypeEnum::ORDER_OWNERS_WITH_PRODUCT:
                 $this->sendProductMessages($messageData, $event);
                 break;
+            case MessageTypeEnum::MARKETING_OPTED_IN:
+                $this->sendMarketingOptedInMessages($messageData, $event);
+                break;
         }
 
         $this->updateMessageStatus($messageData, MessageStatus::SENT);
@@ -101,15 +106,13 @@ class SendEventEmailMessagesService
 
     private function sendTicketHolderMessages(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        $additionalWhere = array_merge([
-            'event_id' => $messageData->event_id,
-            'status' => AttendeeStatus::ACTIVE->name,
-        ], $this->occurrenceWhere($messageData));
-
         $attendees = $this->attendeeRepository->findWhereIn(
             field: 'product_id',
             values: $messageData->product_ids,
-            additionalWhere: $additionalWhere,
+            additionalWhere: [
+                'event_id' => $messageData->event_id,
+                'status' => AttendeeStatus::ACTIVE->name,
+            ],
             columns: ['first_name', 'last_name', 'email']
         );
 
@@ -117,10 +120,11 @@ class SendEventEmailMessagesService
     }
 
     private function sendOrderMessages(
-        SendMessageDTO $messageData,
+        SendMessageDTO    $messageData,
         EventDomainObject $event,
         OrderDomainObject $order,
-    ): void {
+    ): void
+    {
         $this->sendEmailToMessageSender($messageData, $event);
 
         $this->sendMessage(
@@ -132,10 +136,11 @@ class SendEventEmailMessagesService
     }
 
     private function emailAttendees(
-        Collection $attendees,
-        SendMessageDTO $messageData,
+        Collection        $attendees,
+        SendMessageDTO    $messageData,
         EventDomainObject $event,
-    ): void {
+    ): void
+    {
         $this->sendEmailToMessageSender($messageData, $event);
 
         if ($messageData->is_test) {
@@ -182,34 +187,20 @@ class SendEventEmailMessagesService
      */
     private function sendEventMessages(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        $where = array_merge([
-            'event_id' => $messageData->event_id,
-            'status' => AttendeeStatus::ACTIVE->name,
-        ], $this->occurrenceWhere($messageData));
-
         $attendees = $this->attendeeRepository->findWhere(
-            where: $where,
+            where: [
+                'event_id' => $messageData->event_id,
+                'status' => AttendeeStatus::ACTIVE->name,
+            ],
             columns: ['first_name', 'last_name', 'email']
         );
 
         $this->emailAttendees($attendees, $messageData, $event);
     }
 
-    private function occurrenceWhere(SendMessageDTO $messageData): array
-    {
-        if (! empty($messageData->event_occurrence_ids)) {
-            return [['event_occurrence_id', 'in', $messageData->event_occurrence_ids]];
-        }
-        if ($messageData->event_occurrence_id) {
-            return ['event_occurrence_id' => $messageData->event_occurrence_id];
-        }
-
-        return [];
-    }
-
     private function sendEmailToMessageSender(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        if (! $messageData->send_copy_to_current_user && ! $messageData->is_test) {
+        if (!$messageData->send_copy_to_current_user && !$messageData->is_test) {
             return;
         }
 
@@ -228,9 +219,7 @@ class SendEventEmailMessagesService
         $orders = $this->orderRepository->findOrdersAssociatedWithProducts(
             eventId: $messageData->event_id,
             productIds: $messageData->product_ids,
-            orderStatuses: $messageData->order_statuses,
-            eventOccurrenceId: $messageData->event_occurrence_id,
-            eventOccurrenceIds: $messageData->event_occurrence_ids,
+            orderStatuses: $messageData->order_statuses
         );
 
         if ($orders->isEmpty()) {
@@ -250,11 +239,12 @@ class SendEventEmailMessagesService
     }
 
     private function sendMessage(
-        string $emailAddress,
-        string $fullName,
-        SendMessageDTO $messageData,
+        string            $emailAddress,
+        string            $fullName,
+        SendMessageDTO    $messageData,
         EventDomainObject $event,
-    ): void {
+    ): void
+    {
         if (in_array($emailAddress, $this->sentEmails, true)) {
             return;
         }
@@ -273,5 +263,27 @@ class SendEventEmailMessagesService
         );
 
         $this->sentEmails[] = $emailAddress;
+    }
+
+    private function sendMarketingOptedInMessages(SendMessageDTO $messageData, EventDomainObject $event): void
+    {
+        $orders = $this->orderRepository->findMarketingOptedInOrders(
+            eventId: $messageData->event_id,
+        );
+
+        if ($orders->isEmpty()) {
+            return;
+        }
+
+        $this->sendEmailToMessageSender($messageData, $event);
+
+        $orders->each(function (OrderDomainObject $order) use ($messageData, $event) {
+            $this->sendMessage(
+                emailAddress: $order->getEmail(),
+                fullName: $order->getFullName(),
+                messageData: $messageData,
+                event: $event,
+            );
+        });
     }
 }

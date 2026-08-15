@@ -1,14 +1,13 @@
-import { ReactNode } from 'react';
-import { Icon } from '@tabler/icons-react';
+import React, { ReactNode } from 'react';
+import { TablerIconsProps } from '@tabler/icons-react';
 
 export interface NavItem {
     link?: string;
     label: string;
-    icon?: Icon;
+    icon?: React.ComponentType<TablerIconsProps>;
     comingSoon?: boolean;
     isActive?: (isActive: boolean) => boolean;
     badge?: string | number | null | undefined;
-    badgeColor?: string;
     onClick?: () => void;
     showWhen?: () => boolean | undefined;
     loading?: boolean;

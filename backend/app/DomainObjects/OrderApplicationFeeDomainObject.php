@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class OrderApplicationFeeDomainObject extends Generated\OrderApplicationFeeDomainObjectAbstract {}
+class OrderApplicationFeeDomainObject extends Generated\OrderApplicationFeeDomainObjectAbstract
+{
+}

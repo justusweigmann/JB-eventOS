@@ -14,7 +14,9 @@ class GetProductCategoryService
 {
     public function __construct(
         private readonly ProductCategoryRepositoryInterface $productCategoryRepository,
-    ) {}
+    )
+    {
+    }
 
     public function getCategory(int $categoryId, int $eventId): ProductCategoryDomainObject
     {
@@ -34,7 +36,7 @@ class GetProductCategoryService
                 ]
             );
 
-        if (! $category) {
+        if (!$category) {
             throw new ResourceNotFoundException(
                 __('The product category with ID :id was not found.', ['id' => $categoryId])
             );

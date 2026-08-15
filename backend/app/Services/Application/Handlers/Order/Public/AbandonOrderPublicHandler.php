@@ -18,7 +18,9 @@ class AbandonOrderPublicHandler
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly CheckoutSessionManagementService $sessionService,
         private readonly Logger $logger,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws ResourceConflictException
@@ -27,7 +29,7 @@ class AbandonOrderPublicHandler
     {
         $order = $this->orderRepository->findByShortId($orderShortId);
 
-        if (! $order) {
+        if (!$order) {
             throw new ResourceNotFoundException(__('Order not found'));
         }
 
@@ -56,7 +58,7 @@ class AbandonOrderPublicHandler
 
     private function verifySessionId(string $orderSessionId): void
     {
-        if (! $this->sessionService->verifySession($orderSessionId)) {
+        if (!$this->sessionService->verifySession($orderSessionId)) {
             throw new UnauthorizedException(
                 __('Sorry, we could not verify your session. Please restart your order.')
             );

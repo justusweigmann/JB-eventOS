@@ -1,33 +1,39 @@
-import {ActionIcon, Anchor, Avatar, Button, Group, Popover, Tooltip} from '@mantine/core';
-import {Attendee, IdParam} from "../../../types.ts";
+import {ActionIcon, Anchor, Avatar, Button, Group, Popover, Textarea, Tooltip} from '@mantine/core';
+import {Attendee, IdParam, MessageType} from "../../../types.ts";
 import {
-    IconCalendarEvent,
     IconCheck,
     IconClock,
     IconClipboardList,
     IconCopy,
+    IconMailForward,
     IconNote,
     IconPlus,
     IconSend,
+    IconTrash,
+    IconUserCog,
     IconX
 } from "@tabler/icons-react";
 import {getInitials, getProductFromEvent} from "../../../utilites/helpers.ts";
 import {useClipboard, useDisclosure} from "@mantine/hooks";
-import {useMemo, useState} from "react";
+import {SendMessageModal} from "../../modals/SendMessageModal";
+import {useRef, useMemo, useState} from "react";
 import {NoResultsSplash} from "../NoResultsSplash";
 import {useParams} from "react-router";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
 import {useGetEventCheckInLists} from "../../../queries/useGetCheckInLists.ts";
 import Truncate from "../Truncate";
-import {showSuccess} from "../../../utilites/notifications.tsx";
-import {t} from "@lingui/macro";
+import {notifications} from "@mantine/notifications";
+import {useModifyAttendee} from "../../../mutations/useModifyAttendee.ts";
+import {showError, showSuccess} from "../../../utilites/notifications.tsx";
+import {t, Trans} from "@lingui/macro";
+import {confirmationDialog} from "../../../utilites/confirmationDialog.tsx";
+import {modals} from "@mantine/modals";
+import {useResendAttendeeTicket} from "../../../mutations/useResendAttendeeTicket.ts";
 import {ManageAttendeeModal} from "../../modals/ManageAttendeeModal";
 import {ManageOrderModal} from "../../modals/ManageOrderModal";
 import {ActionMenu} from '../ActionMenu';
-import {toActionMenuGroups} from "../EntityActions";
-import {useAttendeeActions} from "../../../hooks/useAttendeeActions.tsx";
 import {CheckInStatusModal} from "../CheckInStatusModal";
-import {formatDateWithLocale, prettyDate} from "../../../utilites/dates.ts";
+import {prettyDate, relativeDate} from "../../../utilites/dates.ts";
 import {TanStackTable, TanStackTableColumn} from "../TanStackTable";
 import {ColumnVisibilityToggle} from "../ColumnVisibilityToggle";
 import {CellContext} from "@tanstack/react-table";
@@ -35,13 +41,12 @@ import classes from './AttendeeTable.module.scss';
 
 interface AttendeeTableProps {
     attendees: Attendee[];
-    openCreateModal?: () => void;
-    compact?: boolean;
-    occurrenceId?: IdParam;
+    openCreateModal: () => void;
 }
 
-export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId}: AttendeeTableProps) => {
+export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) => {
     const {eventId} = useParams();
+    const [isMessageModalOpen, messageModal] = useDisclosure(false);
     const [isViewModalOpen, viewModalOpen] = useDisclosure(false);
     const [isCheckInModalOpen, checkInModal] = useDisclosure(false);
     const [isOrderModalOpen, orderModal] = useDisclosure(false);
@@ -50,17 +55,11 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
     const [selectedOrderId, setSelectedOrderId] = useState<IdParam>();
     const {data: event} = useGetEvent(eventId);
     const {data: checkInLists} = useGetEventCheckInLists(eventId);
+    const modifyMutation = useModifyAttendee();
+    const resendTicketMutation = useResendAttendeeTicket();
     const clipboard = useClipboard({timeout: 2000});
-    const {getAttendeeActions, attendeeActionModals, openMessageModal} = useAttendeeActions({
-        eventId,
-        onManage: (attendee: Attendee) => handleModalClick(attendee, viewModalOpen),
-    });
 
-    const relevantCheckInLists = checkInLists?.data?.filter(list =>
-        !occurrenceId || !list.event_occurrence_id || list.event_occurrence_id === Number(occurrenceId)
-    ) || [];
-
-    const hasCheckInLists = relevantCheckInLists.length > 0;
+    const hasCheckInLists = checkInLists?.data && checkInLists.data.length > 0;
 
     const handleModalClick = (attendee: Attendee, modal: {
         open: () => void
@@ -69,10 +68,89 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
         modal.open();
     }
 
+    const handleResendTicket = (attendee: Attendee) => {
+        resendTicketMutation.mutate({
+            attendeeId: attendee.id,
+            eventId: eventId,
+        }, {
+            onSuccess: () => showSuccess(t`Ticket email has been resent to attendee`),
+            onError: (error: any) => showError(error.response.data.message || t`Failed to resend ticket email`)
+        });
+    }
+
+    const cancellationReasonRef = useRef('');
+
+    const handleCancel = (attendee: Attendee) => {
+        if (attendee.status === 'CANCELLED') {
+            confirmationDialog(t`Are you sure you want to activate this attendee?`, () => {
+                modifyMutation.mutate({
+                    attendeeId: attendee.id,
+                    eventId: eventId,
+                    attendeeData: {
+                        status: 'ACTIVE'
+                    }
+                }, {
+                    onSuccess: () => {
+                        notifications.show({
+                            message: (
+                                <Trans>
+                                    Successfully activated attendee
+                                </Trans>
+                            ),
+                            color: 'green',
+                        });
+                    },
+                    onError: () => showError(t`Failed to cancel attendee`),
+                });
+            });
+            return;
+        }
+
+        cancellationReasonRef.current = '';
+        modals.openConfirmModal({
+            title: t`Are you sure you want to cancel this attendee? This will void their ticket`,
+            children: (
+                <Textarea
+                    label={t`Cancellation Reason`}
+                    description={t`Optionally provide a reason for the cancellation. This will be visible in the attendee details.`}
+                    placeholder={t`Enter cancellation reason...`}
+                    autosize
+                    minRows={2}
+                    maxRows={4}
+                    onChange={(e) => {
+                        cancellationReasonRef.current = e.currentTarget.value;
+                    }}
+                />
+            ),
+            labels: {confirm: t`Confirm`, cancel: t`Cancel`},
+            confirmProps: {color: 'red'},
+            onConfirm: () => {
+                modifyMutation.mutate({
+                    attendeeId: attendee.id,
+                    eventId: eventId,
+                    attendeeData: {
+                        status: 'CANCELLED',
+                        cancellation_reason: cancellationReasonRef.current || null,
+                    }
+                }, {
+                    onSuccess: () => {
+                        notifications.show({
+                            message: (
+                                <Trans>
+                                    Successfully cancelled attendee
+                                </Trans>
+                            ),
+                            color: 'green',
+                        });
+                    },
+                    onError: () => showError(t`Failed to cancel attendee`),
+                });
+            },
+        });
+    };
+
     const getCheckInCount = (attendee: Attendee) => {
-        if (!attendee.check_ins) return 0;
-        if (!occurrenceId) return attendee.check_ins.length;
-        return attendee.check_ins.filter(ci => ci.event_occurrence_id === Number(occurrenceId)).length;
+        return attendee.check_ins?.length || 0;
     };
 
     const hasCheckIns = (attendee: Attendee) => {
@@ -87,7 +165,7 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
 
     const handleMessageFromEmail = (attendee: Attendee) => {
         setEmailPopoverId(null);
-        openMessageModal(attendee);
+        handleModalClick(attendee, messageModal);
     };
 
     const handleOrderClick = (orderId: IdParam) => {
@@ -206,9 +284,7 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                     header: t`Order & Ticket`,
                     enableHiding: true,
                     cell: (info: CellContext<Attendee, unknown>) => {
-                        const attendee = info.row.original;
-                        const ticketTitle = getProductFromEvent(attendee.product_id, event)?.title;
-                        const occurrence = attendee.event_occurrence;
+                        const ticketTitle = getProductFromEvent(info.row.original.product_id, event)?.title;
                         return (
                             <div className={classes.orderTicketContainer}>
                                 <div className={classes.ticketName}>
@@ -217,26 +293,17 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                                         length={25}
                                     />
                                 </div>
-                                {occurrence && event?.timezone && (
-                                    <span className={classes.occurrenceChip}>
-                                        <IconCalendarEvent size={12}/>
-                                        {formatDateWithLocale(occurrence.start_date, 'shortDate', event.timezone)}
-                                        {' '}
-                                        {formatDateWithLocale(occurrence.start_date, 'timeOnly', event.timezone)}
-                                        {occurrence.label && ` · ${occurrence.label}`}
-                                    </span>
-                                )}
                                 <div className={classes.orderId}>
                                     <Anchor
-                                        onClick={() => handleOrderClick(attendee.order_id)}
+                                        onClick={() => handleOrderClick(info.row.original.order_id)}
                                         style={{cursor: 'pointer', color: 'inherit', textDecoration: 'none'}}
                                     >
-                                        {attendee.order?.public_id}
+                                        {info.row.original.order?.public_id}
                                     </Anchor>
                                 </div>
-                                {attendee.order?.created_at && event?.timezone && (
+                                {info.row.original.order?.created_at && event?.timezone && (
                                     <div className={classes.registrationDate}>
-                                        {prettyDate(attendee.order.created_at, event.timezone)}
+                                        {prettyDate(info.row.original.order.created_at, event.timezone)}
                                     </div>
                                 )}
                             </div>
@@ -267,10 +334,18 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                                     </>
                                 )}
                                 {attendee.status === 'CANCELLED' && (
-                                    <>
-                                        <IconX size={14}/>
-                                        {t`Cancelled`}
-                                    </>
+                                    <Tooltip
+                                        label={attendee.cancellation_reason}
+                                        disabled={!attendee.cancellation_reason}
+                                        multiline
+                                        w={300}
+                                        withArrow
+                                    >
+                                        <Group gap={4} wrap="nowrap">
+                                            <IconX size={14}/>
+                                            {t`Cancelled`}
+                                        </Group>
+                                    </Tooltip>
                                 )}
                             </div>
                         );
@@ -286,7 +361,7 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                     cell: (info: CellContext<Attendee, unknown>) => {
                         const checkInCount = getCheckInCount(info.row.original);
                         const hasChecked = hasCheckIns(info.row.original);
-                        const totalLists = relevantCheckInLists.length;
+                        const totalLists = checkInLists?.data?.length || 0;
 
                         return (
                             <button
@@ -296,7 +371,14 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                                 {hasChecked ? (
                                     <>
                                         <IconCheck size={16}/>
-                                        {t`Checked In`} ({checkInCount}/{totalLists})
+                                        <span>
+                                            {t`Checked In`} ({checkInCount}/{totalLists})
+                                            {info.row.original.check_ins?.[0]?.created_at && (
+                                                <span className={classes.checkInTime}>
+                                                    {relativeDate(info.row.original.check_ins[0].created_at)}
+                                                </span>
+                                            )}
+                                        </span>
                                     </>
                                 ) : (
                                     <>
@@ -318,10 +400,40 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                     enableHiding: false,
                     cell: (info: CellContext<Attendee, unknown>) => (
                         <div className={classes.actionsMenu}>
-                            <ActionMenu
-                                dataTestId="attendee-actions-trigger"
-                                itemsGroups={toActionMenuGroups(getAttendeeActions(info.row.original))}
-                            />
+                            <ActionMenu itemsGroups={[
+                                {
+                                    label: t`Actions`,
+                                    items: [
+                                        {
+                                            label: t`Manage attendee`,
+                                            icon: <IconUserCog size={14}/>,
+                                            onClick: () => handleModalClick(info.row.original, viewModalOpen),
+                                        },
+                                        {
+                                            label: t`Message attendee`,
+                                            icon: <IconSend size={14}/>,
+                                            onClick: () => handleModalClick(info.row.original, messageModal),
+                                        },
+                                        {
+                                            label: t`Resend ticket email`,
+                                            icon: <IconMailForward size={14}/>,
+                                            onClick: () => handleResendTicket(info.row.original),
+                                            visible: info.row.original.status === 'ACTIVE',
+                                        },
+                                    ],
+                                },
+                                {
+                                    label: t`Danger Zone`,
+                                    items: [
+                                        {
+                                            label: info.row.original.status === 'CANCELLED' ? t`Activate` : t`Cancel` + ` ` + t`ticket`,
+                                            icon: <IconTrash size={14}/>,
+                                            onClick: () => handleCancel(info.row.original),
+                                            color: info.row.original.status === 'CANCELLED' ? 'green' : 'red',
+                                        },
+                                    ],
+                                },
+                            ]}/>
                         </div>
                     ),
                     meta: {
@@ -338,7 +450,7 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                 return true;
             });
         },
-        [emailPopoverId, event, hasCheckInLists, relevantCheckInLists, occurrenceId]
+        [emailPopoverId, event, hasCheckInLists]
     );
 
     if (attendees.length === 0) {
@@ -350,14 +462,12 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                     <p>
                         {t`Your attendees will appear here once they have registered for your event. You can also manually add attendees.`}
                     </p>
-                    {openCreateModal && (
-                        <Button
-                            size={'xs'}
-                            leftSection={<IconPlus/>}
-                            color={'green'}
-                            onClick={() => openCreateModal()}>{t`Manually add an Attendee`}
-                        </Button>
-                    )}
+                    <Button
+                        size={'xs'}
+                        leftSection={<IconPlus/>}
+                        color={'green'}
+                        onClick={() => openCreateModal()}>{t`Manually add an Attendee`}
+                    </Button>
                 </>
             )}
         />
@@ -369,12 +479,15 @@ export const AttendeeTable = ({attendees, openCreateModal, compact, occurrenceId
                 data={attendees}
                 columns={columns}
                 storageKey="attendee-table"
-                enableColumnVisibility={!compact}
-                renderColumnVisibilityToggle={!compact ? (table) => <ColumnVisibilityToggle table={table}/> : undefined}
-                hideHeader={compact}
-                noCard={compact}
+                enableColumnVisibility={true}
+                renderColumnVisibilityToggle={(table) => <ColumnVisibilityToggle table={table}/>}
             />
-            {attendeeActionModals}
+            {(selectedAttendee && isMessageModalOpen) && <SendMessageModal
+                onClose={messageModal.close}
+                orderId={selectedAttendee.order_id}
+                attendeeId={selectedAttendee.id}
+                messageType={MessageType.IndividualAttendees}
+            />}
             {(selectedAttendee?.id && isViewModalOpen) && <ManageAttendeeModal
                 attendeeId={selectedAttendee.id}
                 onClose={viewModalOpen.close}

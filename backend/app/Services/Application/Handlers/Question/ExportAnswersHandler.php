@@ -9,7 +9,9 @@ class ExportAnswersHandler
 {
     public function __construct(
         private readonly QuestionAndAnswerViewRepositoryInterface $questionAndAnswerViewRepository,
-    ) {}
+    )
+    {
+    }
 
     public function handle(int $eventId): Collection
     {

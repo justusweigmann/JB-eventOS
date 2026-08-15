@@ -3,7 +3,6 @@ import {
     CheckInStats,
     Event,
     EventDuplicatePayload,
-    EventCounts,
     EventStats,
     GenericDataResponse,
     GenericPaginatedResponse,
@@ -11,7 +10,6 @@ import {
     Image,
     ImageType,
     QueryFilters,
-    UpsertEventLocationPayload,
 } from "../types";
 import {publicApi} from "./public-client.ts";
 import {queryParamsHelper} from "../utilites/queryParamsHelper.ts";
@@ -39,22 +37,8 @@ export const eventsClient = {
         return response.data;
     },
 
-    getEventStats: async (
-        eventId: IdParam,
-        options: {occurrenceId?: IdParam; dateRange?: string; startDate?: string; endDate?: string} = {},
-    ) => {
-        const params = new URLSearchParams();
-        if (options.occurrenceId) params.set('occurrence_id', String(options.occurrenceId));
-        if (options.dateRange) params.set('date_range', options.dateRange);
-        if (options.startDate) params.set('start_date', options.startDate);
-        if (options.endDate) params.set('end_date', options.endDate);
-        const qs = params.toString();
-        const response = await api.get<GenericDataResponse<EventStats>>(`events/${eventId}/stats${qs ? '?' + qs : ''}`);
-        return response.data;
-    },
-
-    getEventCounts: async (eventId: IdParam) => {
-        const response = await api.get<GenericDataResponse<EventCounts>>('events/' + eventId + '/counts');
+    getEventStats: async (eventId: IdParam) => {
+        const response = await api.get<GenericDataResponse<EventStats>>('events/' + eventId + '/stats');
         return response.data;
     },
 
@@ -100,14 +84,6 @@ export const eventsClient = {
         return response.data;
     },
 
-    updateEventLocation: async (
-        eventId: IdParam,
-        payload: { event_location?: UpsertEventLocationPayload | null; clear_event_location?: boolean },
-    ) => {
-        const response = await api.patch<GenericDataResponse<Event>>('events/' + eventId + '/event-location', payload);
-        return response.data;
-    },
-
     updateEventStatus: async (eventId: IdParam, status: string) => {
         const response = await api.put<GenericDataResponse<Event>>('events/' + eventId + '/status', {
             status
@@ -115,12 +91,8 @@ export const eventsClient = {
         return response.data;
     },
 
-    getEventReport: async (eventId: IdParam, reportType: IdParam, startDate?: string, endDate?: string, occurrenceId?: IdParam) => {
-        const params = new URLSearchParams();
-        if (startDate) params.append('start_date', startDate);
-        if (endDate) params.append('end_date', endDate);
-        if (occurrenceId) params.append('occurrence_id', String(occurrenceId));
-        const response = await api.get<GenericDataResponse<any>>('events/' + eventId + '/reports/' + reportType + '?' + params.toString());
+    getEventReport: async (eventId: IdParam, reportType: IdParam, startDate?: string, endDate?: string) => {
+        const response = await api.get<GenericDataResponse<any>>('events/' + eventId + '/reports/' + reportType + '?start_date=' + startDate + '&end_date=' + endDate);
         return response.data;
     }
 }
@@ -131,12 +103,13 @@ export const eventsClientPublic = {
         return response.data;
     },
 
-    findByID: async (eventId: any, promoCode?: null | string, eventOccurrenceId?: number | null) => {
-        const params = new URLSearchParams();
-        if (promoCode) params.set('promo_code', promoCode);
-        if (eventOccurrenceId) params.set('event_occurrence_id', String(eventOccurrenceId));
-        const queryString = params.toString();
-        const response = await publicApi.get<GenericDataResponse<Event>>('events/' + eventId + (queryString ? '?' + queryString : ''));
+    findByID: async (eventId: any, promoCode: null | string) => {
+        const response = await publicApi.get<GenericDataResponse<Event>>('events/' + eventId + (promoCode ? '?promo_code=' + promoCode : ''));
+        return response.data;
+    },
+
+    verifyPassword: async (eventId: IdParam, password: string) => {
+        const response = await publicApi.post<GenericDataResponse<{ valid: boolean }>>('events/' + eventId + '/verify-password', {password});
         return response.data;
     },
 }

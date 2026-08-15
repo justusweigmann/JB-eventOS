@@ -14,7 +14,8 @@ class ResendOrderConfirmationPublicAction extends BaseAction
 {
     public function __construct(
         private readonly ResendOrderConfirmationPublicHandler $handler
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         Request $request,

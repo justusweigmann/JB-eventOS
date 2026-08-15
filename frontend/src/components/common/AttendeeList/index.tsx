@@ -60,7 +60,7 @@ export const AttendeeList = ({order, products, refetchOrder, questionAnswers = [
                         <div key={attendee.id} className={classes.attendee}>
                             <div className={classes.attendeeInfo}>
                                 <Avatar
-                                    size={32}
+                                    size="md"
                                     radius="xl"
                                     className={classes.avatar}
                                 >
@@ -119,7 +119,7 @@ export const AttendeeList = ({order, products, refetchOrder, questionAnswers = [
                             </div>
 
                             {/* Collapsible answers section */}
-                            <Collapse expanded={isExpanded(attendee.id)}>
+                            <Collapse in={isExpanded(attendee.id)}>
                                 <div className={classes.answersContainer}>
                                     <QuestionList
                                         compact

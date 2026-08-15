@@ -3,8 +3,8 @@
 namespace HiEvents\Services\Domain\Order;
 
 use Brick\Money\Currency as BrickCurrency;
+use HiEvents\DomainObjects\AccountConfigurationDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
-use HiEvents\DomainObjects\OrganizerConfigurationDomainObject;
 use HiEvents\Helper\Currency;
 use HiEvents\Services\Infrastructure\CurrencyConversion\CurrencyConversionClientInterface;
 use Illuminate\Config\Repository;
@@ -19,13 +19,15 @@ class OrderPlatformFeePassThroughService
     }
 
     public function __construct(
-        private readonly Repository $config,
+        private readonly Repository                        $config,
         private readonly CurrencyConversionClientInterface $currencyConversionClient,
-    ) {}
+    )
+    {
+    }
 
     public function isEnabled(EventSettingDomainObject $eventSettings): bool
     {
-        if (! $this->config->get('app.saas_mode_enabled')) {
+        if (!$this->config->get('app.saas_mode_enabled')) {
             return false;
         }
 
@@ -43,18 +45,19 @@ class OrderPlatformFeePassThroughService
      * In other words: application_fee(total + P) = P
      */
     public function calculatePlatformFee(
-        OrganizerConfigurationDomainObject $organizerConfiguration,
-        EventSettingDomainObject $eventSettings,
-        float $total,
-        int $quantity,
-        string $currency,
-    ): float {
-        if (! $this->isEnabled($eventSettings) || $total <= 0) {
+        AccountConfigurationDomainObject $accountConfiguration,
+        EventSettingDomainObject         $eventSettings,
+        float                            $total,
+        int                              $quantity,
+        string                           $currency,
+    ): float
+    {
+        if (!$this->isEnabled($eventSettings) || $total <= 0) {
             return 0.0;
         }
 
-        $fixedFee = $this->getConvertedFixedFee($organizerConfiguration, $currency);
-        $percentageRate = $organizerConfiguration->getPercentageApplicationFee() / 100;
+        $fixedFee = $this->getConvertedFixedFee($accountConfiguration, $currency);
+        $percentageRate = $accountConfiguration->getPercentageApplicationFee() / 100;
 
         if ($percentageRate >= 1) {
             return Currency::round(($fixedFee * $quantity) + ($total * $percentageRate));
@@ -67,11 +70,12 @@ class OrderPlatformFeePassThroughService
     }
 
     private function getConvertedFixedFee(
-        OrganizerConfigurationDomainObject $organizerConfiguration,
-        string $currency
-    ): float {
-        $baseFee = $organizerConfiguration->getFixedApplicationFee();
-        $baseCurrency = $organizerConfiguration->getApplicationFeeCurrency();
+        AccountConfigurationDomainObject $accountConfiguration,
+        string                           $currency
+    ): float
+    {
+        $baseFee = $accountConfiguration->getFixedApplicationFee();
+        $baseCurrency = $accountConfiguration->getApplicationFeeCurrency();
 
         if ($currency === $baseCurrency) {
             return $baseFee;

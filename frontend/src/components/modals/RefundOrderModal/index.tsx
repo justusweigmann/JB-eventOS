@@ -1,4 +1,4 @@
-import {Button, Checkbox, Group, LoadingOverlay, NumberInput, Paper, Stack, Text, Title} from "@mantine/core";
+import {Alert, Button, Checkbox, Group, LoadingOverlay, NumberInput, Paper, Stack, Text, Title} from "@mantine/core";
 import {GenericModalProps, IdParam, Order} from "../../../types.ts";
 import {useForm, UseFormReturnType} from "@mantine/form";
 import {useParams} from "react-router";
@@ -8,8 +8,7 @@ import {Currency} from "../../common/Currency";
 import {useRefundOrder} from "../../../mutations/useRefundOrder.ts";
 import {RefundOrderPayload} from "../../../api/order.client.ts";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
-import {IconCash, IconCreditCard} from "@tabler/icons-react";
-import {Callout} from "../../common/Callout";
+import {IconCash, IconCreditCard, IconInfoCircle} from "@tabler/icons-react";
 import {showSuccess} from "../../../utilites/notifications.tsx";
 import {Modal} from "../../common/Modal";
 import classes from './RefundOrderModal.module.scss';
@@ -136,9 +135,9 @@ export const RefundOrderModal = ({onClose, orderId}: RefundOrderModalProps) => {
                     </Stack>
 
                     {(isPartialRefund && Number(form.values.amount) > 0) && (
-                        <Callout variant="info">
+                        <Alert icon={<IconInfoCircle/>} color="blue" variant="light">
                             {t`You are issuing a partial refund. The customer will be refunded ${Number(form.values.amount).toFixed(2)} ${order.currency}.`}
-                        </Callout>
+                        </Alert>
                     )}
 
                     <Button
@@ -157,9 +156,16 @@ export const RefundOrderModal = ({onClose, orderId}: RefundOrderModalProps) => {
     const CannotRefund = ({message}: { message: string }) => {
         return (
             <Stack gap="md">
-                <Callout variant="info">
+                <Alert
+                    icon={<IconInfoCircle size={24}/>}
+                    color={'blue'}
+                    variant="light"
+                    styles={{
+                        message: {fontSize: '0.95rem'}
+                    }}
+                >
                     {message}
-                </Callout>
+                </Alert>
                 <Button fullWidth onClick={onClose} variant="light">{t`Close`}</Button>
             </Stack>
         )

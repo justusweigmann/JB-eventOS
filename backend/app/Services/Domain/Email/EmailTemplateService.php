@@ -14,9 +14,9 @@ class EmailTemplateService
     public function __construct(
         private readonly EmailTemplateRepositoryInterface $emailTemplateRepository,
         private readonly LiquidTemplateRenderer $liquidRenderer,
-        private readonly EmailTokenContextBuilder $tokenBuilder,
-        private readonly EmailContextHtmlEscaper $contextHtmlEscaper,
-    ) {}
+        private readonly EmailTokenContextBuilder $tokenBuilder
+    ) {
+    }
 
     public function getTemplateByType(
         EmailTemplateType $type,
@@ -35,13 +35,16 @@ class EmailTemplateService
     public function renderTemplate(EmailTemplateDomainObject $template, array $context): RenderedEmailTemplateDTO
     {
         $renderedSubject = $this->liquidRenderer->render($template->getSubject(), $context);
-        $renderedBody = $this->liquidRenderer->render($template->getBody(), $this->contextHtmlEscaper->escape($context));
+        $renderedBody = $this->liquidRenderer->render($template->getBody(), $context);
 
         $cta = null;
 
+        // Handle CTA if present
         if ($template->getCta()) {
             $templateCta = $template->getCta();
             if (isset($templateCta['label'], $templateCta['url_token'])) {
+                // Replace the URL token with actual value from context
+                // Handle dot notation (e.g., 'order.url' -> $context['order']['url'])
                 $ctaUrl = $this->getValueFromDotNotation($context, $templateCta['url_token']) ?? '#';
                 $cta = [
                     'label' => $templateCta['label'],
@@ -57,12 +60,15 @@ class EmailTemplateService
         );
     }
 
+    /**
+     * Get default template content
+     */
     public function getDefaultTemplate(EmailTemplateType $type): array
     {
         $defaults = $this->getDefaultTemplates();
         $ctaDefaults = $this->getDefaultCTAs();
 
-        $template = $defaults[$type->value] ?? throw new ResourceNotFoundException('No default template for type '.$type->value);
+        $template = $defaults[$type->value] ?? throw new ResourceNotFoundException('No default template for type ' . $type->value);
 
         $template['cta'] = $ctaDefaults[$type->value] ?? null;
 
@@ -73,8 +79,9 @@ class EmailTemplateService
     {
         $context = $this->tokenBuilder->buildPreviewContext($type->value);
 
-        $renderedBody = $this->liquidRenderer->render($body, $this->contextHtmlEscaper->escape($context));
+        $renderedBody = $this->liquidRenderer->render($body, $context);
 
+        // Add CTA button if provided
         if ($cta && isset($cta['label'])) {
             $ctaUrl = $this->getValueFromDotNotation($context, $cta['url_token'] ?? '') ?? '#';
             $ctaHtml = sprintf(
@@ -90,7 +97,7 @@ class EmailTemplateService
         return [
             'subject' => $this->liquidRenderer->render($subject, $context),
             'body' => $renderedBody,
-            'context' => $context,
+            'context' => $context, // Return context for debugging
         ];
     }
 
@@ -114,13 +121,17 @@ class EmailTemplateService
         ];
     }
 
+    /**
+     * Get value from array using dot notation
+     * e.g., 'order.url' will get $array['order']['url']
+     */
     private function getValueFromDotNotation(array $array, string $key)
     {
         $keys = explode('.', $key);
         $value = $array;
 
         foreach ($keys as $k) {
-            if (! isset($value[$k])) {
+            if (!isset($value[$k])) {
                 return null;
             }
             $value = $value[$k];
@@ -139,10 +150,6 @@ class EmailTemplateService
             EmailTemplateType::ATTENDEE_TICKET->value => [
                 'label' => __('View Ticket'),
                 'url_token' => 'ticket.url',
-            ],
-            EmailTemplateType::OCCURRENCE_CANCELLATION->value => [
-                'label' => __('View Event'),
-                'url_token' => 'event.url',
             ],
         ];
     }
@@ -188,23 +195,6 @@ Best regards,<br>
 {{ organizer.name }}
 LIQUID
             ],
-            EmailTemplateType::OCCURRENCE_CANCELLATION->value => [
-                'subject' => '{{ event.title }} on {{ occurrence.start_date }} has been cancelled',
-                'body' => <<<'LIQUID'
-Hello,<br>
-
-We're sorry to let you know that <strong>{{ event.title }}</strong> scheduled for <strong>{{ occurrence.start_date }}</strong> at <strong>{{ occurrence.start_time }}</strong> has been cancelled.<br>
-
-{% if cancellation.refund_issued %}
-A refund for your order will be processed automatically. Please allow a few business days for the refund to appear on your statement.<br>
-{% else %}
-If you have any questions about your order, please respond to this email or contact <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a>.<br>
-{% endif %}
-
-Best regards,<br>
-{{ organizer.name }}
-LIQUID
-            ],
             EmailTemplateType::ATTENDEE_TICKET->value => [
                 'subject' => '🎟️ Your Ticket for {{ event.title }}',
                 'body' => <<<'LIQUID'
@@ -234,6 +224,27 @@ Please find your ticket details below.<br>
 
 If you have any questions or need assistance, please reply to this email or contact the event organizer at <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a>.<br>
 
+LIQUID
+            ],
+            EmailTemplateType::ORDER_FAILED->value => [
+                'subject' => 'Your order wasn\'t successful',
+                'body' => <<<'LIQUID'
+<strong>Your order wasn't successful</strong><br>
+
+Hi {{ order.first_name }},<br>
+
+Unfortunately, your order for <strong>{{ event.title }}</strong> was not successful. This could be due to a payment issue or the order timing out.<br>
+
+<strong>Event Details</strong><br>
+<strong>Event Name:</strong> {{ event.title }}<br>
+<strong>Date & Time:</strong> {{ event.date }} at {{ event.time }}<br>
+
+Don't worry — you can try placing your order again by visiting the event page.<br>
+
+If you believe this was an error or need assistance, please contact <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a>.<br>
+
+Best regards,<br>
+{{ organizer.name }}
 LIQUID
             ],
         ];

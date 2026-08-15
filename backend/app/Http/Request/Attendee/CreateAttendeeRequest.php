@@ -11,12 +11,9 @@ class CreateAttendeeRequest extends BaseRequest
 {
     public function rules(): array
     {
-        $eventId = $this->route('event_id');
-
         return [
             'product_id' => ['int', 'required'],
-            'event_occurrence_id' => ['int', 'nullable', Rule::exists('event_occurrences', 'id')->where('event_id', $eventId)->whereNull('deleted_at')],
-            'product_price_id' => ['int', 'nullable'],
+            'product_price_id' => ['int', 'nullable', 'required'],
             'email' => ['required', 'email'],
             'first_name' => ['string', 'required', 'max:40'],
             'last_name' => ['string', 'max:40'],
@@ -26,7 +23,9 @@ class CreateAttendeeRequest extends BaseRequest
             'taxes_and_fees.*.tax_or_fee_id' => ['required', 'int'],
             'taxes_and_fees.*.amount' => ['required', ...RulesHelper::MONEY],
             'locale' => ['required', Rule::in(Locale::getSupportedLocales())],
-            'override_capacity' => ['boolean', 'sometimes'],
+            'question_answers' => ['nullable', 'array'],
+            'question_answers.*.question_id' => ['required', 'int'],
+            'question_answers.*.answer' => ['nullable'],
         ];
     }
 }

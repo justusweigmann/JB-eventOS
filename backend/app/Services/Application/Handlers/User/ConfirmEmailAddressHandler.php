@@ -11,7 +11,9 @@ readonly class ConfirmEmailAddressHandler
 {
     public function __construct(
         private EmailConfirmationService $emailConfirmationService,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws DecryptionFailedException|Throwable

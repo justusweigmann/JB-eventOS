@@ -4,4 +4,7 @@ namespace HiEvents\Exceptions;
 
 use Exception;
 
-class SaasModeEnabledException extends Exception {}
+class SaasModeEnabledException extends Exception
+{
+
+}

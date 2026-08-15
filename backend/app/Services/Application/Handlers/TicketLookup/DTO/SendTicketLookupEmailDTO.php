@@ -8,5 +8,6 @@ class SendTicketLookupEmailDTO extends BaseDataObject
 {
     public function __construct(
         public readonly string $email,
-    ) {}
+    ) {
+    }
 }

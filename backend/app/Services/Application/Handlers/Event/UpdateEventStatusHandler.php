@@ -3,16 +3,12 @@
 namespace HiEvents\Services\Application\Handlers\Event;
 
 use HiEvents\DomainObjects\EventDomainObject;
-use HiEvents\DomainObjects\EventLocationDomainObject;
-use HiEvents\DomainObjects\EventOccurrenceDomainObject;
-use HiEvents\DomainObjects\LocationDomainObject;
-use HiEvents\DomainObjects\Status\EventStatus;
 use HiEvents\Exceptions\AccountNotVerifiedException;
-use HiEvents\Jobs\Event\Webhook\DispatchEventWebhookJob;
-use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AccountRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Event\DTO\UpdateEventStatusDTO;
+use HiEvents\DomainObjects\Status\EventStatus;
+use HiEvents\Jobs\Event\Webhook\DispatchEventWebhookJob;
 use HiEvents\Services\Infrastructure\DomainEvents\Enums\DomainEventType;
 use Illuminate\Database\DatabaseManager;
 use Psr\Log\LoggerInterface;
@@ -21,11 +17,13 @@ use Throwable;
 readonly class UpdateEventStatusHandler
 {
     public function __construct(
-        private EventRepositoryInterface $eventRepository,
+        private EventRepositoryInterface   $eventRepository,
         private AccountRepositoryInterface $accountRepository,
-        private LoggerInterface $logger,
-        private DatabaseManager $databaseManager,
-    ) {}
+        private LoggerInterface            $logger,
+        private DatabaseManager            $databaseManager,
+    )
+    {
+    }
 
     /**
      * @throws AccountNotVerifiedException|Throwable
@@ -62,22 +60,13 @@ readonly class UpdateEventStatusHandler
 
         $this->logger->info('Event status updated', [
             'eventId' => $updateEventStatusDTO->eventId,
-            'status' => $updateEventStatusDTO->status,
+            'status' => $updateEventStatusDTO->status
         ]);
 
-        $event = $this->eventRepository
-            ->loadRelation(new Relationship(domainObject: EventLocationDomainObject::class, nested: [
-                new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-            ], name: 'event_location'))
-            ->loadRelation(new Relationship(domainObject: EventOccurrenceDomainObject::class, nested: [
-                new Relationship(domainObject: EventLocationDomainObject::class, nested: [
-                    new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-                ], name: 'event_location'),
-            ]))
-            ->findFirstWhere([
-                'id' => $updateEventStatusDTO->eventId,
-                'account_id' => $updateEventStatusDTO->accountId,
-            ]);
+        $event = $this->eventRepository->findFirstWhere([
+            'id' => $updateEventStatusDTO->eventId,
+            'account_id' => $updateEventStatusDTO->accountId,
+        ]);
 
         $eventType = $updateEventStatusDTO->status === EventStatus::ARCHIVED->name
             ? DomainEventType::EVENT_ARCHIVED

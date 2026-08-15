@@ -1,16 +1,15 @@
 import {t} from "@lingui/macro";
 import {Button} from "@mantine/core";
 import {IconCalendar} from "@tabler/icons-react";
-import {Event, EventOccurrence} from "../../../types.ts";
+import {Event} from "../../../types.ts";
 import {CalendarOptionsPopover} from "../CalendarOptionsPopover";
 import classes from './AddToCalendarCTA.module.scss';
 
 interface AddToCalendarCTAProps {
     event: Event;
-    occurrence?: EventOccurrence;
 }
 
-export const AddToCalendarCTA = ({event, occurrence}: AddToCalendarCTAProps) => {
+export const AddToCalendarCTA = ({event}: AddToCalendarCTAProps) => {
     return (
         <div className={classes.container}>
             <div className={classes.iconContainer}>
@@ -20,7 +19,7 @@ export const AddToCalendarCTA = ({event, occurrence}: AddToCalendarCTAProps) => 
                 <span className={classes.title}>{t`Don't forget!`}</span>
                 <span className={classes.subtitle}>{t`Add this event to your calendar`}</span>
             </div>
-            <CalendarOptionsPopover event={event} occurrence={occurrence}>
+            <CalendarOptionsPopover event={event}>
                 <Button variant="filled" size="sm">
                     {t`Add to Calendar`}
                 </Button>

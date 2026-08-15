@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services\Application\Handlers\TicketLookup;
 
 use HiEvents\DomainObjects\OrderDomainObject;
+use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\Mail\TicketLookup\TicketLookupEmail;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Repository\Interfaces\TicketLookupTokenRepositoryInterface;
@@ -19,17 +20,11 @@ use Tests\TestCase;
 class SendTicketLookupEmailHandlerTest extends TestCase
 {
     private OrderRepositoryInterface $orderRepository;
-
     private TicketLookupTokenRepositoryInterface $ticketLookupTokenRepository;
-
     private TokenGeneratorService $tokenGeneratorService;
-
     private Mailer $mailer;
-
     private LoggerInterface $logger;
-
     private DatabaseManager $databaseManager;
-
     private SendTicketLookupEmailHandler $handler;
 
     protected function setUp(): void
@@ -53,7 +48,7 @@ class SendTicketLookupEmailHandlerTest extends TestCase
         );
     }
 
-    public function test_handle_successfully_sends_email_when_orders_exist(): void
+    public function testHandleSuccessfullySendsEmailWhenOrdersExist(): void
     {
         $email = 'test@example.com';
         $dto = new SendTicketLookupEmailDTO(email: $email);
@@ -110,7 +105,7 @@ class SendTicketLookupEmailHandlerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_handle_does_not_send_email_when_no_orders_exist(): void
+    public function testHandleDoesNotSendEmailWhenNoOrdersExist(): void
     {
         $email = 'test@example.com';
         $dto = new SendTicketLookupEmailDTO(email: $email);
@@ -118,7 +113,7 @@ class SendTicketLookupEmailHandlerTest extends TestCase
         $this->orderRepository
             ->shouldReceive('findWhere')
             ->once()
-            ->andReturn(new Collection);
+            ->andReturn(new Collection());
 
         $this->logger
             ->shouldReceive('info')
@@ -139,7 +134,7 @@ class SendTicketLookupEmailHandlerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_handle_converts_email_to_lowercase(): void
+    public function testHandleConvertsEmailToLowercase(): void
     {
         $email = 'TEST@EXAMPLE.COM';
         $expectedLowercaseEmail = 'test@example.com';
@@ -148,7 +143,7 @@ class SendTicketLookupEmailHandlerTest extends TestCase
         $this->orderRepository
             ->shouldReceive('findWhere')
             ->once()
-            ->andReturn(new Collection);
+            ->andReturn(new Collection());
 
         $this->logger
             ->shouldReceive('info')

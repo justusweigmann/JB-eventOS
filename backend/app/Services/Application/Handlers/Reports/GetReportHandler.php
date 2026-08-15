@@ -11,7 +11,9 @@ class GetReportHandler
 {
     public function __construct(
         private readonly ReportServiceFactory $reportServiceFactory,
-    ) {}
+    )
+    {
+    }
 
     public function handle(GetReportDTO $reportData): Collection
     {
@@ -21,7 +23,6 @@ class GetReportHandler
                 eventId: $reportData->eventId,
                 startDate: $reportData->startDate ? Carbon::parse($reportData->startDate) : null,
                 endDate: $reportData->endDate ? Carbon::parse($reportData->endDate) : null,
-                occurrenceId: $reportData->occurrenceId,
             );
     }
 }

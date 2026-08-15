@@ -113,7 +113,7 @@ const QuestionItem = ({ qa, isEditing, toggleEditMode, onEditAnswer, compact = f
             )}
 
             <div className={classes.questionTitle}>
-                <Text size="xs" className={classes.questionText}>
+                <Text size="sm" fw={600} className={classes.questionText}>
                     {qa.title}
                 </Text>
             </div>

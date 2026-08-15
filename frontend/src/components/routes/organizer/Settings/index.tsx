@@ -4,19 +4,18 @@ import { SocialLinks } from "./Sections/SocialLinks";
 import { AddressSettings } from "./Sections/AddressSettings";
 import EmailTemplateSettings from "./Sections/EmailTemplateSettings";
 import { EventDefaults } from "./Sections/EventDefaults";
-import { PayoutsSettings } from "./Sections/PayoutsSettings";
 import { PlatformFeesSettings } from "./Sections/PlatformFeesSettings";
 import { DangerZoneSettings } from "./Sections/DangerZoneSettings";
-import { TrackingPixelSettings } from "./Sections/TrackingPixelSettings";
+import { LegalSettings } from "./Sections/LegalSettings";
 import { PageBody } from "../../../common/PageBody";
 import { PageTitle } from "../../../common/PageTitle";
 import { t } from "@lingui/macro";
 import { Box, Group, NavLink as MantineNavLink, Stack } from "@mantine/core";
-import { IconAlertTriangle, IconBrandGoogleAnalytics, IconBrandStripe, IconInfoCircle, IconMapPin, IconShare, IconMail, IconCalendarEvent, IconPercentage, IconChartBar } from "@tabler/icons-react";
+import { IconAlertTriangle, IconBrandGoogleAnalytics, IconInfoCircle, IconMapPin, IconShare, IconMail, IconCalendarEvent, IconPercentage, IconScale } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "../../../common/Card";
-import { useLocation, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useGetAccount } from "../../../../queries/useGetAccount.ts";
 
 const Settings = () => {
@@ -63,16 +62,16 @@ const Settings = () => {
                 component: SeoSettings
             },
             {
+                id: 'legal-settings',
+                label: t`Legal`,
+                icon: IconScale,
+                component: LegalSettings
+            },
+            {
                 id: 'email-templates',
                 label: t`Email Templates`,
                 icon: IconMail,
                 component: () => <EmailTemplateSettings organizerId={organizerId!} />
-            },
-            {
-                id: 'tracking-pixels',
-                label: t`Tracking & Analytics`,
-                icon: IconChartBar,
-                component: TrackingPixelSettings,
             },
             {
                 id: 'danger-zone',
@@ -84,45 +83,19 @@ const Settings = () => {
         ];
 
         if (isSaasMode) {
-            baseSections.splice(2, 0,
-                {
-                    id: 'payouts',
-                    label: t`Payouts`,
-                    icon: IconBrandStripe,
-                    component: PayoutsSettings,
-                },
-                {
-                    id: 'platform-fees',
-                    label: t`Platform Fees`,
-                    icon: IconPercentage,
-                    component: PlatformFeesSettings,
-                });
+            baseSections.splice(2, 0, {
+                id: 'platform-fees',
+                label: t`Platform Fees`,
+                icon: IconPercentage,
+                component: PlatformFeesSettings,
+            });
         }
 
         return baseSections;
     }, [isSaasMode, organizerId]);
 
-    const isLargeScreen = useMediaQuery('(min-width: 1200px)', true);
-    const location = useLocation();
-    const targetSectionId = useMemo(() => {
-        const raw = location.hash?.replace(/^#/, '').split('?')[0] ?? '';
-        return raw && SECTIONS.some(s => s.id === raw) ? raw : null;
-    }, [location.hash, SECTIONS]);
-    const [activeSection, setActiveSection] = useState(targetSectionId ?? 'basic-settings');
-
-    useEffect(() => {
-        if (!targetSectionId) return;
-        setActiveSection(targetSectionId);
-
-        const retryDelays = [0, 200, 600, 1200, 2000];
-        const timers = retryDelays.map(delay => window.setTimeout(() => {
-            document.getElementById(targetSectionId)?.scrollIntoView({ behavior: 'auto', block: 'start' });
-        }, delay));
-
-        return () => {
-            timers.forEach(t => window.clearTimeout(t));
-        };
-    }, [targetSectionId]);
+    const isLargeScreen = useMediaQuery('(min-width: 1400px)', true);
+    const [activeSection, setActiveSection] = useState('basic-settings');
 
     const handleClick = (sectionId: string) => {
         setActiveSection(sectionId);
@@ -159,7 +132,7 @@ const Settings = () => {
 
             {isLargeScreen ? (
                 <Group align="flex-start" gap="md">
-                    <Box w={240} style={{ position: 'sticky', top: 20 }}>
+                    <Box w={240} style={{ position: 'sticky', top: 20, zIndex: 10 }}>
                         {sideMenu}
                     </Box>
                     <Box style={{ flex: 1 }}>{content}</Box>

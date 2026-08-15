@@ -9,5 +9,7 @@ class DeleteOrganizerDTO extends BaseDTO
     public function __construct(
         public int $organizerId,
         public int $accountId,
-    ) {}
+    )
+    {
+    }
 }

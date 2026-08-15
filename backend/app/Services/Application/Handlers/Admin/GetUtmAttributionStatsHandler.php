@@ -9,7 +9,9 @@ class GetUtmAttributionStatsHandler
 {
     public function __construct(
         private readonly AccountAttributionRepositoryInterface $attributionRepository,
-    ) {}
+    )
+    {
+    }
 
     public function handle(GetUtmAttributionStatsDTO $dto): array
     {

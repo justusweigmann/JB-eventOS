@@ -21,15 +21,10 @@ use Tests\TestCase;
 class PayoutPaidHandlerTest extends TestCase
 {
     private PayoutPaidHandler $handler;
-
     private StripePaymentsRepository $stripePaymentsRepository;
-
     private StripeClientFactory $stripeClientFactory;
-
     private LoggerInterface $logger;
-
     private StripeConfigurationService $stripeConfigurationService;
-
     private StripePayoutService $stripePayoutService;
 
     protected function setUp(): void
@@ -51,7 +46,7 @@ class PayoutPaidHandlerTest extends TestCase
         );
     }
 
-    public function test_handle_event_reconciles_payout(): void
+    public function testHandleEventReconcilesPayout(): void
     {
         $payout = Payout::constructFrom([
             'id' => 'po_123',
@@ -130,7 +125,7 @@ class PayoutPaidHandlerTest extends TestCase
 
         $this->stripePaymentsRepository->shouldReceive('updateWhere')
             ->with(
-                m::on(fn ($attrs) => $attrs[StripePaymentDomainObjectAbstract::PAYOUT_ID] === 'po_123' &&
+                m::on(fn($attrs) => $attrs[StripePaymentDomainObjectAbstract::PAYOUT_ID] === 'po_123' &&
                     $attrs[StripePaymentDomainObjectAbstract::BALANCE_TRANSACTION_ID] === 'txn_123' &&
                     $attrs[StripePaymentDomainObjectAbstract::PAYOUT_STRIPE_FEE] === 50 &&
                     $attrs[StripePaymentDomainObjectAbstract::PAYOUT_NET_AMOUNT] === 535 &&
@@ -143,7 +138,7 @@ class PayoutPaidHandlerTest extends TestCase
 
         $this->stripePaymentsRepository->shouldReceive('updateWhere')
             ->with(
-                m::on(fn ($attrs) => $attrs[StripePaymentDomainObjectAbstract::PAYOUT_ID] === 'po_123' &&
+                m::on(fn($attrs) => $attrs[StripePaymentDomainObjectAbstract::PAYOUT_ID] === 'po_123' &&
                     $attrs[StripePaymentDomainObjectAbstract::BALANCE_TRANSACTION_ID] === 'txn_456' &&
                     $attrs[StripePaymentDomainObjectAbstract::PAYOUT_STRIPE_FEE] === 100 &&
                     $attrs[StripePaymentDomainObjectAbstract::PAYOUT_NET_AMOUNT] === 1070 &&
@@ -162,7 +157,6 @@ class PayoutPaidHandlerTest extends TestCase
             ->once()
             ->with(m::on(function ($dto) {
                 $this->assertEquals('po_123', $dto->payoutId);
-
                 return true;
             }));
 
@@ -171,7 +165,7 @@ class PayoutPaidHandlerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_handle_event_skips_non_paid_payout(): void
+    public function testHandleEventSkipsNonPaidPayout(): void
     {
         $payout = Payout::constructFrom([
             'id' => 'po_123',
@@ -193,7 +187,7 @@ class PayoutPaidHandlerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_handle_event_skips_transactions_with_no_charge_id(): void
+    public function testHandleEventSkipsTransactionsWithNoChargeId(): void
     {
         $payout = Payout::constructFrom([
             'id' => 'po_123',
@@ -250,14 +244,14 @@ class PayoutPaidHandlerTest extends TestCase
 
         $this->stripePayoutService->shouldReceive('createOrUpdatePayout')
             ->once()
-            ->with(m::on(fn ($dto) => $dto->payoutId === 'po_123'));
+            ->with(m::on(fn($dto) => $dto->payoutId === 'po_123'));
 
         $this->handler->handleEvent($payout);
 
         $this->assertTrue(true);
     }
 
-    public function test_handle_event_logs_warning_when_payment_not_found(): void
+    public function testHandleEventLogsWarningWhenPaymentNotFound(): void
     {
         $payout = Payout::constructFrom([
             'id' => 'po_123',
@@ -317,7 +311,7 @@ class PayoutPaidHandlerTest extends TestCase
 
         $this->stripePayoutService->shouldReceive('createOrUpdatePayout')
             ->once()
-            ->with(m::on(fn ($dto) => $dto->payoutId === 'po_123'));
+            ->with(m::on(fn($dto) => $dto->payoutId === 'po_123'));
 
         $this->handler->handleEvent($payout);
 

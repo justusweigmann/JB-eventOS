@@ -8,6 +8,8 @@ class AttendeeEvent extends BaseDomainEvent
 {
     public function __construct(
         public DomainEventType $type,
-        public int $attendeeId,
-    ) {}
+        public int             $attendeeId,
+    )
+    {
+    }
 }

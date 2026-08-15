@@ -6,7 +6,6 @@ use HiEvents\DomainObjects\AttendeeCheckInDomainObject;
 use HiEvents\DomainObjects\CheckInListDomainObject;
 use HiEvents\DomainObjects\Enums\QuestionBelongsTo;
 use HiEvents\DomainObjects\EventDomainObject;
-use HiEvents\DomainObjects\EventOccurrenceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\DomainObjects\ProductPriceDomainObject;
@@ -23,10 +22,12 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ExportAttendeesAction extends BaseAction
 {
     public function __construct(
-        private readonly AttendeesExport $export,
+        private readonly AttendeesExport             $export,
         private readonly AttendeeRepositoryInterface $attendeeRepository,
         private readonly QuestionRepositoryInterface $questionRepository
-    ) {}
+    )
+    {
+    }
 
     /**
      * @todo This should be passed off to a queue and moved to a service
@@ -34,8 +35,6 @@ class ExportAttendeesAction extends BaseAction
     public function __invoke(Request $request, int $eventId): BinaryFileResponse
     {
         $this->isActionAuthorized($eventId, EventDomainObject::class);
-
-        $eventOccurrenceId = $request->input('event_occurrence_id') ? (int) $request->input('event_occurrence_id') : null;
 
         $attendees = $this->attendeeRepository
             ->loadRelation(QuestionAndAnswerViewDomainObject::class)
@@ -63,15 +62,30 @@ class ExportAttendeesAction extends BaseAction
                 nested: [
                     new Relationship(
                         domainObject: QuestionAndAnswerViewDomainObject::class
-                    ),
+                    )
                 ],
                 name: 'order'
             ))
-            ->loadRelation(new Relationship(
-                domainObject: EventOccurrenceDomainObject::class,
-                name: 'event_occurrence',
-            ))
-            ->findByEventIdForExport($eventId, $eventOccurrenceId);
+            ->findByEventIdForExport($eventId);
+
+        // Apply optional filters
+        if ($request->filled('product_id')) {
+            $productId = (int) $request->input('product_id');
+            $attendees = $attendees->filter(fn($a) => $a->getProductId() === $productId);
+        }
+
+        if ($request->filled('check_in_status')) {
+            $checkInStatus = $request->input('check_in_status');
+            $attendees = $attendees->filter(function ($a) use ($checkInStatus) {
+                $hasCheckIns = $a->getCheckIns() && count($a->getCheckIns()) > 0;
+                return $checkInStatus === 'checked_in' ? $hasCheckIns : !$hasCheckIns;
+            });
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            $attendees = $attendees->filter(fn($a) => $a->getStatus() === $status);
+        }
 
         $productQuestions = $this->questionRepository->findWhere([
             'event_id' => $eventId,
@@ -83,9 +97,18 @@ class ExportAttendeesAction extends BaseAction
             'belongs_to' => QuestionBelongsTo::ORDER->name,
         ]);
 
+        $filename = 'attendees';
+        if ($request->filled('product_id')) {
+            $filename .= '_product_' . $request->input('product_id');
+        }
+        if ($request->filled('check_in_status')) {
+            $filename .= '_' . $request->input('check_in_status');
+        }
+        $filename .= '.xlsx';
+
         return Excel::download(
-            $this->export->withData($attendees, $productQuestions, $orderQuestions),
-            'attendees.xlsx'
+            $this->export->withData($attendees->values(), $productQuestions, $orderQuestions),
+            $filename
         );
     }
 }

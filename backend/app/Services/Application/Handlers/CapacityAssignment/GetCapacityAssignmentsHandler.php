@@ -11,7 +11,9 @@ class GetCapacityAssignmentsHandler
 {
     public function __construct(
         private readonly CapacityAssignmentRepositoryInterface $capacityAssignmentRepository,
-    ) {}
+    )
+    {
+    }
 
     public function handle(GetCapacityAssignmentsDTO $dto): LengthAwarePaginator
     {

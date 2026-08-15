@@ -13,7 +13,9 @@ class GetAdminStatsAction extends BaseAction
 {
     public function __construct(
         private readonly GetAdminStatsHandler $handler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(): JsonResponse
     {

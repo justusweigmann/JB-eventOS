@@ -12,21 +12,18 @@ import {useFilterQueryParamSync} from "../../../../hooks/useFilterQueryParamSync
 import {QueryFilters} from "../../../../types.ts";
 import {Pagination} from "../../../common/Pagination";
 import {useGetEventCheckInLists} from "../../../../queries/useGetCheckInLists.ts";
-import {useGetEvent} from "../../../../queries/useGetEvent.ts";
-import {CheckInListTable} from "../../../common/CheckInListTable";
+import {CheckInListList} from "../../../common/CheckInListList";
 import {CreateCheckInListModal} from "../../../modals/CreateCheckInListModal";
-import {SortSelector} from "../../../common/SortSelector";
 
 const CheckInLists = () => {
     const {eventId} = useParams();
-    const {data: event} = useGetEvent(eventId);
     const [searchParams, setSearchParams] = useFilterQueryParamSync();
-    const checkInListsQuery = useGetEventCheckInLists(
+    const {data: checkInListsData} = useGetEventCheckInLists(
         eventId,
         searchParams as QueryFilters,
     );
-    const checkInLists = checkInListsQuery?.data?.data;
-    const pagination = checkInListsQuery?.data?.meta;
+    const checkInLists = checkInListsData?.data;
+    const pagination = checkInListsData?.meta;
     const [createModalOpen, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
 
     return (
@@ -37,48 +34,31 @@ const CheckInLists = () => {
                 {t`Check-In Lists`}
             </PageTitle>
 
-            <ToolBar
-                searchComponent={() => (
-                    <SearchBarWrapper
-                        placeholder={t`Search check-in lists...`}
-                        setSearchParams={setSearchParams}
-                        searchParams={searchParams}
-                    />
-                )}
-                filterComponent={pagination?.allowed_sorts ? (
-                    <SortSelector
-                        selected={searchParams.sortBy && searchParams.sortDirection
-                            ? searchParams.sortBy + ':' + searchParams.sortDirection
-                            : pagination.default_sort + ':' + pagination.default_sort_direction}
-                        options={pagination.allowed_sorts}
-                        onSortSelect={(key, sortDirection) => {
-                            setSearchParams({sortBy: key, sortDirection});
-                        }}
-                    />
-                ) : undefined}
-                resultCount={pagination?.total}
-                resultLabel={t`check-in lists`}
-            >
+            <ToolBar searchComponent={() => (
+                <SearchBarWrapper
+                    placeholder={t`Search check-in lists...`}
+                    setSearchParams={setSearchParams}
+                    searchParams={searchParams}
+                    pagination={pagination}
+                />
+            )}>
                 <Button
                     leftSection={<IconPlus/>}
                     color={'green'}
-                    size={'sm'}
-                    data-testid="checkin-list-create-button"
                     onClick={openCreateModal}>{t`Create Check-In List`}
                 </Button>
             </ToolBar>
 
-            <TableSkeleton isVisible={!checkInLists || checkInListsQuery.isFetching}/>
+            <TableSkeleton isVisible={!checkInLists}/>
 
-            {checkInLists && <CheckInListTable
+            {checkInLists && <CheckInListList
                 checkInLists={checkInLists}
                 openCreateModal={openCreateModal}
-                event={event}
             />}
 
             {createModalOpen && <CreateCheckInListModal onClose={closeCreateModal}/>}
 
-            {!!checkInLists?.length && (
+            {(!!checkInLists?.length && (pagination?.total || 0) >= 20) && (
                 <Pagination value={searchParams.pageNumber}
                             onChange={(value) => setSearchParams({pageNumber: value})}
                             total={Number(pagination?.last_page)}

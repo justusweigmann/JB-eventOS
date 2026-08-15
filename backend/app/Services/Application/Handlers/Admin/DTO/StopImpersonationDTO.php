@@ -8,5 +8,7 @@ class StopImpersonationDTO extends BaseDataObject
 {
     public function __construct(
         public readonly int $impersonatorId,
-    ) {}
+    )
+    {
+    }
 }

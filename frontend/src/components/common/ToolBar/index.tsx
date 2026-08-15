@@ -1,54 +1,43 @@
 import React from "react";
 import {Card} from "../Card";
 import classes from './ToolBar.module.scss';
-import {t} from "@lingui/macro";
+import {Group} from '@mantine/core';
 
 interface ToolBarProps {
     children?: React.ReactNode[] | React.ReactNode;
     searchComponent?: () => React.ReactNode;
     filterComponent?: React.ReactNode;
-    resultCount?: number;
-    resultLabel?: string;
     className?: string;
 }
 
 export const ToolBar: React.FC<ToolBarProps> = ({
-    searchComponent,
-    filterComponent,
-    children,
-    resultCount,
-    resultLabel,
-    className,
-}) => {
+                                                    searchComponent,
+                                                    filterComponent,
+                                                    children,
+                                                    className,
+                                                }) => {
     return (
-        <Card className={`${classes.toolbar} ${className || ''}`}>
-            <div className={classes.rowPrimary}>
+        <Card className={`${classes.card} ${className || ''}`}>
+            <div className={classes.wrapper}>
                 {searchComponent && (
-                    <div className={classes.searchSlot}>
+                    <div className={classes.searchBar}>
                         {searchComponent()}
                     </div>
                 )}
-                {children && (
-                    <div className={classes.actions}>
-                        {children}
-                    </div>
-                )}
-            </div>
 
-            {(filterComponent || resultCount !== undefined) && (
-                <div className={classes.rowFilters}>
+                <Group className={classes.filterAndActions} gap="sm">
                     {filterComponent && (
-                        <div className={classes.filterSlot}>
+                        <div className={classes.filter}>
                             {filterComponent}
                         </div>
                     )}
-                    {resultCount !== undefined && (
-                        <span className={classes.resultCount}>
-                            {resultCount.toLocaleString()} {resultLabel || t`results`}
-                        </span>
+                    {children && (
+                        <div className={classes.actions}>
+                            {children}
+                        </div>
                     )}
-                </div>
-            )}
+                </Group>
+            </div>
         </Card>
     );
 };

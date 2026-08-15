@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class FailedJobDomainObject extends Generated\FailedJobDomainObjectAbstract {}
+class FailedJobDomainObject extends Generated\FailedJobDomainObjectAbstract
+{
+}

@@ -27,23 +27,13 @@ interface OrderRepositoryInterface extends RepositoryInterface
 
     public function findByShortId(string $orderShortId): ?OrderDomainObject;
 
-    public function findOrdersAssociatedWithProducts(
-        int $eventId,
-        array $productIds,
-        array $orderStatuses,
-        ?int $eventOccurrenceId = null,
-        ?array $eventOccurrenceIds = null,
-    ): Collection;
+    public function findOrdersAssociatedWithProducts(int $eventId, array $productIds, array $orderStatuses): Collection;
 
-    public function countOrdersAssociatedWithProducts(
-        int $eventId,
-        array $productIds,
-        array $orderStatuses,
-        ?int $eventOccurrenceId = null,
-        ?array $eventOccurrenceIds = null,
-    ): int;
+    public function countOrdersAssociatedWithProducts(int $eventId, array $productIds, array $orderStatuses): int;
 
-    public function countActivePromoCodeUsage(int $promoCodeId): int;
+    public function findMarketingOptedInOrders(int $eventId): Collection;
+
+    public function countMarketingOptedInOrders(int $eventId): int;
 
     public function getAllOrdersForAdmin(
         ?string $search = null,
@@ -54,5 +44,5 @@ interface OrderRepositoryInterface extends RepositoryInterface
 
     public function hasCompletedPaidOrderForAccount(int $accountId): bool;
 
-    public function accountHasCompletedOrders(int $accountId): bool;
+    public function existsCompletedOrderForEmail(int $eventId, string $email): bool;
 }

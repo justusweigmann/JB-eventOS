@@ -237,7 +237,7 @@ export const SocialLinks = () => {
                     </UnstyledButton>
 
                     {/* Secondary platforms - collapsible */}
-                    <Collapse expanded={showMore}>
+                    <Collapse in={showMore}>
                         <InputGroup>
                             {secondaryPlatforms.map((platform) => {
                                 const Icon = platform.icon;

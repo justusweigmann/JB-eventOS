@@ -1,23 +1,26 @@
 import {useQuery} from "@tanstack/react-query";
-import {AxiosError} from "axios";
 import {orderClientPublic} from "../api/order.client.ts";
 import {IdParam, Order} from "../types.ts";
 import {useMemo} from "react";
-import {getCheckoutSessionIdentifier} from "../utilites/checkoutSession.ts";
+import {isSsr} from "../utilites/helpers.ts";
 
 export const GET_ORDER_PUBLIC_QUERY_KEY = "getOrderPublic";
+
+const getSessionIdentifierFromUrl = (): string | null => {
+    if (isSsr()) return null;
+
+    const url = new URL(window.location.href);
+    return url.searchParams.get("session_identifier");
+};
 
 export const useGetOrderPublic = (
     eventId: IdParam,
     orderShortId: IdParam,
     includes: string[] = []
 ) => {
-    const sessionIdentifier = useMemo(
-        () => getCheckoutSessionIdentifier(String(orderShortId)),
-        [orderShortId]
-    );
+    const sessionIdentifier = useMemo(getSessionIdentifierFromUrl, []);
 
-    return useQuery<Order, AxiosError>({
+    return useQuery<Order>({
         queryKey: [
             GET_ORDER_PUBLIC_QUERY_KEY,
             eventId,
@@ -28,7 +31,8 @@ export const useGetOrderPublic = (
             const {data} = await orderClientPublic.findByShortId(
                 Number(eventId),
                 String(orderShortId),
-                includes
+                includes,
+                sessionIdentifier ?? undefined
             );
             return data;
         },

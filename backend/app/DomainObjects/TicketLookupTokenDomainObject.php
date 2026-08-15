@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class TicketLookupTokenDomainObject extends Generated\TicketLookupTokenDomainObjectAbstract {}
+class TicketLookupTokenDomainObject extends Generated\TicketLookupTokenDomainObjectAbstract
+{
+}

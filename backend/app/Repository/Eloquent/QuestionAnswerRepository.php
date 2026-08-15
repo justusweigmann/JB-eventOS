@@ -2,6 +2,7 @@
 
 namespace HiEvents\Repository\Eloquent;
 
+
 use HiEvents\DomainObjects\QuestionAnswerDomainObject;
 use HiEvents\Models\QuestionAnswer;
 use HiEvents\Repository\Interfaces\QuestionAnswerRepositoryInterface;

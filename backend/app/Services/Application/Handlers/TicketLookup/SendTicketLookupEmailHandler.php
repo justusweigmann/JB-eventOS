@@ -27,7 +27,8 @@ class SendTicketLookupEmailHandler
         private readonly Mailer $mailer,
         private readonly LoggerInterface $logger,
         private readonly DatabaseManager $databaseManager,
-    ) {}
+    ) {
+    }
 
     /**
      * @throws Throwable
@@ -42,7 +43,6 @@ class SendTicketLookupEmailHandler
             $this->logger->info('Ticket lookup requested for email with no orders', [
                 'email' => $email,
             ]);
-
             return;
         }
 

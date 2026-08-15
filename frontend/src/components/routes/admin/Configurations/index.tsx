@@ -1,11 +1,10 @@
-import {Container, Title, Stack, Card, Text, Group, Button, Badge, ActionIcon, NumberInput, TextInput, Skeleton, Switch, Select} from "@mantine/core";
+import {Container, Title, Stack, Card, Text, Group, Button, Badge, ActionIcon, Alert, NumberInput, TextInput, Skeleton, Switch, Select} from "@mantine/core";
 import {t} from "@lingui/macro";
 import {useGetAllConfigurations} from "../../../../queries/useGetAllConfigurations";
 import {useCreateConfiguration} from "../../../../mutations/useCreateConfiguration";
 import {useUpdateConfiguration} from "../../../../mutations/useUpdateConfiguration";
 import {useDeleteConfiguration} from "../../../../mutations/useDeleteConfiguration";
-import {IconPlus, IconEdit, IconTrash} from "@tabler/icons-react";
-import {Callout} from "../../../common/Callout";
+import {IconPlus, IconEdit, IconTrash, IconAlertTriangle} from "@tabler/icons-react";
 import {useState} from "react";
 import {Modal} from "../../../common/Modal";
 import {useForm} from "@mantine/form";
@@ -71,9 +70,9 @@ const Configurations = () => {
                         </Button>
                     </Group>
 
-                    <Callout variant="tip">
+                    <Alert icon={<IconAlertTriangle size={16} />} color="yellow">
                         {t`Configuration names are visible to end users. Fixed fees will be converted to the order currency at the current exchange rate.`}
-                    </Callout>
+                    </Alert>
 
                     <Stack gap="md">
                         {configurations.map((config) => (
@@ -209,9 +208,9 @@ const ConfigurationModal = ({configuration, onClose}: ConfigurationModalProps) =
             opened
         >
             {isEditing && configuration?.is_system_default && (
-                <Callout variant="tip">
+                <Alert icon={<IconAlertTriangle size={16} />} color="orange" mb="md">
                     {t`Warning: This is the system default configuration. Changes will affect all accounts that don't have a specific configuration assigned.`}
-                </Callout>
+                </Alert>
             )}
 
             <form onSubmit={form.onSubmit(handleSubmit)}>

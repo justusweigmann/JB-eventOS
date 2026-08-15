@@ -4,7 +4,6 @@ namespace HiEvents\Mail\Order;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use HiEvents\DomainObjects\EventDomainObject;
-use HiEvents\DomainObjects\EventOccurrenceDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
@@ -24,14 +23,14 @@ class OrderSummary extends BaseMail
     private readonly ?RenderedEmailTemplateDTO $renderedTemplate;
 
     public function __construct(
-        private readonly OrderDomainObject $order,
-        private readonly EventDomainObject $event,
-        private readonly OrganizerDomainObject $organizer,
+        private readonly OrderDomainObject        $order,
+        private readonly EventDomainObject        $event,
+        private readonly OrganizerDomainObject    $organizer,
         private readonly EventSettingDomainObject $eventSettings,
-        private readonly ?InvoiceDomainObject $invoice,
-        private readonly ?EventOccurrenceDomainObject $occurrence = null,
-        ?RenderedEmailTemplateDTO $renderedTemplate = null,
-    ) {
+        private readonly ?InvoiceDomainObject     $invoice,
+        ?RenderedEmailTemplateDTO                 $renderedTemplate = null,
+    )
+    {
         $this->renderedTemplate = $renderedTemplate;
 
         parent::__construct();
@@ -39,7 +38,7 @@ class OrderSummary extends BaseMail
 
     public function envelope(): Envelope
     {
-        $subject = $this->renderedTemplate?->subject ?? __('Your Order is Confirmed!').'  🎉';
+        $subject = $this->renderedTemplate?->subject ?? __('Your Order is Confirmed!') . '  🎉';
 
         return new Envelope(
             replyTo: $this->eventSettings->getSupportEmail(),
@@ -68,12 +67,11 @@ class OrderSummary extends BaseMail
                 'event' => $this->event,
                 'order' => $this->order,
                 'organizer' => $this->organizer,
-                'occurrence' => $this->occurrence,
                 'orderUrl' => sprintf(
                     Url::getFrontEndUrlFromConfig(Url::ORDER_SUMMARY),
                     $this->event->getId(),
                     $this->order->getShortId(),
-                ),
+                )
             ]
         );
     }
@@ -94,7 +92,7 @@ class OrderSummary extends BaseMail
 
         return [
             Attachment::fromData(
-                static fn () => $invoice->output(),
+                static fn() => $invoice->output(),
                 'invoice.pdf',
             )->withMime('application/pdf'),
         ];

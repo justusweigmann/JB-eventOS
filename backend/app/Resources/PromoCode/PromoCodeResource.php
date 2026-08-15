@@ -19,13 +19,15 @@ class PromoCodeResource extends JsonResource
             'applicable_product_ids' => $this->getApplicableProductIds(),
             'discount' => $this->getDiscount(),
             'discount_type' => $this->getDiscountType(),
-            'discount_applies_to' => $this->getDiscountAppliesTo(),
             'created_at' => $this->getCreatedAt(),
             'updated_at' => $this->getUpdatedAt(),
             'expiry_date' => $this->getExpiryDate(),
+            'valid_from' => $this->getValidFrom(),
             'attendee_usage_count' => $this->getAttendeeUsageCount(),
             'order_usage_count' => $this->getOrderUsageCount(),
             'max_allowed_usages' => $this->getMaxAllowedUsages(),
+            'max_attendee_usages' => $this->getMaxAttendeeUsages(),
+            'message' => $this->getMessage(),
         ];
     }
 }

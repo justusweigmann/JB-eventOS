@@ -12,6 +12,7 @@ abstract class PromoCodeDomainObjectAbstract extends \HiEvents\DomainObjects\Abs
     final public const PLURAL_NAME = 'promo_codes';
     final public const ID = 'id';
     final public const EVENT_ID = 'event_id';
+    final public const ACCOUNT_ID = 'account_id';
     final public const CODE = 'code';
     final public const DISCOUNT = 'discount';
     final public const APPLICABLE_PRODUCT_IDS = 'applicable_product_ids';
@@ -20,13 +21,16 @@ abstract class PromoCodeDomainObjectAbstract extends \HiEvents\DomainObjects\Abs
     final public const ATTENDEE_USAGE_COUNT = 'attendee_usage_count';
     final public const ORDER_USAGE_COUNT = 'order_usage_count';
     final public const MAX_ALLOWED_USAGES = 'max_allowed_usages';
+    final public const MAX_ATTENDEE_USAGES = 'max_attendee_usages';
+    final public const VALID_FROM = 'valid_from';
+    final public const MESSAGE = 'message';
     final public const CREATED_AT = 'created_at';
     final public const UPDATED_AT = 'updated_at';
     final public const DELETED_AT = 'deleted_at';
-    final public const DISCOUNT_APPLIES_TO = 'discount_applies_to';
 
     protected int $id;
-    protected int $event_id;
+    protected ?int $event_id = null;
+    protected ?int $account_id = null;
     protected string $code;
     protected float $discount = 0.0;
     protected array|string|null $applicable_product_ids = null;
@@ -35,16 +39,19 @@ abstract class PromoCodeDomainObjectAbstract extends \HiEvents\DomainObjects\Abs
     protected int $attendee_usage_count = 0;
     protected int $order_usage_count = 0;
     protected ?int $max_allowed_usages = null;
+    protected ?int $max_attendee_usages = null;
+    protected ?string $valid_from = null;
+    protected ?string $message = null;
     protected string $created_at;
     protected ?string $updated_at = null;
     protected ?string $deleted_at = null;
-    protected string $discount_applies_to = 'EACH_PRODUCT';
 
     public function toArray(): array
     {
         return [
                     'id' => $this->id ?? null,
                     'event_id' => $this->event_id ?? null,
+                    'account_id' => $this->account_id ?? null,
                     'code' => $this->code ?? null,
                     'discount' => $this->discount ?? null,
                     'applicable_product_ids' => $this->applicable_product_ids ?? null,
@@ -53,10 +60,12 @@ abstract class PromoCodeDomainObjectAbstract extends \HiEvents\DomainObjects\Abs
                     'attendee_usage_count' => $this->attendee_usage_count ?? null,
                     'order_usage_count' => $this->order_usage_count ?? null,
                     'max_allowed_usages' => $this->max_allowed_usages ?? null,
+                    'max_attendee_usages' => $this->max_attendee_usages ?? null,
+                    'valid_from' => $this->valid_from ?? null,
+                    'message' => $this->message ?? null,
                     'created_at' => $this->created_at ?? null,
                     'updated_at' => $this->updated_at ?? null,
                     'deleted_at' => $this->deleted_at ?? null,
-                    'discount_applies_to' => $this->discount_applies_to ?? null,
                 ];
     }
 
@@ -71,15 +80,26 @@ abstract class PromoCodeDomainObjectAbstract extends \HiEvents\DomainObjects\Abs
         return $this->id;
     }
 
-    public function setEventId(int $event_id): self
+    public function setEventId(?int $event_id): self
     {
         $this->event_id = $event_id;
         return $this;
     }
 
-    public function getEventId(): int
+    public function getEventId(): ?int
     {
         return $this->event_id;
+    }
+
+    public function setAccountId(?int $account_id): self
+    {
+        $this->account_id = $account_id;
+        return $this;
+    }
+
+    public function getAccountId(): ?int
+    {
+        return $this->account_id;
     }
 
     public function setCode(string $code): self
@@ -170,6 +190,39 @@ abstract class PromoCodeDomainObjectAbstract extends \HiEvents\DomainObjects\Abs
         return $this->max_allowed_usages;
     }
 
+    public function setMaxAttendeeUsages(?int $max_attendee_usages): self
+    {
+        $this->max_attendee_usages = $max_attendee_usages;
+        return $this;
+    }
+
+    public function getMaxAttendeeUsages(): ?int
+    {
+        return $this->max_attendee_usages;
+    }
+
+    public function setValidFrom(?string $valid_from): self
+    {
+        $this->valid_from = $valid_from;
+        return $this;
+    }
+
+    public function getValidFrom(): ?string
+    {
+        return $this->valid_from;
+    }
+
+    public function setMessage(?string $message): self
+    {
+        $this->message = $message;
+        return $this;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
     public function setCreatedAt(string $created_at): self
     {
         $this->created_at = $created_at;
@@ -201,16 +254,5 @@ abstract class PromoCodeDomainObjectAbstract extends \HiEvents\DomainObjects\Abs
     public function getDeletedAt(): ?string
     {
         return $this->deleted_at;
-    }
-
-    public function setDiscountAppliesTo(string $discount_applies_to): self
-    {
-        $this->discount_applies_to = $discount_applies_to;
-        return $this;
-    }
-
-    public function getDiscountAppliesTo(): string
-    {
-        return $this->discount_applies_to;
     }
 }

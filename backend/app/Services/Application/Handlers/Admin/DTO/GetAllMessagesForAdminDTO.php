@@ -13,5 +13,6 @@ class GetAllMessagesForAdminDTO extends BaseDataObject
         public readonly ?string $type = null,
         public readonly ?string $sortBy = 'created_at',
         public readonly ?string $sortDirection = 'desc',
-    ) {}
+    ) {
+    }
 }

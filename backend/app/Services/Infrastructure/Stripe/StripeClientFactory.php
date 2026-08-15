@@ -10,7 +10,8 @@ class StripeClientFactory
 {
     public function __construct(
         private readonly StripeConfigurationService $configurationService
-    ) {}
+    ) {
+    }
 
     /**
      * @throws StripeClientConfigurationException

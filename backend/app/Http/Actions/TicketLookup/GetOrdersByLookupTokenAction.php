@@ -13,7 +13,8 @@ class GetOrdersByLookupTokenAction extends BaseAction
 {
     public function __construct(
         private readonly GetOrdersByLookupTokenHandler $getOrdersByLookupTokenHandler,
-    ) {}
+    ) {
+    }
 
     public function __invoke(string $token): JsonResponse
     {

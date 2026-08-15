@@ -12,15 +12,17 @@ class CreateQuestionHandler
 {
     public function __construct(
         private readonly CreateQuestionService $createQuestionService,
-        private readonly HtmlPurifierService $purifier,
-    ) {}
+        private readonly HtmlPurifierService   $purifier,
+    )
+    {
+    }
 
     /**
      * @throws Throwable
      */
     public function handle(UpsertQuestionDTO $createQuestionDTO): QuestionDomainObject
     {
-        $question = (new QuestionDomainObject)
+        $question = (new QuestionDomainObject())
             ->setTitle($createQuestionDTO->title)
             ->setEventId($createQuestionDTO->event_id)
             ->setBelongsTo($createQuestionDTO->belongs_to->name)
@@ -28,7 +30,9 @@ class CreateQuestionHandler
             ->setRequired($createQuestionDTO->required)
             ->setOptions($createQuestionDTO->options)
             ->setIsHidden($createQuestionDTO->is_hidden)
-            ->setDescription($this->purifier->purify($createQuestionDTO->description));
+            ->setDescription($this->purifier->purify($createQuestionDTO->description))
+            ->setConditions($createQuestionDTO->conditions)
+            ->setValidationRules($createQuestionDTO->validation_rules);
 
         return $this->createQuestionService->createQuestion(
             $question,

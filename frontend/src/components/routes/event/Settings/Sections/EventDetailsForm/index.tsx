@@ -1,15 +1,13 @@
 import {t} from "@lingui/macro";
 import {Button, Select, TextInput} from "@mantine/core";
-import {IconCalendarRepeat} from "@tabler/icons-react";
 import {useForm} from "@mantine/form";
-import {NavLink, useParams} from "react-router";
+import {useParams} from "react-router";
 import {useGetEvent} from "../../../../../../queries/useGetEvent.ts";
 import {useEffect} from "react";
 import {useUpdateEvent} from "../../../../../../mutations/useUpdateEvent.ts";
-import {Event, EventType} from "../../../../../../types.ts";
+import {Event} from "../../../../../../types.ts";
 import {InputGroup} from "../../../../../common/InputGroup";
 import {Card} from "../../../../../common/Card";
-import {Callout} from "../../../../../common/Callout";
 import {Editor} from "../../../../../common/Editor";
 import {utcToTz} from "../../../../../../utilites/dates.ts";
 import {showSuccess} from "../../../../../../utilites/notifications.tsx";
@@ -17,13 +15,12 @@ import {useFormErrorResponseHandler} from "../../../../../../hooks/useFormErrorR
 import {currenciesMap} from "../../../../../../../data/currencies.ts";
 import {timezones} from "../../../../../../../data/timezones.ts";
 import {HeadingWithDescription} from "../../../../../common/Card/CardHeading";
-import {getEventCategories} from "../../../../../../constants/eventCategories.ts";
+import {EventCategories} from "../../../../../../constants/eventCategories.ts";
 
 export const EventDetailsForm = () => {
     const {eventId} = useParams();
     const eventQuery = useGetEvent(eventId);
     const updateMutation = useUpdateEvent();
-    const isRecurring = eventQuery.data?.type === EventType.RECURRING;
     const form = useForm({
         initialValues: {
             title: '',
@@ -69,9 +66,7 @@ export const EventDetailsForm = () => {
         <Card>
             <HeadingWithDescription
                 heading={t`Event Details`}
-                description={isRecurring
-                    ? t`Update event name and description`
-                    : t`Update event name, description and dates`}
+                description={t`Update event name, description and dates`}
             />
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <fieldset disabled={eventQuery.isLoading || updateMutation.isPending}>
@@ -86,7 +81,7 @@ export const EventDetailsForm = () => {
                         {...form.getInputProps('category')}
                         label={t`Category`}
                         placeholder={t`Select a category`}
-                        data={getEventCategories().map((category) => ({
+                        data={EventCategories.map((category) => ({
                             value: category.id,
                             label: `${category.emoji} ${category.name}`,
                         }))}
@@ -101,33 +96,17 @@ export const EventDetailsForm = () => {
                         error={form.errors?.description as string}
                     />
 
-                    {isRecurring ? (
-                        <Callout variant="info" title={t`Dates are managed per occurrence`}>
-                            {t`This event's dates and times are set on the occurrence schedule.`}
-                            <div style={{marginTop: '0.75rem'}}>
-                                <Button
-                                    component={NavLink}
-                                    to={'/manage/event/' + eventId + '/occurrences'}
-                                    leftSection={<IconCalendarRepeat size={16}/>}
-                                    variant="light"
-                                >
-                                    {t`Manage schedule`}
-                                </Button>
-                            </div>
-                        </Callout>
-                    ) : (
-                        <InputGroup>
-                            <TextInput type={'datetime-local'}
-                                       {...form.getInputProps('start_date')}
-                                       label={t`Start Date`}
-                                       required
-                            />
-                            <TextInput type={'datetime-local'}
-                                       {...form.getInputProps('end_date')}
-                                       label={t`End Date`}
-                            />
-                        </InputGroup>
-                    )}
+                    <InputGroup>
+                        <TextInput type={'datetime-local'}
+                                   {...form.getInputProps('start_date')}
+                                   label={t`Start Date`}
+                                   required
+                        />
+                        <TextInput type={'datetime-local'}
+                                   {...form.getInputProps('end_date')}
+                                   label={t`End Date`}
+                        />
+                    </InputGroup>
                     <InputGroup>
                         <Select
                             searchable
@@ -135,7 +114,7 @@ export const EventDetailsForm = () => {
                             {...form.getInputProps('currency')}
                             label={t`Currency`}
                             placeholder={t`EUR`}
-                            description={t`The currency used for this event's ticket prices.`}
+                            disabled
                         />
 
                         <Select
@@ -144,7 +123,6 @@ export const EventDetailsForm = () => {
                             {...form.getInputProps('timezone')}
                             label={t`Timezone`}
                             placeholder={t`UTC`}
-                            description={t`The timezone used for this event's dates and times.`}
                         />
                     </InputGroup>
                     <Button loading={updateMutation.isPending} type={'submit'}>

@@ -14,7 +14,8 @@ class EditOrderPublicAction extends BaseAction
 {
     public function __construct(
         private readonly EditOrderPublicHandler $handler
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         EditOrderPublicRequest $request,

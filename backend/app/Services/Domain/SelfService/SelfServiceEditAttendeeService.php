@@ -4,7 +4,6 @@ namespace HiEvents\Services\Domain\SelfService;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
-use HiEvents\DomainObjects\EventOccurrenceDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
@@ -63,7 +62,7 @@ class SelfServiceEditAttendeeService
             $emailChanged = true;
         }
 
-        if (! empty($updateData)) {
+        if (!empty($updateData)) {
             $oldEmail = $attendee->getEmail();
 
             if ($emailChanged) {
@@ -125,14 +124,6 @@ class SelfServiceEditAttendeeService
             ->loadRelation(new Relationship(OrderDomainObject::class, nested: [
                 new Relationship(OrderItemDomainObject::class),
             ], name: 'order'))
-            ->loadRelation(new Relationship(
-                domainObject: EventOccurrenceDomainObject::class,
-                name: 'event_occurrence',
-            ))
-            ->loadRelation(new Relationship(
-                domainObject: ProductDomainObject::class,
-                name: 'product',
-            ))
             ->findById($attendeeId);
 
         $this->sendAttendeeTicketService->send(

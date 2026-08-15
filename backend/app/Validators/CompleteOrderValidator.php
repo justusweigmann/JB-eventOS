@@ -22,18 +22,20 @@ use Illuminate\Routing\Route;
 class CompleteOrderValidator extends BaseValidator
 {
     public function __construct(
-        private readonly QuestionRepositoryInterface $questionRepository,
-        private readonly ProductRepositoryInterface $productRepository,
+        private readonly QuestionRepositoryInterface      $questionRepository,
+        private readonly ProductRepositoryInterface       $productRepository,
         private readonly EventSettingsRepositoryInterface $eventSettingsRepository,
-        private readonly Route $route
-    ) {}
+        private readonly Route                            $route
+    )
+    {
+    }
 
     public function rules(): array
     {
         $questions = $this->questionRepository
             ->loadRelation(
                 new Relationship(ProductDomainObject::class, [
-                    new Relationship(ProductPriceDomainObject::class),
+                    new Relationship(ProductPriceDomainObject::class)
                 ])
             )
             ->findWhere(
@@ -41,11 +43,11 @@ class CompleteOrderValidator extends BaseValidator
             );
 
         $orderQuestions = $questions->filter(
-            fn (QuestionDomainObject $question) => $question->getBelongsTo() === QuestionBelongsTo::ORDER->name
+            fn(QuestionDomainObject $question) => $question->getBelongsTo() === QuestionBelongsTo::ORDER->name
         );
 
         $productQuestions = $questions->filter(
-            fn (QuestionDomainObject $question) => $question->getBelongsTo() === QuestionBelongsTo::PRODUCT->name
+            fn(QuestionDomainObject $question) => $question->getBelongsTo() === QuestionBelongsTo::PRODUCT->name
         );
 
         $products = $this->productRepository
@@ -61,9 +63,9 @@ class CompleteOrderValidator extends BaseValidator
 
         $addressRules = $eventSettings->getRequireBillingAddress() ? [
             'order.address' => 'array',
-            'order.address.address_line_1' => 'required|string|max:255',
+            'order.address.address_line_1' => 'nullable|string|max:255',
             'order.address.address_line_2' => 'nullable|string|max:255',
-            'order.address.city' => 'required|string|max:85',
+            'order.address.city' => 'nullable|string|max:85',
             'order.address.state_or_region' => 'nullable|string|max:85',
             'order.address.zip_or_postal_code' => 'nullable|string|max:85',
             'order.address.country' => 'required|string|max:2',
@@ -79,8 +81,9 @@ class CompleteOrderValidator extends BaseValidator
                 $productQuestions,
                 $products,
                 $eventSettings->getAttendeeDetailsCollectionMethod(),
+                $eventSettings->getRequireAttendeeName(),
             ),
-            ...$addressRules,
+            ...$addressRules
         ];
     }
 

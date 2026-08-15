@@ -3,6 +3,7 @@
 namespace HiEvents\Http\Actions\Organizers\Webhooks;
 
 use HiEvents\DomainObjects\OrganizerDomainObject;
+use HiEvents\DomainObjects\Status\WebhookStatus;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Http\Request\Webhook\UpsertWebhookRequest;
 use HiEvents\Resources\Webhook\WebhookResource;
@@ -14,7 +15,9 @@ class EditOrganizerWebhookAction extends BaseAction
 {
     public function __construct(
         private readonly EditWebhookHandler $editWebhookHandler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $organizerId, int $webhookId, UpsertWebhookRequest $request): JsonResponse
     {
@@ -29,7 +32,7 @@ class EditOrganizerWebhookAction extends BaseAction
                 organizerId: $organizerId,
                 userId: $this->getAuthenticatedUser()->getId(),
                 accountId: $this->getAuthenticatedAccountId(),
-                status: $request->getStatus(),
+                status: WebhookStatus::fromName($request->validated('status')),
             )
         );
 

@@ -10,7 +10,9 @@ class OrganizerFetchService
 {
     public function __construct(
         public readonly OrganizerRepositoryInterface $organizerRepository,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws OrganizerNotFoundException

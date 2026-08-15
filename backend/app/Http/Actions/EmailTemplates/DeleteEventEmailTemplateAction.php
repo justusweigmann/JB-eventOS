@@ -16,7 +16,9 @@ class DeleteEventEmailTemplateAction extends BaseEmailTemplateAction
 {
     public function __construct(
         private readonly DeleteEmailTemplateHandler $handler
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $eventId, int $templateId): Response|JsonResponse
     {

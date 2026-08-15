@@ -7,7 +7,6 @@
   @media print {
     padding: 0;
     max-width: none;
-    height: auto;
   }
 }
 
@@ -28,13 +27,12 @@
   margin-bottom: 30px;
 
   @media print {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
     margin-bottom: 0;
+    page-break-after: always;
+    page-break-inside: avoid;
 
-    & + & {
-      page-break-before: always;
+    &:last-of-type {
+      page-break-after: auto;
     }
   }
 
@@ -48,7 +46,7 @@
 .poweredBy {
   @media print {
     margin-top: auto;
-    padding: 30px 0 14mm;
+    padding-top: 30px;
   }
   
   @media screen {

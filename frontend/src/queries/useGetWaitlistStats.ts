@@ -4,11 +4,11 @@ import {IdParam, WaitlistStats} from "../types.ts";
 
 export const GET_WAITLIST_STATS_QUERY_KEY = 'getWaitlistStats';
 
-export const useGetWaitlistStats = (eventId: IdParam, eventOccurrenceId?: IdParam | null) => {
+export const useGetWaitlistStats = (eventId: IdParam) => {
     return useQuery<WaitlistStats>({
-        queryKey: [GET_WAITLIST_STATS_QUERY_KEY, eventId, eventOccurrenceId],
+        queryKey: [GET_WAITLIST_STATS_QUERY_KEY, eventId],
         queryFn: async () => {
-            return waitlistClient.stats(eventId, eventOccurrenceId);
+            return waitlistClient.stats(eventId);
         },
     });
 };

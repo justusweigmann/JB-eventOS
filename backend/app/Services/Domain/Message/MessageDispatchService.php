@@ -8,7 +8,6 @@ use HiEvents\DomainObjects\Enums\MessageTypeEnum;
 use HiEvents\DomainObjects\MessageDomainObject;
 use HiEvents\DomainObjects\Status\MessageStatus;
 use HiEvents\Jobs\Event\SendMessagesJob;
-use HiEvents\Repository\Interfaces\EventOccurrenceRepositoryInterface;
 use HiEvents\Repository\Interfaces\MessageRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Message\DTO\SendMessageDTO;
 use Illuminate\Support\Facades\Log;
@@ -18,34 +17,22 @@ class MessageDispatchService
 {
     public function __construct(
         private readonly MessageRepositoryInterface $messageRepository,
-        private readonly EventOccurrenceRepositoryInterface $eventOccurrenceRepository,
-    ) {}
+    )
+    {
+    }
 
     public function dispatchMessage(MessageDomainObject $message, MessageStatus $expectedStatus = MessageStatus::SCHEDULED): void
     {
         $sendData = $message->getSendData();
         $sendDataArray = is_string($sendData) ? json_decode($sendData, true) : $sendData;
 
-        if (! is_array($sendDataArray) || ! isset($sendDataArray['account_id'])) {
+        if (!is_array($sendDataArray) || !isset($sendDataArray['account_id'])) {
             Log::error('Message has invalid send_data, marking as FAILED', [
                 'message_id' => $message->getId(),
             ]);
             $this->messageRepository->updateFromArray($message->getId(), [
                 'status' => MessageStatus::FAILED->name,
             ]);
-
-            return;
-        }
-
-        if ($this->isForCancelledOccurrence($message)) {
-            Log::info('Message is scoped to a cancelled or deleted occurrence, marking as CANCELLED', [
-                'message_id' => $message->getId(),
-                'event_occurrence_id' => $message->getEventOccurrenceId(),
-            ]);
-            $this->messageRepository->updateFromArray($message->getId(), [
-                'status' => MessageStatus::CANCELLED->name,
-            ]);
-
             return;
         }
 
@@ -58,7 +45,6 @@ class MessageDispatchService
             Log::info('Message status changed before dispatch, skipping', [
                 'message_id' => $message->getId(),
             ]);
-
             return;
         }
 
@@ -77,8 +63,6 @@ class MessageDispatchService
                 id: $message->getId(),
                 attendee_ids: $message->getAttendeeIds() ?? [],
                 product_ids: $message->getProductIds() ?? [],
-                event_occurrence_id: $message->getEventOccurrenceId(),
-                event_occurrence_ids: $sendDataArray['event_occurrence_ids'] ?? null,
             ));
         } catch (Throwable $e) {
             Log::error('Failed to dispatch SendMessagesJob, reverting status', [
@@ -91,46 +75,5 @@ class MessageDispatchService
             );
             throw $e;
         }
-    }
-
-    private function isForCancelledOccurrence(MessageDomainObject $message): bool
-    {
-        $occurrenceId = $message->getEventOccurrenceId();
-
-        if ($occurrenceId !== null) {
-            $occurrence = $this->eventOccurrenceRepository->findFirstWhere(['id' => $occurrenceId]);
-
-            return $occurrence === null || $occurrence->isCancelled();
-        }
-
-        $occurrenceIds = $this->getScheduledOccurrenceIds($message);
-
-        if ($occurrenceIds === []) {
-            return false;
-        }
-
-        $liveOccurrences = $this->eventOccurrenceRepository->findWhereIn('id', $occurrenceIds);
-
-        foreach ($liveOccurrences as $occurrence) {
-            if (! $occurrence->isCancelled()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private function getScheduledOccurrenceIds(MessageDomainObject $message): array
-    {
-        $sendData = $message->getSendData();
-        $sendDataArray = is_string($sendData) ? json_decode($sendData, true) : $sendData;
-
-        if (! is_array($sendDataArray)) {
-            return [];
-        }
-
-        $occurrenceIds = $sendDataArray['event_occurrence_ids'] ?? null;
-
-        return is_array($occurrenceIds) ? array_values(array_filter($occurrenceIds)) : [];
     }
 }

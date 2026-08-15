@@ -3,7 +3,6 @@
 namespace HiEvents\DomainObjects;
 
 use Carbon\Carbon;
-use HiEvents\DomainObjects\Enums\PromoCodeDiscountAppliesToEnum;
 use HiEvents\DomainObjects\Enums\PromoCodeDiscountTypeEnum;
 use HiEvents\DomainObjects\Interfaces\IsSortable;
 use HiEvents\DomainObjects\SortingAndFiltering\AllowedSorts;
@@ -45,13 +44,26 @@ class PromoCodeDomainObject extends Generated\PromoCodeDomainObjectAbstract impl
         return $this->getDiscountType() !== null && $this->getDiscount() > 0;
     }
 
+    public function isSiteWide(): bool
+    {
+        return $this->getEventId() === null && $this->getAccountId() !== null;
+    }
+
     public function isValid(): bool
     {
         if ($this->getExpiryDate() !== null && (new Carbon($this->getExpiryDate()))->isPast()) {
             return false;
         }
 
+        if ($this->getValidFrom() !== null && (new Carbon($this->getValidFrom()))->isFuture()) {
+            return false;
+        }
+
         if ($this->getMaxAllowedUsages() !== null && ($this->getOrderUsageCount() >= $this->getMaxAllowedUsages())) {
+            return false;
+        }
+
+        if ($this->getMaxAttendeeUsages() !== null && ($this->getAttendeeUsageCount() >= $this->getMaxAttendeeUsages())) {
             return false;
         }
 
@@ -60,7 +72,8 @@ class PromoCodeDomainObject extends Generated\PromoCodeDomainObjectAbstract impl
 
     public function appliesToProduct(ProductDomainObject $product): bool
     {
-        if (! $this->getApplicableProductIds()) {
+        // If there's no product IDs we apply the promo to all products
+        if (!$this->getApplicableProductIds()) {
             return true;
         }
 
@@ -80,11 +93,5 @@ class PromoCodeDomainObject extends Generated\PromoCodeDomainObjectAbstract impl
     public function isNoDiscountCode(): bool
     {
         return $this->getDiscountType() === PromoCodeDiscountTypeEnum::NONE->name;
-    }
-
-    public function isOrderLevelDiscount(): bool
-    {
-        return $this->isFixedDiscount()
-            && $this->getDiscountAppliesTo() === PromoCodeDiscountAppliesToEnum::ORDER->name;
     }
 }

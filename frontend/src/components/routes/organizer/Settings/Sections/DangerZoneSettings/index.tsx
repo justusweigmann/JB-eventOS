@@ -1,6 +1,5 @@
 import {t} from "@lingui/macro";
-import {Button, TextInput, Stack, Text} from "@mantine/core";
-import {Callout} from "../../../../../common/Callout";
+import {Button, Alert, TextInput, Stack, Text} from "@mantine/core";
 import {useNavigate, useParams} from "react-router";
 import {useState} from "react";
 import {DangerZone, DangerZoneSection} from "../../../../../common/DangerZone";
@@ -12,7 +11,7 @@ import {useGetOrganizers} from "../../../../../../queries/useGetOrganizers.ts";
 import {showSuccess, showError} from "../../../../../../utilites/notifications.tsx";
 import {confirmationDialog} from "../../../../../../utilites/confirmationDialog.tsx";
 import {OrganizerStatus} from "../../../../../../types.ts";
-import {IconTrash, IconArchive, IconArrowBackUp} from "@tabler/icons-react";
+import {IconInfoCircle, IconTrash, IconArchive, IconArrowBackUp} from "@tabler/icons-react";
 import {useIsCurrentUserAdmin} from "../../../../../../hooks/useIsCurrentUserAdmin.ts";
 import {BouncingEmoji} from "../../../../../common/BouncingEmoji";
 
@@ -28,8 +27,7 @@ export const DangerZoneSettings = () => {
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
     const isArchived = organizer?.status === OrganizerStatus.ARCHIVED;
-    const deleteConfirmationPhrase = t`delete`;
-    const isDeleteConfirmed = deleteConfirmation.trim().toLocaleLowerCase() === deleteConfirmationPhrase.toLocaleLowerCase();
+    const isDeleteConfirmed = deleteConfirmation.toLowerCase() === 'delete';
 
     const activeOrganizerCount = organizers?.data?.filter(
         org => org.status !== OrganizerStatus.ARCHIVED
@@ -96,9 +94,9 @@ export const DangerZoneSettings = () => {
                 action={
                     <>
                         {!isDeletionStatusLoading && !deletionStatus?.can_delete && (
-                            <Callout variant="info" style={{marginBottom: 8}}>
+                            <Alert icon={<IconInfoCircle size={16}/>} variant="light" color="gray" mb="sm">
                                 {deletionStatus?.reason}
-                            </Callout>
+                            </Alert>
                         )}
                         {deletionStatus?.can_delete && (
                             <Stack gap="xs" maw={400}>
@@ -106,7 +104,7 @@ export const DangerZoneSettings = () => {
                                     {t`Type "delete" to confirm`}
                                 </Text>
                                 <TextInput
-                                    placeholder={deleteConfirmationPhrase}
+                                    placeholder={t`delete`}
                                     value={deleteConfirmation}
                                     onChange={(e) => setDeleteConfirmation(e.currentTarget.value)}
                                 />

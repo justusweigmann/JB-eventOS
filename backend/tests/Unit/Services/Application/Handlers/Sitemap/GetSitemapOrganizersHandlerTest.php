@@ -18,9 +18,7 @@ use Tests\TestCase;
 class GetSitemapOrganizersHandlerTest extends TestCase
 {
     private OrganizerRepositoryInterface $organizerRepository;
-
     private SitemapGeneratorService $sitemapGenerator;
-
     private GetSitemapOrganizersHandler $handler;
 
     protected function setUp(): void
@@ -40,7 +38,7 @@ class GetSitemapOrganizersHandlerTest extends TestCase
         config(['app.frontend_url' => 'https://example.com']);
     }
 
-    public function test_handle_returns_cached_xml(): void
+    public function testHandleReturnsCachedXml(): void
     {
         $expectedXml = '<?xml version="1.0"?><urlset></urlset>';
 
@@ -59,7 +57,7 @@ class GetSitemapOrganizersHandlerTest extends TestCase
         $this->assertEquals($expectedXml, $result);
     }
 
-    public function test_handle_generates_xml_when_cache_miss(): void
+    public function testHandleGeneratesXmlWhenCacheMiss(): void
     {
         $expectedXml = '<?xml version="1.0"?><urlset></urlset>';
         $organizers = new Collection([m::mock(OrganizerDomainObject::class)]);
@@ -86,14 +84,14 @@ class GetSitemapOrganizersHandlerTest extends TestCase
         Cache::shouldReceive('remember')
             ->once()
             ->with('sitemap:organizers:1', 3600, m::type('Closure'))
-            ->andReturnUsing(fn ($key, $ttl, $callback) => $callback());
+            ->andReturnUsing(fn($key, $ttl, $callback) => $callback());
 
         $result = $this->handler->handle(1);
 
         $this->assertEquals($expectedXml, $result);
     }
 
-    public function test_handle_throws_exception_for_page_less_than_one(): void
+    public function testHandleThrowsExceptionForPageLessThanOne(): void
     {
         $this->expectException(ResourceNotFoundException::class);
         $this->expectExceptionMessage('Page must be a positive integer');
@@ -101,7 +99,7 @@ class GetSitemapOrganizersHandlerTest extends TestCase
         $this->handler->handle(0);
     }
 
-    public function test_handle_throws_exception_for_negative_page(): void
+    public function testHandleThrowsExceptionForNegativePage(): void
     {
         $this->expectException(ResourceNotFoundException::class);
         $this->expectExceptionMessage('Page must be a positive integer');
@@ -109,7 +107,7 @@ class GetSitemapOrganizersHandlerTest extends TestCase
         $this->handler->handle(-1);
     }
 
-    public function test_handle_throws_exception_for_page_beyond_total(): void
+    public function testHandleThrowsExceptionForPageBeyondTotal(): void
     {
         $this->organizerRepository
             ->shouldReceive('getSitemapOrganizerCount')
@@ -122,7 +120,7 @@ class GetSitemapOrganizersHandlerTest extends TestCase
         $this->handler->handle(2);
     }
 
-    public function test_handle_allows_last_valid_page(): void
+    public function testHandleAllowsLastValidPage(): void
     {
         config(['sitemap.organizers_per_page' => 100]);
 
@@ -148,14 +146,14 @@ class GetSitemapOrganizersHandlerTest extends TestCase
 
         Cache::shouldReceive('remember')
             ->once()
-            ->andReturnUsing(fn ($key, $ttl, $callback) => $callback());
+            ->andReturnUsing(fn($key, $ttl, $callback) => $callback());
 
         $result = $this->handler->handle(3);
 
         $this->assertEquals('xml', $result);
     }
 
-    public function test_handle_uses_correct_cache_key_for_different_pages(): void
+    public function testHandleUsesCorrectCacheKeyForDifferentPages(): void
     {
         $this->organizerRepository
             ->shouldReceive('getSitemapOrganizerCount')
@@ -171,7 +169,7 @@ class GetSitemapOrganizersHandlerTest extends TestCase
         $this->assertEquals('xml', $result);
     }
 
-    public function test_handle_trims_trailing_slash_from_base_url(): void
+    public function testHandleTrimsTrailingSlashFromBaseUrl(): void
     {
         config(['app.frontend_url' => 'https://example.com/']);
 
@@ -197,7 +195,7 @@ class GetSitemapOrganizersHandlerTest extends TestCase
 
         Cache::shouldReceive('remember')
             ->once()
-            ->andReturnUsing(fn ($key, $ttl, $callback) => $callback());
+            ->andReturnUsing(fn($key, $ttl, $callback) => $callback());
 
         $result = $this->handler->handle(1);
 

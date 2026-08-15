@@ -33,15 +33,19 @@ abstract class BaseAction extends Controller
     use ValidatesRequests;
 
     /**
-     * @param  class-string<BaseResource>  $resource
-     * @param  class-string<IsSortable|IsFilterable>  $domainObject
+     * @param class-string<BaseResource> $resource
+     * @param Collection|DomainObjectInterface|LengthAwarePaginator $data
+     * @param int $statusCode
+     * @param class-string<IsSortable|IsFilterable> $domainObject
+     * @return JsonResponse
      */
     protected function filterableResourceResponse(
-        string $resource,
+        string                                                $resource,
         Collection|DomainObjectInterface|LengthAwarePaginator $data,
-        string $domainObject,
-        int $statusCode = ResponseCodes::HTTP_OK,
-    ): JsonResponse {
+        string                                                $domainObject,
+        int                                                   $statusCode = ResponseCodes::HTTP_OK,
+    ): JsonResponse
+    {
         $metaFields = [];
 
         if (is_a($domainObject, IsFilterable::class, true)) {
@@ -58,16 +62,23 @@ abstract class BaseAction extends Controller
     }
 
     /**
-     * @param  class-string<BaseResource>  $resource
+     * @param class-string<BaseResource> $resource
+     * @param Collection|DomainObjectInterface|LengthAwarePaginator|BaseDTO|Paginator|BaseDataObject $data
+     * @param int $statusCode
+     * @param array $meta
+     * @param array $headers
+     * @param array $errors
+     * @return JsonResponse
      */
     protected function resourceResponse(
-        string $resource,
+        string                                                                                 $resource,
         Collection|DomainObjectInterface|LengthAwarePaginator|BaseDTO|Paginator|BaseDataObject $data,
-        int $statusCode = ResponseCodes::HTTP_OK,
-        array $meta = [],
-        array $headers = [],
-        array $errors = [],
-    ): JsonResponse {
+        int                                                                                    $statusCode = ResponseCodes::HTTP_OK,
+        array                                                                                  $meta = [],
+        array                                                                                  $headers = [],
+        array                                                                                  $errors = [],
+    ): JsonResponse
+    {
         if ($data instanceof Collection || $data instanceof Paginator) {
             $additional = array_filter([
                 'meta' => $meta ?? null,
@@ -106,9 +117,10 @@ abstract class BaseAction extends Controller
 
     protected function errorResponse(
         string $message,
-        int $statusCode = ResponseCodes::HTTP_BAD_REQUEST,
-        array $errors = [],
-    ): JsonResponse {
+        int    $statusCode = ResponseCodes::HTTP_BAD_REQUEST,
+        array  $errors = [],
+    ): JsonResponse
+    {
         return $this->jsonResponse([
             'message' => $message,
             'errors' => $errors,
@@ -117,9 +129,10 @@ abstract class BaseAction extends Controller
 
     protected function jsonResponse(
         mixed $data,
-        int $statusCode = ResponseCodes::HTTP_OK,
-        bool $wrapInData = false,
-    ): JsonResponse {
+        int   $statusCode = ResponseCodes::HTTP_OK,
+        bool  $wrapInData = false,
+    ): JsonResponse
+    {
         if ($wrapInData) {
             $data = [
                 'data' => $data,
@@ -131,9 +144,10 @@ abstract class BaseAction extends Controller
 
     protected function xmlResponse(
         string $xmlContent,
-        int $statusCode = ResponseCodes::HTTP_OK,
-        array $headers = [],
-    ): LaravelResponse {
+        int    $statusCode = ResponseCodes::HTTP_OK,
+        array  $headers = [],
+    ): LaravelResponse
+    {
         $defaultHeaders = [
             'Content-Type' => 'application/xml',
         ];
@@ -144,10 +158,11 @@ abstract class BaseAction extends Controller
     }
 
     protected function isActionAuthorized(
-        int $entityId,
+        int    $entityId,
         string $entityType,
-        Role $minimumRole = Role::ORGANIZER
-    ): void {
+        Role   $minimumRole = Role::ORGANIZER
+    ): void
+    {
         /** @var IsAuthorizedService $authService */
         $authService = app()->make(IsAuthorizedService::class);
 
@@ -174,7 +189,7 @@ abstract class BaseAction extends Controller
             return $accountId;
         }
 
-        throw new UnauthorizedException;
+        throw new UnauthorizedException();
     }
 
     protected function getAuthenticatedUserRole(): Role
@@ -191,7 +206,7 @@ abstract class BaseAction extends Controller
             return $role;
         }
 
-        throw new UnauthorizedException;
+        throw new UnauthorizedException();
     }
 
     protected function getAuthenticatedUser(): UserDomainObject|DomainObjectInterface
@@ -199,11 +214,10 @@ abstract class BaseAction extends Controller
         if (Auth::check()) {
             /** @var AuthUserService $service */
             $service = app(AuthUserService::class);
-
             return $service->getUser();
         }
 
-        throw new UnauthorizedException;
+        throw new UnauthorizedException();
     }
 
     protected function isUserAuthenticated(): bool

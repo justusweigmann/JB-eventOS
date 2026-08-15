@@ -68,7 +68,6 @@ export const Products = () => {
                         <Button
                             leftSection={<IconPlus/>}
                             color={'green'}
-                            data-testid="product-create-button"
                             rightSection={
                                 <IconChevronDown stroke={1.5}/>
                             }

@@ -11,7 +11,9 @@ class EditQuestionAnswerHandler
 {
     public function __construct(
         private readonly EditQuestionAnswerService $editQuestionAnswerService,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws InvalidAnswerException

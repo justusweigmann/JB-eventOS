@@ -19,11 +19,13 @@ use Throwable;
 readonly class PaymentIntentFailedHandler
 {
     public function __construct(
-        private OrderRepositoryInterface $orderRepository,
-        private StripePaymentsRepository $stripePaymentsRepository,
-        private DatabaseManager $databaseManager,
+        private OrderRepositoryInterface                    $orderRepository,
+        private StripePaymentsRepository                    $stripePaymentsRepository,
+        private DatabaseManager                             $databaseManager,
         private StripePaymentUpdateFromPaymentIntentService $stripePaymentUpdateFromPaymentIntentService,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws Throwable
@@ -38,38 +40,20 @@ readonly class PaymentIntentFailedHandler
                     StripePaymentDomainObjectAbstract::PAYMENT_INTENT_ID => $paymentIntent->id,
                 ]);
 
-            if (! $stripePayment) {
-                return;
-            }
-
             $this->stripePaymentUpdateFromPaymentIntentService->updateStripePaymentInfo($paymentIntent, $stripePayment);
 
             $updatedOrder = $this->updateOrderStatuses($stripePayment);
 
-            if ($updatedOrder !== null) {
-                OrderStatusChangedEvent::dispatch($updatedOrder);
-            }
+            OrderStatusChangedEvent::dispatch($updatedOrder);
         });
     }
 
-    private function updateOrderStatuses(StripePaymentDomainObjectAbstract $stripePayment): ?OrderDomainObject
+    private function updateOrderStatuses(StripePaymentDomainObjectAbstract $stripePayment): OrderDomainObject
     {
-        $affected = $this->orderRepository->updateWhere(
-            attributes: [
-                OrderDomainObjectAbstract::PAYMENT_STATUS => OrderPaymentStatus::PAYMENT_FAILED->name,
-            ],
-            where: [
-                OrderDomainObjectAbstract::ID => $stripePayment->getOrderId(),
-                OrderDomainObjectAbstract::PAYMENT_STATUS => OrderPaymentStatus::AWAITING_PAYMENT->name,
-            ],
-        );
-
-        if ($affected === 0) {
-            return null;
-        }
-
         return $this->orderRepository
             ->loadRelation(OrderItemDomainObject::class)
-            ->findById($stripePayment->getOrderId());
+            ->updateFromArray($stripePayment->getOrderId(), [
+                OrderDomainObjectAbstract::PAYMENT_STATUS => OrderPaymentStatus::PAYMENT_FAILED->name,
+            ]);
     }
 }

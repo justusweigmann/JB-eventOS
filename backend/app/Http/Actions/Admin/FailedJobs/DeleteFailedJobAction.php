@@ -13,7 +13,8 @@ class DeleteFailedJobAction extends BaseAction
 {
     public function __construct(
         private readonly DeleteFailedJobHandler $handler,
-    ) {}
+    ) {
+    }
 
     public function __invoke(int $jobId): JsonResponse
     {
@@ -21,7 +22,7 @@ class DeleteFailedJobAction extends BaseAction
 
         $deleted = $this->handler->handle($jobId);
 
-        if (! $deleted) {
+        if (!$deleted) {
             return $this->errorResponse(__('Failed job not found'), 404);
         }
 

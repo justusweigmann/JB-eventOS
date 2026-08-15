@@ -16,7 +16,6 @@ class StripePaymentDomainObject extends Generated\StripePaymentDomainObjectAbstr
     public function setOrder(?OrderDomainObject $order): self
     {
         $this->order = $order;
-
         return $this;
     }
 
@@ -25,7 +24,7 @@ class StripePaymentDomainObject extends Generated\StripePaymentDomainObjectAbstr
      */
     public function getStripePlatformEnum(): ?StripePlatform
     {
-        return $this->getStripePlatform()
+        return $this->getStripePlatform() 
             ? StripePlatform::fromString($this->getStripePlatform())
             : null;
     }

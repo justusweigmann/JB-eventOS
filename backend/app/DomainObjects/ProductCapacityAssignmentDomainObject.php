@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class ProductCapacityAssignmentDomainObject extends Generated\ProductCapacityAssignmentDomainObjectAbstract {}
+class ProductCapacityAssignmentDomainObject extends Generated\ProductCapacityAssignmentDomainObjectAbstract
+{
+}

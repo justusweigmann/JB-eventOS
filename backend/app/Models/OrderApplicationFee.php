@@ -13,7 +13,6 @@ class OrderApplicationFee extends BaseModel
     {
         return [
             'metadata' => 'array',
-            'amount' => 'float',
         ];
     }
 

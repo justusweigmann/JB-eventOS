@@ -7,4 +7,6 @@ use HiEvents\DomainObjects\QuestionAnswerDomainObject;
 /**
  * @extends RepositoryInterface<QuestionAnswerDomainObject>
  */
-interface QuestionAnswerRepositoryInterface extends RepositoryInterface {}
+interface QuestionAnswerRepositoryInterface extends RepositoryInterface
+{
+}

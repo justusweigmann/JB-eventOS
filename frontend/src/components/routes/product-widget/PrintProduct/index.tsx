@@ -48,9 +48,11 @@ const PrintProduct = () => {
                     hideButtons
                 />
 
-                <div style={{ marginTop: '32px', maxWidth: '900px', width: '100%' }}>
-                    <OnlineEventDetails event={event} occurrence={attendee.event_occurrence ?? null}/>
-                </div>
+                {((['online', 'hybrid'].includes(event?.settings?.event_location_type || '') || event?.settings?.is_online_event) && (
+                    <div style={{ marginTop: '32px', maxWidth: '900px', width: '100%' }}>
+                        <OnlineEventDetails eventSettings={event.settings}/>
+                    </div>
+                ))}
                 
                 <div className={classes.poweredBy}>
                     <PoweredByFooter/>

@@ -10,5 +10,7 @@ class FilterFieldDTO extends BaseDTO
         public readonly ?string $field = null,
         public readonly ?string $operator = null,
         public readonly ?string $value = null,
-    ) {}
+    )
+    {
+    }
 }

@@ -7,13 +7,10 @@ use HiEvents\DomainObjects\Interfaces\IsFilterable;
 use HiEvents\DomainObjects\Interfaces\IsSortable;
 use HiEvents\DomainObjects\SortingAndFiltering\AllowedSorts;
 
-class WaitlistEntryDomainObject extends WaitlistEntryDomainObjectAbstract implements IsFilterable, IsSortable
+class WaitlistEntryDomainObject extends WaitlistEntryDomainObjectAbstract implements IsSortable, IsFilterable
 {
     public ?OrderDomainObject $order = null;
-
     public ?ProductPriceDomainObject $productPrice = null;
-
-    public ?EventOccurrenceDomainObject $eventOccurrence = null;
 
     public static function getDefaultSort(): string
     {
@@ -31,7 +28,6 @@ class WaitlistEntryDomainObject extends WaitlistEntryDomainObjectAbstract implem
             self::STATUS,
             self::PRODUCT_PRICE_ID,
             self::EMAIL,
-            self::EVENT_OCCURRENCE_ID,
         ];
     }
 
@@ -58,7 +54,6 @@ class WaitlistEntryDomainObject extends WaitlistEntryDomainObjectAbstract implem
     public function setOrder(?OrderDomainObject $order): self
     {
         $this->order = $order;
-
         return $this;
     }
 
@@ -70,7 +65,6 @@ class WaitlistEntryDomainObject extends WaitlistEntryDomainObjectAbstract implem
     public function setProductPrice(?ProductPriceDomainObject $productPrice): self
     {
         $this->productPrice = $productPrice;
-
         return $this;
     }
 
@@ -79,15 +73,4 @@ class WaitlistEntryDomainObject extends WaitlistEntryDomainObjectAbstract implem
         return $this->productPrice;
     }
 
-    public function setEventOccurrence(?EventOccurrenceDomainObject $eventOccurrence): self
-    {
-        $this->eventOccurrence = $eventOccurrence;
-
-        return $this;
-    }
-
-    public function getEventOccurrence(): ?EventOccurrenceDomainObject
-    {
-        return $this->eventOccurrence;
-    }
 }

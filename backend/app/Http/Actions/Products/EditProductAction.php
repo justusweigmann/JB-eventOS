@@ -12,8 +12,6 @@ use HiEvents\Http\Request\Product\UpsertProductRequest;
 use HiEvents\Resources\Product\ProductResource;
 use HiEvents\Services\Application\Handlers\Product\DTO\UpsertProductDTO;
 use HiEvents\Services\Application\Handlers\Product\EditProductHandler;
-use HiEvents\Services\Domain\Product\Exception\InvalidAddonProductException;
-use HiEvents\Services\Domain\Product\Exception\UnrecognizedProductIdException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -22,7 +20,9 @@ class EditProductAction extends BaseAction
 {
     public function __construct(
         private readonly EditProductHandler $editProductHandler,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws Throwable
@@ -47,10 +47,6 @@ class EditProductAction extends BaseAction
         } catch (CannotChangeProductTypeException $e) {
             throw ValidationException::withMessages([
                 'type' => $e->getMessage(),
-            ]);
-        } catch (InvalidAddonProductException|UnrecognizedProductIdException $e) {
-            throw ValidationException::withMessages([
-                'addon_product_ids' => $e->getMessage(),
             ]);
         }
 

@@ -2,13 +2,12 @@
 
 namespace HiEvents\Jobs\Waitlist;
 
-use HiEvents\DomainObjects\Enums\CapacityChangeDirection;
 use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\DomainObjects\Status\WaitlistEntryStatus;
+use HiEvents\DomainObjects\Enums\CapacityChangeDirection;
 use HiEvents\Events\CapacityChangedEvent;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Repository\Interfaces\ProductPriceRepositoryInterface;
-use HiEvents\Repository\Interfaces\StripePaymentsRepositoryInterface;
 use HiEvents\Repository\Interfaces\WaitlistEntryRepositoryInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,11 +24,11 @@ class ProcessExpiredWaitlistOffersJob implements ShouldQueue
 
     public function handle(
         WaitlistEntryRepositoryInterface $repository,
-        OrderRepositoryInterface $orderRepository,
-        ProductPriceRepositoryInterface $productPriceRepository,
-        DatabaseManager $databaseManager,
-        StripePaymentsRepositoryInterface $stripePaymentsRepository,
-    ): void {
+        OrderRepositoryInterface         $orderRepository,
+        ProductPriceRepositoryInterface  $productPriceRepository,
+        DatabaseManager                  $databaseManager,
+    ): void
+    {
         $expiredEntries = $repository->findWhere([
             'status' => WaitlistEntryStatus::OFFERED->name,
             ['offer_expires_at', '<=', now()->toDateTimeString()],
@@ -38,7 +37,7 @@ class ProcessExpiredWaitlistOffersJob implements ShouldQueue
 
         foreach ($expiredEntries as $entry) {
             try {
-                $databaseManager->transaction(function () use ($entry, $repository, $orderRepository, $stripePaymentsRepository) {
+                $databaseManager->transaction(function () use ($entry, $repository, $orderRepository) {
                     $lockedEntry = $repository->findByIdLocked($entry->getId());
 
                     if ($lockedEntry === null || $lockedEntry->getStatus() !== WaitlistEntryStatus::OFFERED->name) {
@@ -46,24 +45,10 @@ class ProcessExpiredWaitlistOffersJob implements ShouldQueue
                     }
 
                     if ($lockedEntry->getOrderId() !== null) {
-                        $orderHasStripePayment = $stripePaymentsRepository->countWhere([
-                            'order_id' => $lockedEntry->getOrderId(),
-                        ]) > 0;
-
-                        if ($orderHasStripePayment) {
-                            $orderRepository->updateWhere(
-                                attributes: ['status' => OrderStatus::ABANDONED->name],
-                                where: [
-                                    'id' => $lockedEntry->getOrderId(),
-                                    'status' => OrderStatus::RESERVED->name,
-                                ],
-                            );
-                        } else {
-                            $orderRepository->deleteWhere([
-                                'id' => $lockedEntry->getOrderId(),
-                                'status' => OrderStatus::RESERVED->name,
-                            ]);
-                        }
+                        $orderRepository->deleteWhere([
+                            'id' => $lockedEntry->getOrderId(),
+                            'status' => OrderStatus::RESERVED->name,
+                        ]);
                     }
 
                     $repository->updateWhere(
@@ -93,7 +78,6 @@ class ProcessExpiredWaitlistOffersJob implements ShouldQueue
                     direction: CapacityChangeDirection::INCREASED,
                     productId: $productPrice->getProductId(),
                     productPriceId: $entry->getProductPriceId(),
-                    eventOccurrenceId: $entry->getEventOccurrenceId(),
                 ));
             } catch (Throwable $e) {
                 Log::error('Failed to process expired waitlist offer', [

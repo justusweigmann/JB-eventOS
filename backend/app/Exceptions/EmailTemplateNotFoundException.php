@@ -4,4 +4,7 @@ namespace HiEvents\Exceptions;
 
 use Exception;
 
-class EmailTemplateNotFoundException extends Exception {}
+class EmailTemplateNotFoundException extends Exception
+{
+
+}

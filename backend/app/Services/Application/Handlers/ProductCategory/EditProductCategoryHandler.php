@@ -12,7 +12,9 @@ class EditProductCategoryHandler
     public function __construct(
         private readonly ProductCategoryRepositoryInterface $productCategoryRepository,
         private readonly HtmlPurifierService $purifier,
-    ) {}
+    )
+    {
+    }
 
     public function handle(UpsertProductCategoryDTO $dto): ProductCategoryDomainObject
     {

@@ -8,7 +8,9 @@ use HiEvents\Services\Domain\Event\EventStatsFetchService;
 
 readonly class GetEventStatsHandler
 {
-    public function __construct(private EventStatsFetchService $eventStatsFetchService) {}
+    public function __construct(private EventStatsFetchService $eventStatsFetchService)
+    {
+    }
 
     public function handle(EventStatsRequestDTO $statsRequestDTO): EventStatsResponseDTO
     {

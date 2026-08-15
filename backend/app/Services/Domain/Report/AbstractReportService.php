@@ -11,12 +11,14 @@ use Illuminate\Support\Collection;
 abstract class AbstractReportService
 {
     public function __construct(
-        private readonly Repository $cache,
-        private readonly DatabaseManager $queryBuilder,
+        private readonly Repository               $cache,
+        private readonly DatabaseManager          $queryBuilder,
         private readonly EventRepositoryInterface $eventRepository,
-    ) {}
+    )
+    {
+    }
 
-    public function generateReport(int $eventId, ?Carbon $startDate = null, ?Carbon $endDate = null, ?int $occurrenceId = null): Collection
+    public function generateReport(int $eventId, ?Carbon $startDate = null, ?Carbon $endDate = null): Collection
     {
         $event = $this->eventRepository->findById($eventId);
         $timezone = $event->getTimezone();
@@ -29,34 +31,24 @@ abstract class AbstractReportService
             ? $startDate->copy()->setTimezone($timezone)->startOfDay()
             : $endDate->copy()->subDays(30)->startOfDay();
 
-        $bindings = ['event_id' => $eventId];
-        if ($occurrenceId !== null) {
-            $bindings['occurrence_id'] = $occurrenceId;
-        }
-
-        $bindings = array_merge($bindings, $this->getAdditionalBindings($startDate, $endDate));
-
         $reportResults = $this->cache->remember(
-            key: $this->getCacheKey($eventId, $startDate, $endDate, $occurrenceId),
+            key: $this->getCacheKey($eventId, $startDate, $endDate),
             ttl: Carbon::now()->addSeconds(20),
-            callback: fn () => $this->queryBuilder->select(
-                $this->getSqlQuery($startDate, $endDate, $occurrenceId),
-                $bindings,
+            callback: fn() => $this->queryBuilder->select(
+                $this->getSqlQuery($startDate, $endDate),
+                [
+                    'event_id' => $eventId,
+                ]
             )
         );
 
         return collect($reportResults);
     }
 
-    abstract protected function getSqlQuery(Carbon $startDate, Carbon $endDate, ?int $occurrenceId = null): string;
+    abstract protected function getSqlQuery(Carbon $startDate, Carbon $endDate): string;
 
-    protected function getAdditionalBindings(Carbon $startDate, Carbon $endDate): array
+    protected function getCacheKey(int $eventId, ?Carbon $startDate, ?Carbon $endDate): string
     {
-        return [];
-    }
-
-    protected function getCacheKey(int $eventId, ?Carbon $startDate, ?Carbon $endDate, ?int $occurrenceId = null): string
-    {
-        return static::class."$eventId.{$startDate?->toDateString()}.{$endDate?->toDateString()}.{$occurrenceId}";
+        return static::class . "$eventId.{$startDate?->toDateString()}.{$endDate?->toDateString()}";
     }
 }

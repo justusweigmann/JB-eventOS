@@ -11,13 +11,12 @@ use Tests\TestCase;
 class EmailVerificationCodeServiceTest extends TestCase
 {
     private EmailVerificationCodeService $service;
-
     private MockInterface|Repository $cacheRepository;
 
     protected function setUp(): void
     {
         parent::setUp();
-
+        
         $this->cacheRepository = Mockery::mock(Repository::class);
         $this->service = new EmailVerificationCodeService($this->cacheRepository);
     }
@@ -28,19 +27,19 @@ class EmailVerificationCodeServiceTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_store_and_return_code(): void
+    public function testStoreAndReturnCode(): void
     {
         // Given
         $email = 'test@example.com';
-        $expectedCacheKey = 'email_verification_code:'.$email;
-
+        $expectedCacheKey = 'email_verification_code:' . $email;
+        
         // Expect
         $this->cacheRepository
             ->shouldReceive('put')
             ->once()
             ->withArgs(function ($key, $code, $expiry) use ($expectedCacheKey) {
-                return $key === $expectedCacheKey
-                    && $code >= 10000
+                return $key === $expectedCacheKey 
+                    && $code >= 10000 
                     && $code <= 99999
                     && $expiry->greaterThan(now()->addMinutes(29))
                     && $expiry->lessThanOrEqualTo(now()->addMinutes(30)->addSecond());
@@ -55,12 +54,12 @@ class EmailVerificationCodeServiceTest extends TestCase
         $this->assertLessThanOrEqual(99999, $code);
     }
 
-    public function test_verify_code_with_valid_code(): void
+    public function testVerifyCodeWithValidCode(): void
     {
         // Given
         $email = 'test@example.com';
         $validCode = '12345';
-        $expectedCacheKey = 'email_verification_code:'.$email;
+        $expectedCacheKey = 'email_verification_code:' . $email;
 
         // Expect
         $this->cacheRepository
@@ -81,13 +80,13 @@ class EmailVerificationCodeServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function test_verify_code_with_invalid_code(): void
+    public function testVerifyCodeWithInvalidCode(): void
     {
         // Given
         $email = 'test@example.com';
         $storedCode = '12345';
         $providedCode = '54321';
-        $expectedCacheKey = 'email_verification_code:'.$email;
+        $expectedCacheKey = 'email_verification_code:' . $email;
 
         // Expect
         $this->cacheRepository
@@ -106,12 +105,12 @@ class EmailVerificationCodeServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function test_verify_code_with_no_stored_code(): void
+    public function testVerifyCodeWithNoStoredCode(): void
     {
         // Given
         $email = 'test@example.com';
         $providedCode = '12345';
-        $expectedCacheKey = 'email_verification_code:'.$email;
+        $expectedCacheKey = 'email_verification_code:' . $email;
 
         // Expect
         $this->cacheRepository
@@ -130,25 +129,25 @@ class EmailVerificationCodeServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function test_multiple_verification_codes_for_different_emails(): void
+    public function testMultipleVerificationCodesForDifferentEmails(): void
     {
         // Given
         $email1 = 'user1@example.com';
         $email2 = 'user2@example.com';
-
+        
         // Expect - Store codes for two different emails
         $this->cacheRepository
             ->shouldReceive('put')
             ->once()
             ->withArgs(function ($key, $code, $expiry) use ($email1) {
-                return $key === 'email_verification_code:'.$email1;
+                return $key === 'email_verification_code:' . $email1;
             });
 
         $this->cacheRepository
             ->shouldReceive('put')
             ->once()
             ->withArgs(function ($key, $code, $expiry) use ($email2) {
-                return $key === 'email_verification_code:'.$email2;
+                return $key === 'email_verification_code:' . $email2;
             });
 
         // When
@@ -161,7 +160,7 @@ class EmailVerificationCodeServiceTest extends TestCase
         // Codes might be the same by chance, but they're generated independently
     }
 
-    public function test_verify_code_is_case_insensitive_for_email(): void
+    public function testVerifyCodeIsCaseInsensitiveForEmail(): void
     {
         // Given
         $emailLower = 'test@example.com';
@@ -170,12 +169,12 @@ class EmailVerificationCodeServiceTest extends TestCase
 
         // Note: The service uses emails as-is, so case sensitivity depends on implementation
         // This test documents the current behavior
-
+        
         // Expect - Different cache keys for different cases
         $this->cacheRepository
             ->shouldReceive('get')
             ->once()
-            ->with('email_verification_code:'.$emailUpper)
+            ->with('email_verification_code:' . $emailUpper)
             ->andReturn(null);
 
         // When
@@ -185,7 +184,7 @@ class EmailVerificationCodeServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function test_store_and_return_code_generates_unique_codes_on_multiple_calls(): void
+    public function testStoreAndReturnCodeGeneratesUniqueCodesOnMultipleCalls(): void
     {
         // Given
         $email = 'test@example.com';
@@ -197,7 +196,6 @@ class EmailVerificationCodeServiceTest extends TestCase
             ->times(10)
             ->withArgs(function ($key, $code) use (&$generatedCodes) {
                 $generatedCodes[] = $code;
-
                 return true;
             });
 
@@ -215,12 +213,12 @@ class EmailVerificationCodeServiceTest extends TestCase
         }
     }
 
-    public function test_verify_code_only_works_once(): void
+    public function testVerifyCodeOnlyWorksOnce(): void
     {
         // Given
         $email = 'test@example.com';
         $code = '12345';
-        $cacheKey = 'email_verification_code:'.$email;
+        $cacheKey = 'email_verification_code:' . $email;
 
         // First verification attempt
         $this->cacheRepository
@@ -254,3 +252,4 @@ class EmailVerificationCodeServiceTest extends TestCase
         $this->assertFalse($secondAttempt);
     }
 }
+

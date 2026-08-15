@@ -9,4 +9,6 @@ use HiEvents\DomainObjects\AccountUserDomainObject;
 /**
  * @extends RepositoryInterface<AccountUserDomainObject>
  */
-interface AccountUserRepositoryInterface extends RepositoryInterface {}
+interface AccountUserRepositoryInterface extends RepositoryInterface
+{
+}

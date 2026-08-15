@@ -3,11 +3,9 @@
 namespace HiEvents\Repository\Eloquent;
 
 use HiEvents\DomainObjects\EventOccurrenceDomainObject;
-use HiEvents\DomainObjects\Generated\EventOccurrenceDomainObjectAbstract;
-use HiEvents\Http\DTO\QueryParamsDTO;
 use HiEvents\Models\EventOccurrence;
 use HiEvents\Repository\Interfaces\EventOccurrenceRepositoryInterface;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class EventOccurrenceRepository extends BaseRepository implements EventOccurrenceRepositoryInterface
 {
@@ -21,47 +19,31 @@ class EventOccurrenceRepository extends BaseRepository implements EventOccurrenc
         return EventOccurrenceDomainObject::class;
     }
 
-    public function findByIdLocked(int $id): ?EventOccurrenceDomainObject
+    public function findByEventId(int $eventId, ?string $status = null): Collection
     {
-        $model = EventOccurrence::query()
-            ->where('id', $id)
-            ->lockForUpdate()
-            ->first();
+        $query = $this->model->where('event_id', $eventId)->orderBy('start_date');
 
-        if ($model === null) {
-            return null;
+        if ($status !== null) {
+            $query->where('status', $status);
         }
 
-        return $this->handleSingleResult($model);
+        return $query->get()->map(fn($model) => EventOccurrenceDomainObject::hydrateFromModel($model));
     }
 
-    public function findByEventId(int $eventId, QueryParamsDTO $params): LengthAwarePaginator
+    public function findUpcomingByEventId(int $eventId, int $limit = 50): Collection
     {
-        $this->model = $this->model->newQuery()->orderBy(
-            column: $this->validateSortColumn($params->sort_by, EventOccurrenceDomainObject::class),
-            direction: $this->validateSortDirection($params->sort_direction, EventOccurrenceDomainObject::class),
-        );
+        return $this->model
+            ->where('event_id', $eventId)
+            ->where('status', 'active')
+            ->where('start_date', '>=', now())
+            ->orderBy('start_date')
+            ->limit($limit)
+            ->get()
+            ->map(fn($model) => EventOccurrenceDomainObject::hydrateFromModel($model));
+    }
 
-        if (! empty($params->filter_fields)) {
-            $this->applyFilterFields($params, EventOccurrenceDomainObject::getAllowedFilterFields());
-
-            $timePeriod = $params->filter_fields->firstWhere('field', 'time_period');
-            if ($timePeriod) {
-                $now = now()->toDateTimeString();
-                if ($timePeriod->value === 'upcoming') {
-                    $this->model = $this->model->whereRaw('COALESCE(end_date, start_date) >= ?', [$now]);
-                } elseif ($timePeriod->value === 'past') {
-                    $this->model = $this->model->whereRaw('COALESCE(end_date, start_date) < ?', [$now]);
-                }
-            }
-        }
-
-        return $this->paginateWhere(
-            where: [
-                EventOccurrenceDomainObjectAbstract::EVENT_ID => $eventId,
-            ],
-            limit: $params->per_page,
-            page: $params->page,
-        );
+    public function incrementTicketsSold(int $occurrenceId, int $quantity = 1): void
+    {
+        $this->model->where('id', $occurrenceId)->increment('tickets_sold', $quantity);
     }
 }

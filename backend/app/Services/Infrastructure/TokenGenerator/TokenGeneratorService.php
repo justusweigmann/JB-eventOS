@@ -7,16 +7,19 @@ use Random\Randomizer;
 
 class TokenGeneratorService
 {
-    public function __construct(private readonly Randomizer $randomizer) {}
+    public function __construct(private readonly Randomizer $randomizer)
+    {
+    }
 
     /**
      * Generates a random token string.
      *
-     * @param  int  $length  Desired length of the random part of the token.
-     * @param  string  $prefix  A prefix to be added to the token.
-     * @return string Generated token string with prefix.
+     * @param int    $length Desired length of the random part of the token.
+     * @param string $prefix A prefix to be added to the token.
      *
      * @throws InvalidArgumentException if the length is not positive.
+     *
+     * @return string Generated token string with prefix.
      */
     public function generateToken(int $length = 32, string $prefix = ''): string
     {
@@ -33,6 +36,6 @@ class TokenGeneratorService
         $randomBytes = $this->randomizer->getBytes($adjustedLength);
         $token = bin2hex($randomBytes);
 
-        return $prefix.$token;
+        return $prefix . $token;
     }
 }

@@ -12,7 +12,8 @@ class SendTicketLookupEmailAction extends BaseAction
 {
     public function __construct(
         private readonly SendTicketLookupEmailHandler $sendTicketLookupEmailHandler,
-    ) {}
+    ) {
+    }
 
     public function __invoke(SendTicketLookupEmailRequest $request): JsonResponse
     {

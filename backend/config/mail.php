@@ -44,8 +44,6 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
-            'auto_tls' => env('MAIL_AUTO_TLS', true),
-            'verify_peer' => env('MAIL_VERIFY_PEER', true),
         ],
 
         'ses' => [

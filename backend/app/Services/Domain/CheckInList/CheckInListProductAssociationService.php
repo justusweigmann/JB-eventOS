@@ -9,14 +9,17 @@ class CheckInListProductAssociationService
 {
     public function __construct(
         private readonly ProductRepositoryInterface $productRepository,
-        public readonly DatabaseManager $databaseManager,
-    ) {}
+        public readonly DatabaseManager             $databaseManager,
+    )
+    {
+    }
 
     public function addCheckInListToProducts(
-        int $checkInListId,
+        int    $checkInListId,
         ?array $productIds,
-        bool $removePreviousAssignments = true
-    ): void {
+        bool   $removePreviousAssignments = true
+    ): void
+    {
         $this->databaseManager->transaction(function () use ($checkInListId, $productIds, $removePreviousAssignments) {
             $this->associateProductsWithCheckInList(
                 checkInListId: $checkInListId,
@@ -27,18 +30,19 @@ class CheckInListProductAssociationService
     }
 
     private function associateProductsWithCheckInList(
-        int $checkInListId,
+        int    $checkInListId,
         ?array $productIds,
-        bool $removePreviousAssignments = true
-    ): void {
+        bool   $removePreviousAssignments = true
+    ): void
+    {
+        if (empty($productIds)) {
+            return;
+        }
+
         if ($removePreviousAssignments) {
             $this->productRepository->removeCheckInListFromProducts(
                 checkInListId: $checkInListId,
             );
-        }
-
-        if (empty($productIds)) {
-            return;
         }
 
         $this->productRepository->addCheckInListToProducts(

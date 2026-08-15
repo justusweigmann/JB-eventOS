@@ -16,7 +16,8 @@ class EditOrderPublicHandler
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly EventRepositoryInterface $eventRepository,
         private readonly SelfServiceEditOrderService $selfServiceEditOrderService,
-    ) {}
+    ) {
+    }
 
     public function handle(EditOrderPublicDTO $dto): EditOrderResultDTO
     {

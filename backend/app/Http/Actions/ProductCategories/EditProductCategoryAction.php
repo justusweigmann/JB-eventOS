@@ -14,7 +14,9 @@ class EditProductCategoryAction extends BaseAction
 {
     public function __construct(
         private readonly EditProductCategoryHandler $editProductCategoryHandler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(UpsertProductCategoryRequest $request, int $eventId, int $productCategoryId): JsonResponse
     {

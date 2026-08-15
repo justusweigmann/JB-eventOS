@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class AccountMessagingTierDomainObject extends Generated\AccountMessagingTierDomainObjectAbstract {}
+class AccountMessagingTierDomainObject extends Generated\AccountMessagingTierDomainObjectAbstract
+{
+}

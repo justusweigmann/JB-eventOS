@@ -17,6 +17,7 @@ abstract class BaseDTO
     /**
      * Create a new instance of the DTO from an array.
      *
+     * @param array $data
      * @return static
      */
     public static function fromArray(array $data): self
@@ -36,6 +37,9 @@ abstract class BaseDTO
 
     /**
      * Convert the DTO to an array.
+     *
+     * @param array $without
+     * @return array
      */
     public function toArray(array $without = []): array
     {
@@ -44,6 +48,9 @@ abstract class BaseDTO
 
     /**
      * Create a new Collection of DTOs from an array.
+     *
+     * @param array $items
+     * @return Collection
      */
     public static function collectionFromArray(array $items): Collection
     {
@@ -52,6 +59,9 @@ abstract class BaseDTO
 
     /**
      * Hydrate objects from properties based on property to object map.
+     *
+     * @param array $data
+     * @return array
      */
     private static function hydrateObjectsFromProperties(array $data): array
     {
@@ -61,7 +71,7 @@ abstract class BaseDTO
         foreach ($properties as $property) {
             $propertyName = $property->getName();
 
-            if (! array_key_exists($propertyName, $data)) {
+            if (!array_key_exists($propertyName, $data)) {
                 continue;
             }
 
@@ -74,7 +84,7 @@ abstract class BaseDTO
 
                 if (is_array($data[$propertyName])) {
                     $data[$propertyName] = collect($data[$propertyName])
-                        ->map(fn ($item) => $classType::fromArray((array) $item));
+                        ->map(fn($item) => $classType::fromArray((array)$item));
                 }
             }
         }
@@ -101,7 +111,7 @@ abstract class BaseDTO
         foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $propertyName = $property->getName();
 
-            if (! isset($data[$propertyName]) || ! is_array($data[$propertyName])) {
+            if (!isset($data[$propertyName]) || !is_array($data[$propertyName])) {
                 continue;
             }
 
@@ -130,26 +140,26 @@ abstract class BaseDTO
         $constructorParams = $constructor ? $constructor->getParameters() : [];
 
         collect($reflection->getProperties())
-            ->each(function (ReflectionProperty $property) use ($constructorParams, &$data) {
+            ->each(function (ReflectionProperty $property) use ($constructorParams, $reflection, &$data) {
                 $type = $property->getType();
                 $enumName = method_exists($type, 'getName') ? $type?->getName() : null;
                 $propertyName = $property->getName();
 
-                if (! $enumName) {
+                if (!$enumName) {
                     return;
                 }
 
                 $isEnum = enum_exists($property->getType()?->getName()) && method_exists($enumName, 'fromName');
 
-                if (! $isEnum) {
+                if (!$isEnum) {
                     return;
                 }
 
-                $isMissing = ! isset($data[$propertyName]);
+                $isMissing = !isset($data[$propertyName]);
                 $constructorParam = collect($constructorParams)->firstWhere('name', $propertyName);
                 $hasDefaultValue = $constructorParam && $constructorParam->isDefaultValueAvailable();
 
-                if ($isMissing && ! $hasDefaultValue) {
+                if ($isMissing && !$hasDefaultValue) {
                     throw new RuntimeException(
                         sprintf('Missing property [%s] in class [%s]', $property->getName(), static::class)
                     );
@@ -157,7 +167,6 @@ abstract class BaseDTO
 
                 if ($isMissing && $hasDefaultValue) {
                     $data[$propertyName] = $constructorParam->getDefaultValue();
-
                     return;
                 }
 
@@ -167,7 +176,6 @@ abstract class BaseDTO
 
                 if (($data[$property->getName()] === null || $data[$property->getName()] === '') && $type->allowsNull()) {
                     $data[$property->getName()] = null;
-
                     return;
                 }
 

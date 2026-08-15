@@ -2,13 +2,14 @@
 
 namespace HiEvents\Console;
 
-use HiEvents\Jobs\Account\ProcessScheduledAccountDeletionsJob;
+use HiEvents\Jobs\Event\CheckLowCapacityJob;
+use HiEvents\Jobs\Event\SendSalesReportsJob;
 use HiEvents\Jobs\Message\SendScheduledMessagesJob;
+use HiEvents\Jobs\Order\CancelExpiredFreeOrdersJob;
+use HiEvents\Jobs\Order\MarkExpiredOrdersAsAbandonedJob;
 use HiEvents\Jobs\Waitlist\ProcessExpiredWaitlistOffersJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -16,19 +17,15 @@ class Kernel extends ConsoleKernel
     {
         $schedule->job(new SendScheduledMessagesJob)->everyMinute()->withoutOverlapping();
         $schedule->job(new ProcessExpiredWaitlistOffersJob)->everyMinute()->withoutOverlapping();
-        $schedule->job(new ProcessScheduledAccountDeletionsJob)->hourly()->withoutOverlapping();
-
-        $schedule->call(function (): void {
-            $count = DB::table('failed_jobs')->count();
-            if ($count > 0) {
-                Log::warning('Failed jobs present in queue', ['count' => $count]);
-            }
-        })->everyFiveMinutes()->name('failed-jobs-monitor')->withoutOverlapping();
+        $schedule->job(new CancelExpiredFreeOrdersJob)->everyFiveMinutes()->withoutOverlapping();
+        $schedule->job(new MarkExpiredOrdersAsAbandonedJob)->everyFiveMinutes()->withoutOverlapping();
+        $schedule->job(new SendSalesReportsJob)->everyFifteenMinutes()->withoutOverlapping();
+        $schedule->job(new CheckLowCapacityJob)->everyFifteenMinutes()->withoutOverlapping();
     }
 
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         include base_path('routes/console.php');
     }

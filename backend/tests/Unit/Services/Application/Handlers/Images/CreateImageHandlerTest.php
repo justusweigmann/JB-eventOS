@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
 class CreateImageHandlerTest extends TestCase
 {
     private ImageUploadService $imageUploadService;
-
     private CreateImageHandler $handler;
 
     protected function setUp(): void
@@ -38,7 +37,7 @@ class CreateImageHandlerTest extends TestCase
         );
     }
 
-    public function test_handle_successfully_creates_image(): void
+    public function testHandleSuccessfullyCreatesImage(): void
     {
         $uploadedFile = m::mock(UploadedFile::class);
         $imageDomainObject = m::mock(ImageDomainObject::class);

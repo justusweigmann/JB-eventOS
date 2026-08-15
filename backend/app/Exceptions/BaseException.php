@@ -6,4 +6,6 @@ namespace HiEvents\Exceptions;
 
 use Exception;
 
-class BaseException extends Exception {}
+class BaseException extends Exception
+{
+}

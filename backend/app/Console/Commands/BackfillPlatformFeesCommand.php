@@ -27,7 +27,8 @@ class BackfillPlatformFeesCommand extends Command
         private readonly OrderPaymentPlatformFeeRepositoryInterface $orderPaymentPlatformFeeRepository,
         private readonly StripePaymentPlatformFeeExtractionService $platformFeeExtractionService,
         private readonly StripeClientFactory $stripeClientFactory,
-    ) {
+    )
+    {
         parent::__construct();
     }
 
@@ -36,7 +37,7 @@ class BackfillPlatformFeesCommand extends Command
         $this->info('Starting platform fees backfill...');
 
         $payoutId = $this->option('payout-id');
-        $limit = (int) $this->option('limit');
+        $limit = (int)$this->option('limit');
         $dryRun = $this->option('dry-run');
 
         if ($dryRun) {
@@ -61,12 +62,12 @@ class BackfillPlatformFeesCommand extends Command
             /** @var StripePaymentDomainObject $payment */
 
             // Must have charge_id and payout_id
-            if (! $payment->getChargeId() || ! $payment->getPayoutId()) {
+            if (!$payment->getChargeId() || !$payment->getPayoutId()) {
                 return false;
             }
 
             $order = $payment->getOrder();
-            if (! $order) {
+            if (!$order) {
                 return false;
             }
 
@@ -80,7 +81,6 @@ class BackfillPlatformFeesCommand extends Command
 
         if ($stripePayments->isEmpty()) {
             $this->info('No stripe payments found that need platform fee backfill.');
-
             return self::SUCCESS;
         }
 
@@ -97,17 +97,16 @@ class BackfillPlatformFeesCommand extends Command
             /** @var StripePaymentDomainObject $stripePayment */
             $order = $stripePayment->getOrder();
 
-            if (! $order) {
+            if (!$order) {
                 $this->newLine();
                 $this->warn("Order not found for stripe_payment ID: {$stripePayment->getId()}");
                 $skippedCount++;
                 $progressBar->advance();
-
                 continue;
             }
 
             try {
-                if (! $dryRun) {
+                if (!$dryRun) {
                     // Fetch charge from Stripe with expanded balance_transaction
                     $stripeClient = $this->stripeClientFactory->createForPlatform(
                         $stripePayment->getStripePlatformEnum()

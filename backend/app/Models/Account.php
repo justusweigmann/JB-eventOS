@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends BaseModel
 {
-    use HasFactory;
     use SoftDeletes;
+    use HasFactory;
 
     public function users(): BelongsToMany
     {
@@ -32,11 +32,6 @@ class Account extends BaseModel
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
-    }
-
-    public function organizers(): HasMany
-    {
-        return $this->hasMany(Organizer::class);
     }
 
     public function configuration(): BelongsTo

@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class DiscountCodeDomainObject extends Generated\DiscountCodeDomainObjectAbstract {}
+class DiscountCodeDomainObject extends Generated\DiscountCodeDomainObjectAbstract
+{
+}

@@ -1,7 +1,7 @@
 import {MultiSelect, Select} from "@mantine/core";
 import {IconTicket} from "@tabler/icons-react";
 import {UseFormReturnType} from "@mantine/form";
-import {IdParam, ProductCategory, ProductType} from "../../../types.ts";
+import {ProductCategory, ProductType} from "../../../types.ts";
 import React from "react";
 import {t} from "@lingui/macro";
 
@@ -14,7 +14,6 @@ interface ProductSelectorProps {
     productFieldName: string;
     tierFieldName?: string;
     includedProductTypes?: ProductType[];
-    excludedProductIds?: IdParam[];
     multiSelect?: boolean;
     showTierSelector?: boolean;
     noProductsMessage?: string;
@@ -29,18 +28,15 @@ export const ProductSelector = ({
                                     productFieldName,
                                     tierFieldName = 'product_price_id',
                                     includedProductTypes = [ProductType.Ticket, ProductType.General],
-                                    excludedProductIds = [],
                                     multiSelect = true,
                                     showTierSelector = false,
                                     noProductsMessage = t`No products available for selection`,
                                 }: ProductSelectorProps) => {
-    const excludedIds = excludedProductIds.map(String);
     const formattedData = productCategories?.map((category) => ({
         group: category.name,
         items:
             category.products
-                ?.filter((product) => includedProductTypes.includes(product.product_type)
-                    && !excludedIds.includes(String(product.id)))
+                ?.filter((product) => includedProductTypes.includes(product.product_type))
                 ?.map((product) => ({
                     value: String(product.id),
                     label: product.title,

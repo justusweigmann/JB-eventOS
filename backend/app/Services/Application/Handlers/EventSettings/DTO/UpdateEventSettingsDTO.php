@@ -2,101 +2,160 @@
 
 namespace HiEvents\Services\Application\Handlers\EventSettings\DTO;
 
+use HiEvents\DataTransferObjects\AddressDTO;
 use HiEvents\DataTransferObjects\BaseDTO;
 use HiEvents\DomainObjects\Enums\AttendeeDetailsCollectionMethod;
 use HiEvents\DomainObjects\Enums\HomepageBackgroundType;
 use HiEvents\DomainObjects\Enums\PaymentProviders;
 use HiEvents\DomainObjects\Enums\PriceDisplayMode;
-use HiEvents\DomainObjects\Enums\TicketDateDisplayMode;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 
 class UpdateEventSettingsDTO extends BaseDTO
 {
     public function __construct(
-        public readonly int $account_id,
+        public readonly int                     $account_id,
 
         // event settings
-        public readonly int $event_id,
-        public readonly ?string $post_checkout_message,
-        public readonly ?string $pre_checkout_message,
-        public readonly ?string $email_footer_message,
-        public readonly ?string $continue_button_text,
-        public readonly ?string $support_email,
+        public readonly int                     $event_id,
+        public readonly ?string                 $post_checkout_message,
+        public readonly ?string                 $pre_checkout_message,
+        public readonly ?string                 $email_footer_message,
+        public readonly ?string                 $continue_button_text,
+        public readonly ?string                 $support_email,
 
-        public readonly ?string $homepage_background_color,
-        public readonly ?string $homepage_primary_color,
-        public readonly ?string $homepage_primary_text_color,
-        public readonly ?string $homepage_secondary_color,
-        public readonly ?string $homepage_secondary_text_color,
-        public readonly ?string $homepage_body_background_color,
+        public readonly ?string                 $homepage_background_color,
+        public readonly ?string                 $homepage_primary_color,
+        public readonly ?string                 $homepage_primary_text_color,
+        public readonly ?string                 $homepage_secondary_color,
+        public readonly ?string                 $homepage_secondary_text_color,
+        public readonly ?string                 $homepage_body_background_color,
         public readonly ?HomepageBackgroundType $homepage_background_type,
 
-        public readonly bool $require_attendee_details,
+        public readonly bool                    $require_attendee_details,
         public readonly AttendeeDetailsCollectionMethod $attendee_details_collection_method,
-        public readonly int $order_timeout_in_minutes,
-        public readonly ?string $website_url,
-        public readonly ?string $maps_url,
-        public readonly ?string $seo_title,
-        public readonly ?string $seo_description,
-        public readonly ?string $seo_keywords,
+        public readonly int                     $order_timeout_in_minutes,
+        public readonly ?string                 $website_url,
+        public readonly ?string                 $maps_url,
+        public readonly ?string                 $seo_title,
+        public readonly ?string                 $seo_description,
+        public readonly ?string                 $seo_keywords,
+        public readonly ?string                 $meta_pixel_id = null,
 
-        public readonly ?bool $allow_search_engine_indexing = true,
+        public readonly ?AddressDTO             $location_details = null,
+        public readonly bool                    $is_online_event = false,
+        public readonly string                  $event_location_type = 'IN_PERSON',
+        public readonly ?string                 $online_event_connection_details = null,
 
-        public readonly ?bool $notify_organizer_of_new_orders = null,
+        public readonly ?bool                   $allow_search_engine_indexing = true,
 
-        public readonly ?PriceDisplayMode $price_display_mode = PriceDisplayMode::INCLUSIVE,
+        public readonly ?bool                   $notify_organizer_of_new_orders = null,
+
+        public readonly ?PriceDisplayMode       $price_display_mode = PriceDisplayMode::INCLUSIVE,
+
+        public readonly ?bool                   $hide_getting_started_page = false,
 
         // Payment settings
-        public readonly array $payment_providers = [],
-        public readonly ?string $offline_payment_instructions = null,
-        public readonly bool $allow_orders_awaiting_offline_payment_to_check_in = false,
+        public readonly array                   $payment_providers = [],
+        public readonly ?string                 $offline_payment_instructions = null,
+        public readonly bool                    $allow_orders_awaiting_offline_payment_to_check_in = false,
 
         // Invoice settings
-        public readonly bool $enable_invoicing = false,
-        public readonly ?string $invoice_label = null,
-        public readonly ?string $invoice_prefix = null,
-        public readonly ?int $invoice_start_number = null,
-        public readonly bool $require_billing_address = true,
-        public readonly ?string $organization_name = null,
-        public readonly ?string $organization_address = null,
-        public readonly ?string $invoice_tax_details = null,
-        public readonly ?string $invoice_notes = null,
-        public readonly ?int $invoice_payment_terms_days = null,
+        public readonly bool                    $enable_invoicing = false,
+        public readonly ?string                 $invoice_label = null,
+        public readonly ?string                 $invoice_prefix = null,
+        public readonly ?int                    $invoice_start_number = null,
+        public readonly bool                    $require_billing_address = true,
+        public readonly ?string                 $organization_name = null,
+        public readonly ?string                 $organization_address = null,
+        public readonly ?string                 $invoice_tax_details = null,
+        public readonly ?string                 $invoice_notes = null,
+        public readonly ?int                    $invoice_payment_terms_days = null,
 
         // Ticket design settings
-        public readonly ?array $ticket_design_settings = null,
+        public readonly ?array                  $ticket_design_settings = null,
 
         // Marketing settings
-        public readonly bool $show_marketing_opt_in = true,
-
-        // Attendee detail copy control
-        public readonly bool $allow_copy_details_to_all_attendees = true,
+        public readonly bool                    $show_marketing_opt_in = true,
 
         // Platform fee settings
-        public readonly bool $pass_platform_fee_to_buyer = false,
+        public readonly bool                    $pass_platform_fee_to_buyer = false,
 
         // Homepage theme settings
-        public readonly ?array $homepage_theme_settings = null,
+        public readonly ?array                  $homepage_theme_settings = null,
 
         // Self-service settings
-        public readonly bool $allow_attendee_self_edit = false,
-
-        // Occurrence display
-        public readonly bool $show_available_occurrence_capacity = false,
-        public readonly bool $hide_sold_out_occurrences = false,
+        public readonly bool                    $allow_attendee_self_edit = false,
 
         // Waitlist settings
-        public readonly ?bool $waitlist_auto_process = null,
-        public readonly ?int $waitlist_offer_timeout_minutes = null,
+        public readonly ?bool                   $waitlist_auto_process = null,
+        public readonly ?int                    $waitlist_offer_timeout_minutes = null,
 
-        public readonly ?string $get_tickets_button_text = null,
-    ) {}
+        // Social media settings
+        public readonly ?array                  $social_media_handles = null,
+        public readonly ?bool                   $show_social_media_handles = null,
+
+        // Access control settings
+        public readonly ?string                 $event_password = null,
+
+        // Payment settings
+        public readonly ?array                  $stripe_payment_method_order = null,
+
+        // Order approval settings
+        public readonly bool                    $require_order_approval = false,
+
+        // External ticket URL
+        public readonly ?string                 $external_ticket_url = null,
+
+        // Order-level ticket quantity limits
+        public readonly ?int                    $order_min_tickets = null,
+        public readonly ?int                    $order_max_tickets = null,
+
+        // Checkout validation webhook
+        public readonly ?string                 $checkout_validation_webhook_url = null,
+
+        // Attendee name requirement
+        public readonly bool                    $require_attendee_name = true,
+
+        // Free ticket expiration
+        public readonly ?int                    $free_ticket_expiration_minutes = null,
+
+        // Sales report settings
+        public readonly ?string                 $sales_report_frequency = null,
+        public readonly ?array                  $sales_report_recipient_emails = null,
+
+        // Certificate settings
+        public readonly ?bool                   $certificate_enabled = false,
+        public readonly ?string                 $certificate_title = null,
+        public readonly ?string                 $certificate_body_template = null,
+        public readonly ?string                 $certificate_signatory_name = null,
+        public readonly ?string                 $certificate_signatory_title = null,
+
+        // Provisional booking settings
+        public readonly ?bool                   $provisional_booking_enabled = false,
+        public readonly ?float                  $provisional_booking_threshold = null,
+        public readonly ?int                    $provisional_booking_deadline = null,
+        public readonly ?string                 $provisional_booking_message = null,
+
+        // Multi-step checkout settings
+        public readonly ?bool                   $multi_step_checkout_enabled = false,
+        public readonly ?array                  $checkout_steps_config = null,
+
+        // Private event settings
+        public readonly ?bool                   $is_private_event = false,
+        public readonly ?string                 $private_access_code = null,
+        public readonly ?bool                   $hide_event_details_until_access = false,
+        public readonly ?bool                   $hide_location_until_purchase = false,
+        public readonly ?bool                   $show_promo_code_input_always = false,
+    )
+    {
+    }
 
     public static function createWithDefaults(
-        int $account_id,
-        int $event_id,
+        int                   $account_id,
+        int                   $event_id,
         OrganizerDomainObject $organizer,
-    ): self {
+    ): self
+    {
         return new self(
             account_id: $account_id,
             event_id: $event_id,
@@ -120,9 +179,13 @@ class UpdateEventSettingsDTO extends BaseDTO
             seo_title: null,
             seo_description: null,
             seo_keywords: null,
+            location_details: null,
+            is_online_event: false,
+            online_event_connection_details: null,
             allow_search_engine_indexing: true,
             notify_organizer_of_new_orders: null,
             price_display_mode: PriceDisplayMode::INCLUSIVE,
+            hide_getting_started_page: false,
 
             // Payment defaults
             payment_providers: [PaymentProviders::STRIPE->value],
@@ -146,15 +209,11 @@ class UpdateEventSettingsDTO extends BaseDTO
                 'logo_image_id' => null,
                 'footer_text' => null,
                 'layout_type' => 'classic',
-                'date_display_mode' => TicketDateDisplayMode::START_DATE_TIME->value,
                 'enabled' => true,
             ],
 
             // Marketing defaults
             show_marketing_opt_in: true,
-
-            // Attendee detail copy control default
-            allow_copy_details_to_all_attendees: true,
 
             // Platform fee defaults
             pass_platform_fee_to_buyer: false,
@@ -169,6 +228,45 @@ class UpdateEventSettingsDTO extends BaseDTO
 
             // Self-service defaults
             allow_attendee_self_edit: false,
+
+            // Social media defaults
+            social_media_handles: null,
+            show_social_media_handles: false,
+
+            // Access control defaults
+            event_password: null,
+
+            // Payment defaults
+            stripe_payment_method_order: null,
+
+            // Sales report defaults
+            sales_report_frequency: null,
+            sales_report_recipient_emails: null,
+
+            // Certificate defaults
+            certificate_enabled: false,
+            certificate_title: null,
+            certificate_body_template: null,
+            certificate_signatory_name: null,
+            certificate_signatory_title: null,
+
+            // Provisional booking defaults
+            provisional_booking_enabled: false,
+            provisional_booking_threshold: null,
+            provisional_booking_deadline: null,
+            provisional_booking_message: null,
+
+            // Multi-step checkout defaults
+            multi_step_checkout_enabled: false,
+            checkout_steps_config: null,
+
+            // Private event defaults
+            is_private_event: false,
+            private_access_code: null,
+            hide_event_details_until_access: false,
+            hide_location_until_purchase: false,
+            show_promo_code_input_always: false,
         );
     }
 }
+

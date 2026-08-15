@@ -1,101 +1,65 @@
 import {t} from "@lingui/macro";
-import {Button} from "@mantine/core";
+import {Button, Select, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {useParams} from "react-router";
 import {useEffect} from "react";
 import {Card} from "../../../../../common/Card";
 import {showSuccess} from "../../../../../../utilites/notifications.tsx";
 import {useFormErrorResponseHandler} from "../../../../../../hooks/useFormErrorResponseHandler.tsx";
-import {useGetOrganizer} from "../../../../../../queries/useGetOrganizer.ts";
+import {useUpdateOrganizerSettings} from "../../../../../../mutations/useUpdateOrganizerSettings.ts";
+import countries from "../../../../../../../data/countries.json";
+import {useGetOrganizerSettings} from "../../../../../../queries/useGetOrganizerSettings.ts";
+import {InputGroup} from "../../../../../common/InputGroup";
 import {HeadingWithDescription} from "../../../../../common/Card/CardHeading";
-import {LocationPicker, LocationPickerValue} from "../../../../../common/LocationPicker";
-import {useCreateLocation} from "../../../../../../mutations/useCreateLocation.ts";
-import {useUpdateOrganizerLocation} from "../../../../../../mutations/useUpdateOrganizerLocation.ts";
-import {isAddressSet, sameAddress} from "../../../../../../utilites/addressUtilities.ts";
 
 export const AddressSettings = () => {
     const {organizerId} = useParams();
-    const organizerQuery = useGetOrganizer(organizerId);
-    const createLocationMutation = useCreateLocation();
-    const updateOrganizerLocationMutation = useUpdateOrganizerLocation();
-
+    const organizerSettingsQuery = useGetOrganizerSettings(organizerId);
+    const updateMutation = useUpdateOrganizerSettings();
     const form = useForm({
         initialValues: {
-            location: null as LocationPickerValue | null,
-        },
-        validate: {
-            location: (value) => {
-                if (value && value.kind === 'new' && !isAddressSet(value.address)) {
-                    return t`Enter a venue name or address`;
-                }
-                return null;
+            location_details: {
+                venue_name: '',
+                address_line_1: '',
+                address_line_2: '',
+                city: '',
+                state_or_region: '',
+                zip_or_postal_code: '',
+                country: '',
             },
         },
     });
     const formErrorHandle = useFormErrorResponseHandler();
 
     useEffect(() => {
-        if (organizerQuery?.isFetched && organizerQuery.data) {
-            const organizer = organizerQuery.data;
+        if (organizerSettingsQuery?.isFetched && organizerSettingsQuery.data) {
             form.setValues({
-                location: organizer.location_id && organizer.location
-                    ? {kind: 'saved', location: {...organizer.location, id: organizer.location.id ?? organizer.location_id}}
-                    : null,
+                location_details: {
+                    venue_name: organizerSettingsQuery.data.location_details?.venue_name || '',
+                    address_line_1: organizerSettingsQuery.data.location_details?.address_line_1 || '',
+                    address_line_2: organizerSettingsQuery.data.location_details?.address_line_2 || '',
+                    city: organizerSettingsQuery.data.location_details?.city || '',
+                    state_or_region: organizerSettingsQuery.data.location_details?.state_or_region || '',
+                    zip_or_postal_code: organizerSettingsQuery.data.location_details?.zip_or_postal_code || '',
+                    country: organizerSettingsQuery.data.location_details?.country || '',
+                },
             });
         }
-    }, [organizerQuery.isFetched]);
+    }, [organizerSettingsQuery.isFetched]);
 
-    const resolveLocationId = async (value: LocationPickerValue): Promise<number | null> => {
-        if (value.kind === 'saved') {
-            return value.location.id ? Number(value.location.id) : null;
-        }
-
-        if (!organizerId || !isAddressSet(value.address)) {
-            return null;
-        }
-
-        const existingLocationId = organizerQuery.data?.location_id ?? null;
-        const existingAddress = organizerQuery.data?.location?.structured_address ?? null;
-        if (existingLocationId !== null && existingAddress !== null && sameAddress(existingAddress, value.address)) {
-            return Number(existingLocationId);
-        }
-
-        const created = await createLocationMutation.mutateAsync({
-            organizerId,
-            payload: {
-                name: value.address.venue_name || null,
-                structured_address: value.address,
-                latitude: value.latitude,
-                longitude: value.longitude,
-                provider: value.provider,
-                provider_place_id: value.providerPlaceId,
+    const handleSubmit = (values: any) => {
+        updateMutation.mutate({
+            organizerSettings: values,
+            organizerId: organizerId,
+        }, {
+            onSuccess: () => {
+                showSuccess(t`Successfully Updated Address`);
             },
-        });
-
-        return (created.data.id as number | undefined) ?? null;
-    };
-
-    const handleSubmit = async (values: {location: LocationPickerValue | null}) => {
-        if (!organizerId) {
-            return;
-        }
-
-        try {
-            const locationId = values.location ? await resolveLocationId(values.location) : null;
-            const existingLocationId = organizerQuery.data?.location_id ?? null;
-
-            if (locationId !== null || existingLocationId !== null) {
-                await updateOrganizerLocationMutation.mutateAsync({
-                    organizerId,
-                    locationId,
-                });
+            onError: (error) => {
+                formErrorHandle(form, error);
             }
-
-            showSuccess(t`Successfully Updated Address`);
-        } catch (error) {
-            formErrorHandle(form, error);
-        }
-    };
+        });
+    }
 
     return (
         <Card>
@@ -104,18 +68,51 @@ export const AddressSettings = () => {
                 description={t`Your organizer address`}
             />
             <form onSubmit={form.onSubmit(handleSubmit)}>
-                <fieldset disabled={organizerQuery.isLoading || createLocationMutation.isPending || updateOrganizerLocationMutation.isPending}>
-                    {organizerId && (
-                        <LocationPicker
-                            organizerId={organizerId}
-                            value={form.values.location}
-                            onChange={(value) => form.setFieldValue('location', value)}
-                            error={form.errors.location}
-                            clearable
+                <fieldset disabled={organizerSettingsQuery.isLoading || updateMutation.isPending}>
+                    <TextInput
+                        {...form.getInputProps('location_details.venue_name')}
+                        label={t`Office or venue name`}
+                        placeholder={t`Office or venue name`}
+                    />
+                    <InputGroup>
+                        <TextInput
+                            {...form.getInputProps('location_details.address_line_1')}
+                            label={t`Address Line 1`}
+                            placeholder={t`123 Main Street`}
                         />
-                    )}
+                        <TextInput
+                            {...form.getInputProps('location_details.address_line_2')}
+                            label={t`Address Line 2`}
+                            placeholder={t`Suite 100`}
+                        />
+                    </InputGroup>
+                    <InputGroup>
+                        <TextInput
+                            {...form.getInputProps('location_details.city')}
+                            label={t`City`}
+                            placeholder={t`San Francisco`}
+                        />
+                        <TextInput
+                            {...form.getInputProps('location_details.state_or_region')}
+                            label={t`State or Region`}
+                            placeholder={t`California`}
+                        />
+                    </InputGroup>
+                    <InputGroup>
+                        <TextInput
+                            {...form.getInputProps('location_details.zip_or_postal_code')}
+                            label={t`Zip or Postal Code`}
+                            placeholder={t`94103`}
+                        />
+                        <Select searchable
+                                data={countries}
+                                {...form.getInputProps('location_details.country')}
+                                label={t`Country`}
+                                placeholder={t`United States`}
+                        />
+                    </InputGroup>
 
-                    <Button loading={createLocationMutation.isPending || updateOrganizerLocationMutation.isPending} type={'submit'}>
+                    <Button loading={updateMutation.isPending} type={'submit'}>
                         {t`Save`}
                     </Button>
                 </fieldset>

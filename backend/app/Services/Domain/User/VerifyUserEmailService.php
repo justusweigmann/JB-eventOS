@@ -11,10 +11,12 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 class VerifyUserEmailService
 {
     public function __construct(
-        private readonly UserRepositoryInterface $userRepository,
-        private readonly AccountRepositoryInterface $accountRepository,
+        private readonly UserRepositoryInterface        $userRepository,
+        private readonly AccountRepositoryInterface     $accountRepository,
         private readonly AccountUserRepositoryInterface $accountUserRepository,
-    ) {}
+    )
+    {
+    }
 
     public function markEmailAsVerified(UserDomainObject $user, int $accountId): void
     {
@@ -35,7 +37,7 @@ class VerifyUserEmailService
         );
 
         if ($accountUser === null) {
-            throw new ResourceNotFoundException;
+            throw new ResourceNotFoundException();
         }
 
         // If this is the account owner, mark the account as verified

@@ -10,7 +10,9 @@ use Illuminate\Http\JsonResponse;
 
 class GetEventImagesAction extends BaseAction
 {
-    public function __construct(private readonly ImageRepositoryInterface $imageRepository) {}
+    public function __construct(private readonly ImageRepositoryInterface $imageRepository)
+    {
+    }
 
     public function __invoke(int $eventId): JsonResponse
     {

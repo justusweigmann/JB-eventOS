@@ -1,4 +1,4 @@
-import {Alert, Divider, LoadingOverlay, Stack, Text, Typography} from '@mantine/core';
+import {Alert, Divider, LoadingOverlay, Stack, Text, TypographyStylesProvider} from '@mantine/core';
 import {IconAlertCircle, IconEye} from '@tabler/icons-react';
 import {Trans} from '@lingui/macro';
 import classes from './EmailTemplateEditor.module.scss';
@@ -42,13 +42,13 @@ export const EmailTemplatePreviewPane = ({
                     )}
 
                     {!error && hasContent && (
-                        <Typography>
+                        <TypographyStylesProvider>
                             <div
                                 dangerouslySetInnerHTML={{
                                     __html: previewData.body
                                 }}
                             />
-                        </Typography>
+                        </TypographyStylesProvider>
                     )}
 
                     {!error && !hasContent && !isLoading && (

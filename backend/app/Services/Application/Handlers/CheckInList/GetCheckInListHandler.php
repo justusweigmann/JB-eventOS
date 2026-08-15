@@ -13,7 +13,9 @@ class GetCheckInListHandler
 {
     public function __construct(
         private readonly CheckInListRepositoryInterface $checkInListRepository,
-    ) {}
+    )
+    {
+    }
 
     public function handle(int $checkInListId, int $eventId): CheckInListDomainObject
     {

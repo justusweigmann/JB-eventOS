@@ -4,4 +4,7 @@ namespace HiEvents\Exceptions;
 
 use Exception;
 
-class RefundNotPossibleException extends Exception {}
+class RefundNotPossibleException extends Exception
+{
+
+}

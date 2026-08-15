@@ -24,10 +24,10 @@ class PromoCode extends BaseModel
             PromoCodeDomainObjectAbstract::CODE,
             PromoCodeDomainObjectAbstract::DISCOUNT,
             PromoCodeDomainObjectAbstract::DISCOUNT_TYPE,
-            PromoCodeDomainObjectAbstract::DISCOUNT_APPLIES_TO,
             PromoCodeDomainObjectAbstract::APPLICABLE_PRODUCT_IDS,
             PromoCodeDomainObjectAbstract::EXPIRY_DATE,
             PromoCodeDomainObjectAbstract::EVENT_ID,
+            PromoCodeDomainObjectAbstract::ACCOUNT_ID,
             PromoCodeDomainObjectAbstract::MAX_ALLOWED_USAGES,
         ];
     }

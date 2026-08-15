@@ -13,7 +13,9 @@ class CreateAffiliateHandler
 {
     public function __construct(
         private readonly AffiliateRepositoryInterface $affiliateRepository,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws ResourceConflictException

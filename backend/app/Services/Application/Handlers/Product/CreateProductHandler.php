@@ -17,22 +17,25 @@ use Throwable;
 class CreateProductHandler
 {
     public function __construct(
-        private readonly CreateProductService $productCreateService,
+        private readonly CreateProductService      $productCreateService,
         private readonly GetProductCategoryService $getProductCategoryService,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws Throwable
      */
     public function handle(UpsertProductDTO $productsData): ProductDomainObject
     {
-        $productPrices = $productsData->prices->map(fn (ProductPriceDTO $price) => ProductPriceDomainObject::hydrateFromArray([
+        $productPrices = $productsData->prices->map(fn(ProductPriceDTO $price) => ProductPriceDomainObject::hydrateFromArray([
             ProductPriceDomainObjectAbstract::PRICE => $productsData->type === ProductPriceType::FREE ? 0.00 : $price->price,
             ProductPriceDomainObjectAbstract::LABEL => $price->label,
             ProductPriceDomainObjectAbstract::SALE_START_DATE => $price->sale_start_date,
             ProductPriceDomainObjectAbstract::SALE_END_DATE => $price->sale_end_date,
             ProductPriceDomainObjectAbstract::INITIAL_QUANTITY_AVAILABLE => $price->initial_quantity_available,
             ProductPriceDomainObjectAbstract::IS_HIDDEN => $price->is_hidden,
+            ProductPriceDomainObjectAbstract::IS_HIDDEN_WITHOUT_PROMO_CODE => $price->is_hidden_without_promo_code,
         ]));
 
         $category = $this->getProductCategoryService->getCategory(
@@ -41,7 +44,7 @@ class CreateProductHandler
         );
 
         return $this->productCreateService->createProduct(
-            product: (new ProductDomainObject)
+            product: (new ProductDomainObject())
                 ->setTitle($productsData->title)
                 ->setType($productsData->type->name)
                 ->setOrder($productsData->order)
@@ -60,14 +63,14 @@ class CreateProductHandler
                 ->setIsHighlighted($productsData->is_highlighted ?? false)
                 ->setHighlightMessage($productsData->highlight_message)
                 ->setWaitlistEnabled($productsData->waitlist_enabled)
-                ->setIsAddonOnly($productsData->is_addon_only ?? false)
+                ->setRequireAttendeeDetails($productsData->require_attendee_details)
+                ->setRequireAttendeeEmail($productsData->require_attendee_email)
                 ->setProductPrices($productPrices)
                 ->setEventId($productsData->event_id)
                 ->setProductType($productsData->product_type->name)
                 ->setProductCategoryId($category->getId()),
             accountId: $productsData->account_id,
             taxAndFeeIds: $productsData->tax_and_fee_ids,
-            addonProductIds: $productsData->is_addon_only ? [] : $productsData->addon_product_ids,
         );
     }
 }

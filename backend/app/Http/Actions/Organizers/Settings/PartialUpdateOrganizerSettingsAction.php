@@ -14,7 +14,9 @@ class PartialUpdateOrganizerSettingsAction extends BaseAction
 {
     public function __construct(
         private readonly PartialUpdateOrganizerSettingsHandler $handler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(PartialUpdateOrganizerSettingsRequest $request, int $organizerId): JsonResponse
     {

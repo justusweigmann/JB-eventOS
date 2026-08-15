@@ -16,10 +16,11 @@ class AssignSuperAdminCommand extends Command
     protected $description = 'Assign SUPERADMIN role to a user. WARNING: This grants complete system access.';
 
     public function __construct(
-        private readonly UserRepositoryInterface $userRepository,
+        private readonly UserRepositoryInterface        $userRepository,
         private readonly AccountUserRepositoryInterface $accountUserRepository,
-        private readonly LoggerInterface $logger,
-    ) {
+        private readonly LoggerInterface                $logger,
+    )
+    {
         parent::__construct();
     }
 
@@ -31,26 +32,23 @@ class AssignSuperAdminCommand extends Command
         $this->warn('⚠️  SUPERADMIN users have unrestricted access to all accounts and data.');
         $this->newLine();
 
-        if (! $this->confirm('Are you sure you want to proceed?', false)) {
+        if (!$this->confirm('Are you sure you want to proceed?', false)) {
             $this->info('Operation cancelled.');
-
             return self::FAILURE;
         }
 
         try {
-            $user = $this->userRepository->findById((int) $userId);
+            $user = $this->userRepository->findById((int)$userId);
         } catch (Exception $exception) {
-            $this->error("Error finding user with ID: $userId".' Message: '.$exception->getMessage());
-
+            $this->error("Error finding user with ID: $userId" . " Message: " . $exception->getMessage());
             return self::FAILURE;
         }
 
         $this->info("Found user: {$user->getFullName()} ({$user->getEmail()})");
         $this->newLine();
 
-        if (! $this->confirm('Confirm assigning SUPERADMIN role to this user?', false)) {
+        if (!$this->confirm('Confirm assigning SUPERADMIN role to this user?', false)) {
             $this->info('Operation cancelled.');
-
             return self::FAILURE;
         }
 
@@ -60,7 +58,6 @@ class AssignSuperAdminCommand extends Command
 
         if ($accountUsers->isEmpty()) {
             $this->error('User is not associated with any accounts.');
-
             return self::FAILURE;
         }
 
@@ -68,7 +65,6 @@ class AssignSuperAdminCommand extends Command
         foreach ($accountUsers as $accountUser) {
             if ($accountUser->getRole() === Role::SUPERADMIN->name) {
                 $this->comment("User already has SUPERADMIN role for account ID: {$accountUser->getAccountId()}");
-
                 continue;
             }
 

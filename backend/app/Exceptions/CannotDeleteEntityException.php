@@ -4,4 +4,7 @@ namespace HiEvents\Exceptions;
 
 use Exception;
 
-class CannotDeleteEntityException extends Exception {}
+class CannotDeleteEntityException extends Exception
+{
+
+}

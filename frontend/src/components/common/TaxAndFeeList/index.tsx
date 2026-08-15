@@ -10,7 +10,6 @@ import {EditTaxOrFeeModal} from "../../modals/EditTaxOrFeeModal";
 import {useState} from "react";
 import {useDeleteTaxOrFee} from "../../../mutations/useDeleteTaxOrFee.ts";
 import {showError, showSuccess} from "../../../utilites/notifications.tsx";
-import {confirmationDialog} from "../../../utilites/confirmationDialog.tsx";
 import {t} from "@lingui/macro";
 
 export const TaxAndFeeList = () => {
@@ -30,17 +29,15 @@ export const TaxAndFeeList = () => {
     }
 
     const handleDelete = (taxAndFee: TaxAndFee) => {
-        confirmationDialog(t`Are you sure you want to delete this tax or fee? It will no longer be applied to new orders.`, () => {
-            deleteMutation.mutate({
-                taxAndFeeId: taxAndFee.id,
-                accountId: taxAndFee.account_id,
-            }, {
-                onSuccess: () => showSuccess(t`Tax or Fee deleted successfully`),
-                onError: (error) => {
-                    console.error(error);
-                    showError(t`Something went wrong while deleting the Tax or Fee`);
-                },
-            });
+        deleteMutation.mutate({
+            taxAndFeeId: taxAndFee.id,
+            accountId: taxAndFee.account_id,
+        }, {
+            onSuccess: () => showSuccess(t`Tax or Fee deleted successfully`),
+            onError: (error) => {
+                console.error(error);
+                showError(t`Something went wrong while deleting the Tax or Fee`);
+            },
         });
     }
 

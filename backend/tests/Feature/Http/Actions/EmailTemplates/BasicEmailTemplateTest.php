@@ -13,7 +13,6 @@ class BasicEmailTemplateTest extends TestCase
     use DatabaseTransactions;
 
     private User $user;
-
     private string $authToken;
 
     protected function setUp(): void
@@ -28,7 +27,7 @@ class BasicEmailTemplateTest extends TestCase
             'application_fees' => [
                 'percentage' => 1.5,
                 'fixed' => 0,
-            ],
+            ]
         ]);
 
         // Create user with account
@@ -47,7 +46,7 @@ class BasicEmailTemplateTest extends TestCase
     public function test_token_endpoint_works(): void
     {
         $response = $this->getJson('/email-templates/tokens/order_confirmation', [
-            'Authorization' => 'Bearer '.$this->authToken,
+            'Authorization' => 'Bearer ' . $this->authToken,
         ]);
 
         $response->assertStatus(ResponseCodes::HTTP_OK)
@@ -69,7 +68,7 @@ class BasicEmailTemplateTest extends TestCase
     public function test_token_endpoint_validates_template_type(): void
     {
         $response = $this->getJson('/email-templates/tokens/invalid_type', [
-            'Authorization' => 'Bearer '.$this->authToken,
+            'Authorization' => 'Bearer ' . $this->authToken,
         ]);
 
         $response->assertStatus(ResponseCodes::HTTP_BAD_REQUEST);
@@ -82,7 +81,7 @@ class BasicEmailTemplateTest extends TestCase
         $response->assertStatus(ResponseCodes::HTTP_INTERNAL_SERVER_ERROR);
 
         // Test organizer endpoint without auth (using dummy ID)
-        $response = $this->getJson('/organizers/999/email-templates');
+        $response = $this->getJson("/organizers/999/email-templates");
         $response->assertStatus(ResponseCodes::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

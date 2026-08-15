@@ -4,11 +4,8 @@ namespace HiEvents\Services\Domain\SelfService;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
-use HiEvents\DomainObjects\EventLocationDomainObject;
-use HiEvents\DomainObjects\EventOccurrenceDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\InvoiceDomainObject;
-use HiEvents\DomainObjects\LocationDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
@@ -65,7 +62,7 @@ class SelfServiceEditOrderService
             $emailChanged = true;
         }
 
-        if (! empty($updateData)) {
+        if (!empty($updateData)) {
             $oldEmail = $order->getEmail();
 
             if ($emailChanged) {
@@ -117,48 +114,14 @@ class SelfServiceEditOrderService
         return $this->eventRepository
             ->loadRelation(new Relationship(OrganizerDomainObject::class, name: 'organizer'))
             ->loadRelation(new Relationship(EventSettingDomainObject::class))
-            ->loadRelation(new Relationship(domainObject: EventOccurrenceDomainObject::class, nested: [
-                new Relationship(domainObject: EventLocationDomainObject::class, name: 'event_location', nested: [
-                    new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-                ]),
-            ]))
-            ->loadRelation(new Relationship(domainObject: EventLocationDomainObject::class, name: 'event_location', nested: [
-                new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-            ]))
             ->findById($eventId);
     }
 
     private function sendConfirmationToNewEmail(int $orderId, EventDomainObject $event): void
     {
         $order = $this->orderRepository
-            ->loadRelation(new Relationship(
-                domainObject: OrderItemDomainObject::class,
-                nested: [
-                    new Relationship(
-                        domainObject: EventOccurrenceDomainObject::class,
-                        nested: [
-                            new Relationship(domainObject: EventLocationDomainObject::class, name: 'event_location', nested: [
-                                new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-                            ]),
-                        ],
-                        name: 'event_occurrence',
-                    ),
-                ],
-            ))
-            ->loadRelation(new Relationship(
-                domainObject: AttendeeDomainObject::class,
-                nested: [
-                    new Relationship(
-                        domainObject: EventOccurrenceDomainObject::class,
-                        nested: [
-                            new Relationship(domainObject: EventLocationDomainObject::class, name: 'event_location', nested: [
-                                new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-                            ]),
-                        ],
-                        name: 'event_occurrence',
-                    ),
-                ],
-            ))
+            ->loadRelation(OrderItemDomainObject::class)
+            ->loadRelation(AttendeeDomainObject::class)
             ->loadRelation(InvoiceDomainObject::class)
             ->findById($orderId);
 

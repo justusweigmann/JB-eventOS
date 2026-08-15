@@ -4,15 +4,12 @@ namespace HiEvents\Services\Application\Handlers\Order;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
-use HiEvents\DomainObjects\EventLocationDomainObject;
-use HiEvents\DomainObjects\EventOccurrenceDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\Generated\EventDomainObjectAbstract;
 use HiEvents\DomainObjects\Generated\OrganizerDomainObjectAbstract;
 use HiEvents\DomainObjects\Generated\ProductDomainObjectAbstract;
 use HiEvents\DomainObjects\ImageDomainObject;
 use HiEvents\DomainObjects\InvoiceDomainObject;
-use HiEvents\DomainObjects\LocationDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
@@ -23,23 +20,23 @@ use HiEvents\Exceptions\UnauthorizedException;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\GetOrderPublicDTO;
-use HiEvents\Services\Domain\Order\OfflinePaymentInstructionsRenderService;
 use HiEvents\Services\Infrastructure\Session\CheckoutSessionManagementService;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class GetOrderPublicHandler
 {
     public function __construct(
-        private readonly OrderRepositoryInterface $orderRepository,
-        private readonly CheckoutSessionManagementService $sessionIdentifierService,
-        private readonly OfflinePaymentInstructionsRenderService $offlinePaymentInstructionsRenderService,
-    ) {}
+        private readonly OrderRepositoryInterface         $orderRepository,
+        private readonly CheckoutSessionManagementService $sessionIdentifierService
+    )
+    {
+    }
 
     public function handle(GetOrderPublicDTO $getOrderData): OrderDomainObject
     {
         $order = $this->getOrderDomainObject($getOrderData);
 
-        if (! $order) {
+        if (!$order) {
             throw new ResourceNotFoundException(__('Order not found'));
         }
 
@@ -52,14 +49,12 @@ class GetOrderPublicHandler
             $this->verifySessionId($order->getSessionId());
         }
 
-        $this->offlinePaymentInstructionsRenderService->renderForOrder($order);
-
         return $order;
     }
 
     private function verifySessionId(string $orderSessionId): void
     {
-        if (! $this->sessionIdentifierService->verifySession($orderSessionId)) {
+        if (!$this->sessionIdentifierService->verifySession($orderSessionId)) {
             throw new UnauthorizedException(
                 __('Sorry, we could not verify your session. Please restart your order.')
             );
@@ -77,43 +72,15 @@ class GetOrderPublicHandler
                         nested: [
                             new Relationship(
                                 domainObject: ProductPriceDomainObject::class,
-                            ),
+                            )
                         ],
                         name: ProductDomainObjectAbstract::SINGULAR_NAME,
-                    ),
-                    new Relationship(
-                        domainObject: EventOccurrenceDomainObject::class,
-                        nested: [
-                            new Relationship(
-                                domainObject: EventLocationDomainObject::class,
-                                nested: [
-                                    new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-                                ],
-                                name: 'event_location',
-                            ),
-                        ],
-                        name: 'event_occurrence',
-                    ),
+                    )
                 ],
             ))
             ->loadRelation(new Relationship(domainObject: InvoiceDomainObject::class))
             ->loadRelation(new Relationship(
                 domainObject: OrderItemDomainObject::class,
-                nested: [
-                    new Relationship(
-                        domainObject: EventOccurrenceDomainObject::class,
-                        nested: [
-                            new Relationship(
-                                domainObject: EventLocationDomainObject::class,
-                                nested: [
-                                    new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-                                ],
-                                name: 'event_location',
-                            ),
-                        ],
-                        name: 'event_occurrence',
-                    ),
-                ],
             ));
 
         if ($getOrderData->includeEventInResponse) {
@@ -129,26 +96,7 @@ class GetOrderPublicHandler
                     ),
                     new Relationship(
                         domainObject: ImageDomainObject::class,
-                    ),
-                    new Relationship(
-                        domainObject: EventLocationDomainObject::class,
-                        nested: [
-                            new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-                        ],
-                        name: 'event_location',
-                    ),
-                    new Relationship(
-                        domainObject: EventOccurrenceDomainObject::class,
-                        nested: [
-                            new Relationship(
-                                domainObject: EventLocationDomainObject::class,
-                                nested: [
-                                    new Relationship(domainObject: LocationDomainObject::class, name: 'location'),
-                                ],
-                                name: 'event_location',
-                            ),
-                        ],
-                    ),
+                    )
                 ],
                 name: EventDomainObjectAbstract::SINGULAR_NAME
             ));

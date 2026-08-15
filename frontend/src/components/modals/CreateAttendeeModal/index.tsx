@@ -1,11 +1,10 @@
 import {Modal} from "../../common/Modal";
-import {EventOccurrenceStatus, EventType, GenericModalProps, ProductCategory, ProductType, QueryFilters} from "../../../types.ts";
+import {GenericModalProps, IdParam, ProductCategory, ProductType, Question, QuestionBelongsToType} from "../../../types.ts";
 import {Button} from "../../common/Button";
 import {useNavigate, useParams} from "react-router";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
 import {useForm} from "@mantine/form";
 import {LoadingOverlay, NumberInput, Select, Switch, TextInput} from "@mantine/core";
-import {Callout} from "../../common/Callout";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
 import {CreateAttendeeRequest} from "../../../api/attendee.client.ts";
 import {useCreateAttendee} from "../../../mutations/useCreateAttendee.ts";
@@ -22,38 +21,20 @@ import {
 } from "../../../locales.ts";
 import {ProductSelector} from "../../common/ProductSelector";
 import {getProductsFromEvent} from "../../../utilites/helpers.ts";
-import {useGetEventOccurrences} from "../../../queries/useGetEventOccurrences.ts";
-import {useGetPriceOverrides} from "../../../queries/useGetPriceOverrides.ts";
-import {prettyDate} from "../../../utilites/dates.ts";
-import {BouncingEmoji} from "../../common/BouncingEmoji";
-import {Stack, Text} from "@mantine/core";
+import {useGetEventQuestions} from "../../../queries/useGetEventQuestions.ts";
+import {QuestionInput} from "../../common/CheckoutQuestion";
 
 export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
     const {eventId} = useParams();
     const errorHandler = useFormErrorResponseHandler();
     const {data: event, isFetched: isEventFetched} = useGetEvent(eventId);
+    const {data: questionsData} = useGetEventQuestions(eventId);
     const mutation = useCreateAttendee();
     const navigate = useNavigate();
     const eventProducts = getProductsFromEvent(event);
     const eventHasProducts = eventProducts && eventProducts?.length > 0;
-    const isRecurring = event?.type === EventType.RECURRING;
-    const {data: occurrencesData} = useGetEventOccurrences(
-        eventId,
-        {pageNumber: 1, perPage: 1200} as QueryFilters,
-    );
 
-    const occurrenceOptions = useMemo(() => {
-        if (!isRecurring || !occurrencesData?.data) return [];
-        return occurrencesData.data
-            .filter(occ => occ.status !== 'CANCELLED')
-            .map(occ => ({
-                label: prettyDate(occ.start_date, event?.timezone || 'UTC')
-                    + (occ.label ? ` (${occ.label})` : ''),
-                value: String(occ.id),
-            }));
-    }, [isRecurring, occurrencesData, event?.timezone]);
-
-    const form = useForm<CreateAttendeeRequest>({
+    const form = useForm<CreateAttendeeRequest & Record<string, any>>({
         initialValues: {
             product_id: undefined,
             email: '',
@@ -63,34 +44,21 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
             send_confirmation_email: true,
             taxes_and_fees: [],
             locale: getClientLocale() as SupportedLocales,
-            event_occurrence_id: null,
-            override_capacity: false,
+            question_answers: [],
         },
     });
 
-    const selectedOccurrence = useMemo(() => {
-        if (!isRecurring || !occurrencesData?.data || form.values.event_occurrence_id == null) return undefined;
-        const targetId = Number(form.values.event_occurrence_id);
-        return occurrencesData.data.find(occ => Number(occ.id) === targetId);
-    }, [isRecurring, occurrencesData, form.values.event_occurrence_id]);
-
-    const occurrenceIsFull = useMemo(() => {
-        if (!selectedOccurrence) return false;
-        if (selectedOccurrence.status === EventOccurrenceStatus.SOLD_OUT) return true;
-        if (selectedOccurrence.capacity == null) return false;
-        return (selectedOccurrence.used_capacity ?? 0) >= selectedOccurrence.capacity;
-    }, [selectedOccurrence]);
-
-    useEffect(() => {
-        if (form.values.override_capacity && !occurrenceIsFull) {
-            form.setFieldValue('override_capacity', false);
-        }
-    }, [occurrenceIsFull]);
-
-    const {data: priceOverrides} = useGetPriceOverrides(
-        eventId,
-        isRecurring ? form.values.event_occurrence_id ?? undefined : undefined,
-    );
+    const applicableQuestions = useMemo(() => {
+        if (!questionsData?.data || !form.values.product_id) return [];
+        const allQuestions = questionsData.data as Question[];
+        return allQuestions.filter((q) => {
+            if (q.belongs_to === QuestionBelongsToType.ORDER) return true;
+            if (q.belongs_to === QuestionBelongsToType.PRODUCT && q.product_ids) {
+                return q.product_ids.includes(Number(form.values.product_id));
+            }
+            return false;
+        });
+    }, [questionsData?.data, form.values.product_id]);
 
     useEffect(() => {
         if (event?.product_categories) {
@@ -122,26 +90,28 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
     }, [form.values.product_id]);
 
     useEffect(() => {
-        if (form.values.product_price_id) {
-            const override = priceOverrides?.find(
-                o => String(o.product_price_id) === String(form.values.product_price_id)
-            );
-
-            if (override) {
-                form.setFieldValue('amount_paid', Number(override.price));
-            } else {
-                const basePrice = eventProducts
+        if (form.values.product_price_id && !form.values.amount_paid) {
+            form.setFieldValue(
+                'amount_paid',
+                Number(eventProducts
                     ?.find(product => product.id == form.values.product_id)?.prices
-                    ?.find(productPrice => String(productPrice.id) === String(form.values.product_price_id))?.price;
-                form.setFieldValue('amount_paid', Number(basePrice) || 0);
-            }
+                    ?.find(productPrice => (productPrice.id as IdParam) = form.values.product_price_id)?.price)
+            );
         }
-    }, [form.values.product_price_id, priceOverrides]);
+    }, [form.values.product_price_id]);
 
-    const handleSubmit = (values: CreateAttendeeRequest) => {
+    const handleSubmit = (values: CreateAttendeeRequest & Record<string, any>) => {
+        const questionAnswers = applicableQuestions.map((question) => ({
+            question_id: Number(question.id),
+            answer: values[`question_${question.id}`] ?? '',
+        }));
+
         mutation.mutate({
             eventId: eventId,
-            attendeeData: values,
+            attendeeData: {
+                ...values,
+                question_answers: questionAnswers,
+            },
         }, {
             onSuccess: () => {
                 showSuccess(t`Successfully created attendee`);
@@ -172,32 +142,6 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
                 </Button>
             </Modal>
         )
-    }
-
-    if (isEventFetched && isRecurring && occurrencesData && occurrenceOptions.length === 0) {
-        return (
-            <Modal opened onClose={onClose} heading={t`Manually Add Attendee`}>
-                <Stack align="center" gap="md" py="lg">
-                    <BouncingEmoji emoji="📅"/>
-                    <Text fw={600} size="lg" ta="center">
-                        {t`No occurrences available`}
-                    </Text>
-                    <Text c="dimmed" size="sm" ta="center" maw={320}>
-                        {t`You need to create at least one occurrence before you can add attendees to this recurring event.`}
-                    </Text>
-                    <Button
-                        fullWidth
-                        variant="light"
-                        onClick={() => {
-                            onClose();
-                            navigate(`/manage/event/${eventId}/occurrences`);
-                        }}
-                    >
-                        {t`Go to Schedule`}
-                    </Button>
-                </Stack>
-            </Modal>
-        );
     }
 
     return (
@@ -248,39 +192,6 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
                     includedProductTypes={[ProductType.Ticket]}
                 />
 
-                {isRecurring && occurrenceOptions.length > 0 && (
-                    <Select
-                        label={t`Occurrence`}
-                        placeholder={t`Select occurrence`}
-                        data={occurrenceOptions}
-                        required
-                        value={form.values.event_occurrence_id ? String(form.values.event_occurrence_id) : null}
-                        onChange={(val) => form.setFieldValue('event_occurrence_id', val ? Number(val) : null)}
-                        {...(form.errors.event_occurrence_id ? {error: form.errors.event_occurrence_id} : {})}
-                    />
-                )}
-
-                {occurrenceIsFull && (
-                    <Callout
-                        variant="tip"
-                        style={{marginTop: 16}}
-                        title={t`This occurrence is at capacity`}
-                    >
-                        <Stack gap="xs">
-                            <Text size="sm">
-                                {selectedOccurrence?.capacity != null
-                                    ? t`${selectedOccurrence.used_capacity ?? 0} of ${selectedOccurrence.capacity} seats are taken.`
-                                    : t`This date is marked sold out.`}
-                            </Text>
-                            <Switch
-                                label={t`Add this attendee anyway (override capacity)`}
-                                description={t`The override is recorded in the order audit log.`}
-                                {...form.getInputProps('override_capacity', {type: 'checkbox'})}
-                            />
-                        </Stack>
-                    </Callout>
-                )}
-
                 <NumberInput
                     required
                     mt={20}
@@ -310,6 +221,15 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
                         )
                     }
                 )}
+
+                {applicableQuestions.length > 0 && applicableQuestions.map((question) => (
+                    <QuestionInput
+                        key={question.id}
+                        question={question}
+                        name={`question_${question.id}`}
+                        form={form}
+                    />
+                ))}
 
                 <Switch
                     mt={20}

@@ -16,8 +16,10 @@ class ExportAffiliatesAction extends BaseAction
 {
     public function __construct(
         private readonly AffiliateRepositoryInterface $affiliateRepository,
-        private readonly AffiliatesExport $export
-    ) {}
+        private readonly AffiliatesExport             $export
+    )
+    {
+    }
 
     public function __invoke(int $eventId): BinaryFileResponse
     {

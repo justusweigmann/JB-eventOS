@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class AccountVatSettingDomainObject extends Generated\AccountVatSettingDomainObjectAbstract {}
+class AccountVatSettingDomainObject extends Generated\AccountVatSettingDomainObjectAbstract
+{
+}

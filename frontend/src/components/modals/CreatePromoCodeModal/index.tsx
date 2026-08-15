@@ -1,4 +1,4 @@
-import {GenericModalProps, PromoCode, PromoCodeDiscountAppliesTo, PromoCodeDiscountType} from "../../../types.ts";
+import {GenericModalProps, PromoCode, PromoCodeDiscountType} from "../../../types.ts";
 import {hasLength, useForm} from "@mantine/form";
 import {useParams} from "react-router";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
@@ -19,9 +19,11 @@ export const CreatePromoCodeModal = ({onClose}: GenericModalProps) => {
             discount: undefined,
             applicable_product_ids: [],
             expiry_date: undefined,
+            valid_from: undefined,
             discount_type: PromoCodeDiscountType.None,
-            discount_applies_to: PromoCodeDiscountAppliesTo.Order,
             max_allowed_usages: undefined,
+            max_attendee_usages: undefined,
+            message: '',
         },
         validate: {
             code: hasLength({min: 3, max: 50}, t`Code must be between 3 and 50 characters long`),
@@ -53,7 +55,7 @@ export const CreatePromoCodeModal = ({onClose}: GenericModalProps) => {
         >
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <PromoCodeForm form={form}/>
-                <Button type="submit" fullWidth mt="lg" disabled={mutation.isPending} data-testid="promo-code-submit-button">
+                <Button type="submit" fullWidth mt="xl" disabled={mutation.isPending}>
                     {mutation.isPending ? t`Working...` : t`Create Promo Code`}
                 </Button>
             </form>

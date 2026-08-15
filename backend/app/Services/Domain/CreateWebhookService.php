@@ -3,6 +3,7 @@
 namespace HiEvents\Services\Domain;
 
 use HiEvents\DomainObjects\Generated\WebhookDomainObjectAbstract;
+use HiEvents\DomainObjects\Status\WebhookStatus;
 use HiEvents\DomainObjects\WebhookDomainObject;
 use HiEvents\Repository\Interfaces\WebhookRepositoryInterface;
 use Illuminate\Support\Str;
@@ -12,7 +13,7 @@ class CreateWebhookService
 {
     public function __construct(
         private readonly WebhookRepositoryInterface $webhookRepository,
-        private readonly LoggerInterface $logger,
+        private readonly LoggerInterface            $logger,
     ) {}
 
     public function createWebhook(WebhookDomainObject $webhookDomainObject): WebhookDomainObject

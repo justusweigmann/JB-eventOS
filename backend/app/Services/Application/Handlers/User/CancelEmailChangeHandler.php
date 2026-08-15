@@ -15,9 +15,10 @@ class CancelEmailChangeHandler
     private UserRepositoryInterface $userRepository;
 
     public function __construct(
-        LoggerInterface $logger,
+        LoggerInterface         $logger,
         UserRepositoryInterface $userRepository,
-    ) {
+    )
+    {
         $this->logger = $logger;
         $this->userRepository = $userRepository;
     }

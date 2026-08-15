@@ -11,9 +11,14 @@ class EventSetting extends BaseModel
     protected function getCastMap(): array
     {
         return [
+            'location_details' => 'array',
             'payment_providers' => 'array',
             'ticket_design_settings' => 'array',
             'homepage_theme_settings' => 'array',
+            'social_media_handles' => 'array',
+            'stripe_payment_method_order' => 'array',
+            'sales_report_recipient_emails' => 'array',
+            'checkout_steps_config' => 'array',
         ];
     }
 }

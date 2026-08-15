@@ -3,15 +3,16 @@
 namespace HiEvents\Repository\Interfaces;
 
 use HiEvents\DomainObjects\EventOccurrenceDomainObject;
-use HiEvents\Http\DTO\QueryParamsDTO;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 /**
  * @extends RepositoryInterface<EventOccurrenceDomainObject>
  */
 interface EventOccurrenceRepositoryInterface extends RepositoryInterface
 {
-    public function findByEventId(int $eventId, QueryParamsDTO $params): LengthAwarePaginator;
+    public function findByEventId(int $eventId, ?string $status = null): Collection;
 
-    public function findByIdLocked(int $id): ?EventOccurrenceDomainObject;
+    public function findUpcomingByEventId(int $eventId, int $limit = 50): Collection;
+
+    public function incrementTicketsSold(int $occurrenceId, int $quantity = 1): void;
 }

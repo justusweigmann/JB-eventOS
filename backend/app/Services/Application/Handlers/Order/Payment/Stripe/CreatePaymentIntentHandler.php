@@ -6,12 +6,12 @@ use Brick\Math\Exception\MathException;
 use Brick\Math\Exception\NumberFormatException;
 use Brick\Math\Exception\RoundingNecessaryException;
 use Brick\Money\Exception\UnknownCurrencyException;
+use HiEvents\DomainObjects\AccountConfigurationDomainObject;
+use HiEvents\DomainObjects\AccountStripePlatformDomainObject;
+use HiEvents\DomainObjects\AccountVatSettingDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\Generated\StripePaymentDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderItemDomainObject;
-use HiEvents\DomainObjects\OrganizerConfigurationDomainObject;
-use HiEvents\DomainObjects\OrganizerStripePlatformDomainObject;
-use HiEvents\DomainObjects\OrganizerVatSettingDomainObject;
 use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\DomainObjects\StripePaymentDomainObject;
 use HiEvents\Exceptions\ResourceConflictException;
@@ -20,7 +20,6 @@ use HiEvents\Exceptions\UnauthorizedException;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AccountRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
-use HiEvents\Repository\Interfaces\OrganizerRepositoryInterface;
 use HiEvents\Repository\Interfaces\StripePaymentsRepositoryInterface;
 use HiEvents\Services\Domain\Payment\Stripe\DTOs\CreatePaymentIntentRequestDTO;
 use HiEvents\Services\Domain\Payment\Stripe\DTOs\CreatePaymentIntentResponseDTO;
@@ -36,17 +35,20 @@ use Throwable;
 readonly class CreatePaymentIntentHandler
 {
     public function __construct(
-        private OrderRepositoryInterface $orderRepository,
+        private OrderRepositoryInterface           $orderRepository,
         private StripePaymentIntentCreationService $stripePaymentService,
-        private CheckoutSessionManagementService $sessionIdentifierService,
-        private StripePaymentsRepositoryInterface $stripePaymentsRepository,
-        private AccountRepositoryInterface $accountRepository,
-        private OrganizerRepositoryInterface $organizerRepository,
-        private StripeClientFactory $stripeClientFactory,
-        private StripeConfigurationService $stripeConfigurationService,
-    ) {}
+        private CheckoutSessionManagementService   $sessionIdentifierService,
+        private StripePaymentsRepositoryInterface  $stripePaymentsRepository,
+        private AccountRepositoryInterface         $accountRepository,
+        private StripeClientFactory                $stripeClientFactory,
+        private StripeConfigurationService         $stripeConfigurationService,
+    )
+    {
+    }
 
     /**
+     * @param string $orderShortId
+     * @return CreatePaymentIntentResponseDTO
      * @throws CreatePaymentIntentFailedException
      * @throws MathException
      * @throws NumberFormatException
@@ -63,7 +65,7 @@ readonly class CreatePaymentIntentHandler
             ->loadRelation(new Relationship(EventDomainObject::class, name: 'event'))
             ->findByShortId($orderShortId);
 
-        if (! $order || ! $this->sessionIdentifierService->verifySession($order->getSessionId())) {
+        if (!$order || !$this->sessionIdentifierService->verifySession($order->getSessionId())) {
             throw new UnauthorizedException(__('Sorry, we could not verify your session. Please create a new order.'));
         }
 
@@ -71,30 +73,32 @@ readonly class CreatePaymentIntentHandler
             throw new ResourceConflictException(__('Sorry, is expired or not in a valid state.'));
         }
 
-        $event = $order->getEvent();
-
-        $organizer = $this->organizerRepository
-            ->loadRelation(OrganizerStripePlatformDomainObject::class)
+        $account = $this->accountRepository
             ->loadRelation(new Relationship(
-                domainObject: OrganizerConfigurationDomainObject::class,
-                name: 'organizer_configuration',
+                domainObject: AccountConfigurationDomainObject::class,
+                name: 'configuration',
             ))
+            ->loadRelation(AccountStripePlatformDomainObject::class)
             ->loadRelation(new Relationship(
-                domainObject: OrganizerVatSettingDomainObject::class,
-                name: 'organizer_vat_setting',
+                domainObject: AccountVatSettingDomainObject::class,
+                name: 'account_vat_setting',
             ))
-            ->findById($event->getOrganizerId());
+            ->findByEventId($order->getEventId());
 
-        $account = $this->accountRepository->findByEventId($order->getEventId());
-
-        $stripePlatform = $organizer?->getActiveStripePlatform()
+        $stripePlatform = $account->getActiveStripePlatform()
             ?? $this->stripeConfigurationService->getPrimaryPlatform();
 
-        $stripeAccountId = $organizer?->getActiveStripeAccountId();
+        $stripeAccountId = $account->getActiveStripeAccountId();
+
+        // If no platform is configured, we can still process payments with regular Stripe keys
+        if (!$stripePlatform) {
+            $stripePlatform = null; // This will use default keys in StripeClientFactory
+        }
 
         $stripeClient = $this->stripeClientFactory->createForPlatform($stripePlatform);
         $publicKey = $this->stripeConfigurationService->getPublicKey($stripePlatform);
 
+        // If we already have a Stripe session then re-fetch the client secret
         if ($order->getStripePayment() !== null) {
             return new CreatePaymentIntentResponseDTO(
                 paymentIntentId: $order->getStripePayment()->getPaymentIntentId(),
@@ -112,7 +116,7 @@ readonly class CreatePaymentIntentHandler
         $description = __(':item_count item(s) for event: :event_name (Order :order_short_id)', [
             'event_name' => Str::limit($order->getEvent()?->getTitle() ?? __('Event'), 75),
             'order_short_id' => $orderShortId,
-            'item_count' => $order->getOrderItems()->sum(fn (OrderItemDomainObject $item) => $item->getQuantity()),
+            'item_count' => $order->getOrderItems()->sum(fn(OrderItemDomainObject $item) => $item->getQuantity()),
         ]);
 
         $paymentIntent = $this->stripePaymentService->createPaymentIntentWithClient(
@@ -122,9 +126,8 @@ readonly class CreatePaymentIntentHandler
                 'currencyCode' => $order->getCurrency(),
                 'account' => $account,
                 'order' => $order,
-                'configuration' => $organizer?->getOrganizerConfiguration(),
                 'stripeAccountId' => $stripeAccountId,
-                'vatSettings' => $organizer?->getOrganizerVatSetting(),
+                'vatSettings' => $account->getAccountVatSetting(),
                 'description' => Str::limit($description, 997),
             ])
         );

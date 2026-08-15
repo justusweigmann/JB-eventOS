@@ -13,7 +13,9 @@ class GetMessageRecipientsAction extends BaseAction
 {
     public function __construct(
         private readonly GetMessageRecipientsHandler $handler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(Request $request, int $eventId, int $messageId): JsonResponse
     {

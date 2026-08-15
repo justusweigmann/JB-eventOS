@@ -13,7 +13,9 @@ class GetOrganizerOrdersHandler
 {
     public function __construct(
         private readonly OrderRepositoryInterface $orderRepository,
-    ) {}
+    )
+    {
+    }
 
     public function handle(int $organizer, int $accountId, QueryParamsDTO $queryParams): LengthAwarePaginator
     {

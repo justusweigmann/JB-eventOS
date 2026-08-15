@@ -12,7 +12,9 @@ use Throwable;
 
 class ExportQuestionAnswersAction extends BaseAction
 {
-    public function __construct(private JobPollingService $jobPollingService) {}
+    public function __construct(private JobPollingService $jobPollingService)
+    {
+    }
 
     /**
      * @throws Throwable

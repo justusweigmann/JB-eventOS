@@ -4,10 +4,8 @@ namespace HiEvents\Http\Request\EventSettings;
 
 use HiEvents\DomainObjects\Enums\AttendeeDetailsCollectionMethod;
 use HiEvents\DomainObjects\Enums\HomepageBackgroundType;
-use HiEvents\DomainObjects\Enums\HomepageFontFamily;
 use HiEvents\DomainObjects\Enums\PaymentProviders;
 use HiEvents\DomainObjects\Enums\PriceDisplayMode;
-use HiEvents\DomainObjects\Enums\TicketDateDisplayMode;
 use HiEvents\Http\Request\BaseRequest;
 use HiEvents\Validators\Rules\RulesHelper;
 use Illuminate\Validation\Rule;
@@ -18,16 +16,15 @@ class UpdateEventSettingsRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'post_checkout_message' => ['string', 'nullable'],
-            'pre_checkout_message' => ['string', 'nullable'],
-            'email_footer_message' => ['string', 'nullable'],
+            'post_checkout_message' => ['string', "nullable"],
+            'pre_checkout_message' => ['string', "nullable"],
+            'email_footer_message' => ['string', "nullable"],
 
             'continue_button_text' => ['string', 'nullable', 'max:100'],
-            'get_tickets_button_text' => ['string', 'nullable', 'max:100'],
             'support_email' => ['email', 'nullable'],
             'require_attendee_details' => ['boolean'],
             'attendee_details_collection_method' => [Rule::in(AttendeeDetailsCollectionMethod::valuesArray())],
-            'order_timeout_in_minutes' => ['numeric', 'min:1', 'max:120'],
+            'order_timeout_in_minutes' => ['numeric', "min:1", "max:120"],
 
             'homepage_background_color' => ['nullable', ...RulesHelper::HEX_COLOR],
             'homepage_primary_color' => ['nullable', ...RulesHelper::HEX_COLOR],
@@ -40,19 +37,39 @@ class UpdateEventSettingsRequest extends BaseRequest
             'website_url' => ['url', 'nullable'],
             'maps_url' => ['url', 'nullable'],
 
+            'location_details' => ['array'],
+            'location_details.venue_name' => ['string', 'max:255', 'nullable'],
+            'location_details.address_line_1' => ['string', 'max:255', 'nullable'],
+            'location_details.address_line_2' => ['string', 'max:255', 'nullable'],
+            'location_details.city' => ['string', 'max:85', 'nullable'],
+            'location_details.state_or_region' => ['string', 'max:85', 'nullable'],
+            'location_details.zip_or_postal_code' => ['string', 'max:85', 'nullable'],
+            'location_details.country' => ['string', 'max:2', 'nullable'],
+
+            'is_online_event' => ['boolean'],
+            'event_location_type' => ['string', Rule::in(['IN_PERSON', 'ONLINE', 'HYBRID'])],
+            'online_event_connection_details' => ['string', 'nullable'],
+
             'seo_title' => ['string', 'max:255', 'nullable'],
             'seo_description' => ['string', 'max:255', 'nullable'],
             'seo_keywords' => ['string', 'max:255', 'nullable'],
+            'meta_pixel_id' => ['string', 'max:50', 'nullable', 'regex:/^[0-9]*$/'],
             'allow_search_engine_indexing' => ['boolean'],
 
             'notify_organizer_of_new_orders' => ['boolean'],
 
+            'disable_attendee_ticket_email' => ['boolean'],
+
             'price_display_mode' => [Rule::in(PriceDisplayMode::valuesArray())],
+
+            'hide_getting_started_page' => ['boolean'],
+
+            'hide_start_date' => ['boolean'],
 
             // Payment settings
             'payment_providers' => ['array'],
             'payment_providers.*' => ['string', Rule::in(PaymentProviders::valuesArray())],
-            'offline_payment_instructions' => ['string', 'nullable', Rule::requiredIf(fn () => in_array(PaymentProviders::OFFLINE->name, $this->input('payment_providers', []), true))],
+            'offline_payment_instructions' => ['string', 'nullable', Rule::requiredIf(fn() => in_array(PaymentProviders::OFFLINE->name, $this->input('payment_providers', []), true))],
             'allow_orders_awaiting_offline_payment_to_check_in' => ['boolean'],
 
             // Invoice settings
@@ -73,14 +90,10 @@ class UpdateEventSettingsRequest extends BaseRequest
             'ticket_design_settings.logo_image_id' => ['nullable', 'integer'],
             'ticket_design_settings.footer_text' => ['nullable', 'string', 'max:500'],
             'ticket_design_settings.layout_type' => ['nullable', 'string', Rule::in(['default', 'modern'])],
-            'ticket_design_settings.date_display_mode' => ['nullable', 'string', Rule::in(TicketDateDisplayMode::valuesArray())],
             'ticket_design_settings.enabled' => ['boolean'],
 
             // Marketing settings
             'show_marketing_opt_in' => ['boolean'],
-
-            // Attendee detail copy control
-            'allow_copy_details_to_all_attendees' => ['boolean'],
 
             // Platform fee settings
             'pass_platform_fee_to_buyer' => ['boolean'],
@@ -91,18 +104,71 @@ class UpdateEventSettingsRequest extends BaseRequest
             'homepage_theme_settings.background' => ['nullable', 'string', ...RulesHelper::HEX_COLOR],
             'homepage_theme_settings.mode' => ['nullable', 'string', Rule::in(['light', 'dark'])],
             'homepage_theme_settings.background_type' => ['nullable', 'string', Rule::in(HomepageBackgroundType::valuesArray())],
-            'homepage_theme_settings.font_family' => ['nullable', 'string', Rule::in(HomepageFontFamily::valuesArray())],
 
             // Self-service settings
             'allow_attendee_self_edit' => ['boolean'],
 
-            // Occurrence display
-            'show_available_occurrence_capacity' => ['boolean'],
-            'hide_sold_out_occurrences' => ['boolean'],
-
             // Waitlist settings
             'waitlist_auto_process' => ['boolean'],
             'waitlist_offer_timeout_minutes' => ['nullable', 'integer', 'min:1', 'max:10080'],
+
+            // Social media settings
+            'social_media_handles' => ['nullable', 'array'],
+            'social_media_handles.*' => ['nullable', 'string', 'max:255'],
+            'show_social_media_handles' => ['boolean'],
+
+            // Access control settings
+            'event_password' => ['nullable', 'string', 'max:255'],
+
+            // Payment settings
+            'stripe_payment_method_order' => ['nullable', 'array'],
+            'stripe_payment_method_order.*' => ['string', 'max:50'],
+
+            // Order approval settings
+            'require_order_approval' => ['boolean'],
+            'external_ticket_url' => ['nullable', 'url', 'max:2048'],
+
+            // Order-level ticket quantity limits
+            'order_min_tickets' => ['nullable', 'integer', 'min:1'],
+            'order_max_tickets' => ['nullable', 'integer', 'min:1'],
+
+            // Checkout validation webhook
+            'checkout_validation_webhook_url' => ['nullable', 'url', 'max:2048'],
+
+            // Attendee name requirement
+            'require_attendee_name' => ['boolean'],
+
+            // Free ticket expiration
+            'free_ticket_expiration_minutes' => ['nullable', 'integer', 'min:1', 'max:43200'],
+
+            // Sales report settings
+            'sales_report_frequency' => ['nullable', 'string', 'in:DAILY,WEEKLY,MONTHLY'],
+            'sales_report_recipient_emails' => ['nullable', 'array'],
+            'sales_report_recipient_emails.*' => ['email'],
+
+            // Certificate settings
+            'certificate_enabled' => ['boolean'],
+            'certificate_title' => ['nullable', 'string', 'max:255'],
+            'certificate_body_template' => ['nullable', 'string', 'max:5000'],
+            'certificate_signatory_name' => ['nullable', 'string', 'max:255'],
+            'certificate_signatory_title' => ['nullable', 'string', 'max:255'],
+
+            // Provisional booking settings
+            'provisional_booking_enabled' => ['boolean'],
+            'provisional_booking_threshold' => ['nullable', 'numeric', 'min:0'],
+            'provisional_booking_deadline' => ['nullable', 'integer', 'min:1', 'max:720'],
+            'provisional_booking_message' => ['nullable', 'string', 'max:2000'],
+
+            // Multi-step checkout settings
+            'multi_step_checkout_enabled' => ['boolean'],
+            'checkout_steps_config' => ['nullable', 'array'],
+
+            // Private event settings
+            'is_private_event' => ['boolean'],
+            'private_access_code' => ['nullable', 'string', 'min:6', 'max:128', 'required_if:is_private_event,true'],
+            'hide_event_details_until_access' => ['boolean'],
+            'hide_location_until_purchase' => ['boolean'],
+            'show_promo_code_input_always' => ['boolean'],
         ];
     }
 
@@ -118,7 +184,8 @@ class UpdateEventSettingsRequest extends BaseRequest
             'homepage_link_color' => $colorMessage,
             'homepage_product_widget_background_color' => $colorMessage,
             'homepage_product_widget_text_color' => $colorMessage,
-            'price_display_mode.in' => 'The price display mode must be either inclusive or exclusive.',
+            'location_details.country.max' => __('The country field should be a 2 character ISO 3166 code'),
+            'price_display_mode.in' => 'The price display mode must be inclusive, exclusive, or tax_inclusive.',
 
             // Payment messages
             'payment_providers.*.in' => __('Invalid payment provider selected.'),
@@ -140,7 +207,6 @@ class UpdateEventSettingsRequest extends BaseRequest
             'homepage_theme_settings.background' => $colorMessage,
             'homepage_theme_settings.mode.in' => __('The mode must be light or dark.'),
             'homepage_theme_settings.background_type.in' => __('The background type must be COLOR or MIRROR_COVER_IMAGE.'),
-            'homepage_theme_settings.font_family.in' => __('The selected font is not supported.'),
         ];
     }
 }

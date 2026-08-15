@@ -10,7 +10,8 @@ class GetEmailTemplatesHandler
 {
     public function __construct(
         private readonly EmailTemplateRepositoryInterface $emailTemplateRepository
-    ) {}
+    ) {
+    }
 
     public function handle(GetEmailTemplatesDTO $dto): Collection
     {
@@ -30,7 +31,7 @@ class GetEmailTemplatesHandler
             $conditions['template_type'] = $dto->template_type->value;
         }
 
-        if (! $dto->include_inactive) {
+        if (!$dto->include_inactive) {
             $conditions['is_active'] = true;
         }
 

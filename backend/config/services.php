@@ -52,10 +52,37 @@ return [
     'open_exchange_rates' => [
         'app_id' => env('OPEN_EXCHANGE_RATES_APP_ID'),
     ],
-    'geo' => [
-        'provider' => env('GEO_PROVIDER', 'google'),
-        'google' => [
-            'api_key' => env('GOOGLE_MAPS_API_KEY'),
-        ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_OAUTH_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_OAUTH_CLIENT_SECRET'),
+    ],
+
+    'apple' => [
+        'client_id' => env('APPLE_OAUTH_CLIENT_ID'),
+        'team_id' => env('APPLE_OAUTH_TEAM_ID'),
+        'key_id' => env('APPLE_OAUTH_KEY_ID'),
+    ],
+
+    'apple_wallet' => [
+        'pass_type_id' => env('APPLE_WALLET_PASS_TYPE_ID', 'pass.com.hievents.ticket'),
+        'team_id' => env('APPLE_WALLET_TEAM_ID', ''),
+        'certificate_path' => env('APPLE_WALLET_CERTIFICATE_PATH', ''),
+        'certificate_password' => env('APPLE_WALLET_CERTIFICATE_PASSWORD', ''),
+    ],
+
+    'google_wallet' => [
+        'issuer_id' => env('GOOGLE_WALLET_ISSUER_ID', ''),
+        'service_account_email' => env('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL', ''),
+        'service_account_key_path' => env('GOOGLE_WALLET_SERVICE_ACCOUNT_KEY_PATH', ''),
+    ],
+
+    'auth' => [
+        'oauth_enabled' => env('OAUTH_ENABLED', false),
+        'google_enabled' => env('GOOGLE_OAUTH_ENABLED', false),
+        'apple_enabled' => env('APPLE_OAUTH_ENABLED', false),
+        'mfa_enabled' => env('MFA_ENABLED', true),
+        'passkey_enabled' => env('PASSKEY_ENABLED', true),
+        'allowed_login_methods' => env('ALLOWED_LOGIN_METHODS', 'password,oauth,passkey'),
     ],
 ];

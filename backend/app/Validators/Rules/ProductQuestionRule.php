@@ -12,43 +12,39 @@ use Illuminate\Validation\ValidationException;
 class ProductQuestionRule extends BaseQuestionRule
 {
     private bool $skipBasicAttendeeValidation = false;
+    private bool $requireAttendeeName = true;
 
     public function __construct(
         Collection $questions,
         Collection $products,
         ?string $attendeeDetailsCollectionMethod = null,
+        bool $requireAttendeeName = true,
     ) {
         parent::__construct($questions, $products);
 
         $this->skipBasicAttendeeValidation = $attendeeDetailsCollectionMethod === AttendeeDetailsCollectionMethod::PER_ORDER->name;
+        $this->requireAttendeeName = $requireAttendeeName;
     }
-
     /**
      * @throws ValidationException
      */
     protected function validateRequiredQuestionArePresent(Collection $orderProducts): void
     {
         foreach ($orderProducts as $productData) {
-            if (! isset($productData['product_price_id']) || ! is_numeric($productData['product_price_id'])) {
-                throw ValidationException::withMessages([
-                    __('This product is outdated. Please reload the page.'),
-                ]);
-            }
-
-            $productId = $this->getProductIdFromProductPriceId((int) $productData['product_price_id']);
+            $productId = $this->getProductIdFromProductPriceId($productData['product_price_id']);
             $questions = $productData['questions'] ?? [];
 
             $requiredQuestionIds = $this->questions
                 ->filter(function (QuestionDomainObject $question) use ($productId) {
                     return $question->getRequired()
-                        && ! $question->getIsHidden()
-                        && $question->getProducts()?->map(fn ($product) => $product->getId())->contains($productId);
+                        && !$question->getIsHidden()
+                        && $question->getProducts()?->map(fn($product) => $product->getId())->contains($productId);
                 })
-                ->map(fn (QuestionDomainObject $question) => $question->getId());
+                ->map(fn(QuestionDomainObject $question) => $question->getId());
 
             if (array_diff($requiredQuestionIds->toArray(), collect($questions)->pluck('question_id')->toArray())) {
                 throw ValidationException::withMessages([
-                    __('Required questions have not been answered. You may need to reload the page.'),
+                    __('Required questions have not been answered. You may need to reload the page.')
                 ]);
             }
         }
@@ -59,41 +55,33 @@ class ProductQuestionRule extends BaseQuestionRule
         $validationMessages = [];
 
         foreach ($products as $productIndex => $productRequestData) {
-            if (! isset($productRequestData['product_id']) || ! is_numeric($productRequestData['product_id'])) {
-                throw ValidationException::withMessages([
-                    __('This product is outdated. Please reload the page.'),
-                ]);
-            }
+            $productDomainObject = $this->getProductDomainObject($productRequestData['product_id']);
 
-            $productDomainObject = $this->getProductDomainObject((int) $productRequestData['product_id']);
-
-            if (! $productDomainObject) {
-                $validationMessages['products.'.$productIndex][] = __('This product is outdated. Please reload the page.');
-
+            if (!$productDomainObject) {
+                $validationMessages['products.' . $productIndex][] = __('This product is outdated. Please reload the page.');
                 continue;
             }
 
-            if ($productDomainObject->getProductType() === ProductType::TICKET->name && ! $this->skipBasicAttendeeValidation) {
+            if ($productDomainObject->getProductType() === ProductType::TICKET->name && !$this->skipBasicAttendeeValidation && $productDomainObject->getRequireAttendeeDetails()) {
                 $validationMessages = [
                     ...$validationMessages,
-                    ...$this->validateBasicTicketFields($productRequestData, $productIndex),
+                    ...$this->validateBasicTicketFields($productRequestData, $productIndex, $productDomainObject->getRequireAttendeeEmail()),
                 ];
             }
 
             $questions = $productRequestData['questions'] ?? [];
             foreach ($questions as $questionIndex => $question) {
                 $questionDomainObject = $this->getQuestionDomainObject($question['question_id'] ?? null);
-                $key = 'products.'.$productIndex.'.questions.'.$questionIndex.'.response';
+                $key = 'products.' . $productIndex . '.questions.' . $questionIndex . '.response';
                 $response = empty($question['response']) ? null : $question['response'];
                 $answer = $response['answer'] ?? $response;
 
-                if (! $questionDomainObject) {
-                    $validationMessages[$key.'.answer'][] = __('This question is outdated. Please reload the page.');
-
+                if (!$questionDomainObject) {
+                    $validationMessages[$key . '.answer'][] = __('This question is outdated. Please reload the page.');
                     continue;
                 }
 
-                if (is_null($response) && ! $questionDomainObject->getRequired()) {
+                if (is_null($response) && !$questionDomainObject->getRequired()) {
                     continue;
                 }
 
@@ -101,8 +89,8 @@ class ProductQuestionRule extends BaseQuestionRule
                     $validationMessages = $this->validateRequiredFields($questionDomainObject, $response, $key, $validationMessages);
                 }
 
-                if (! $questionDomainObject->isAnswerValid($answer)) {
-                    $validationMessages[$key.'.answer'][] = __('Please select an option');
+                if (!$questionDomainObject->isAnswerValid($answer)) {
+                    $validationMessages[$key . '.answer'][] = __('Please select an option');
                 }
 
                 $validationMessages = $this->validateResponseLength($questionDomainObject, $response, $key, $validationMessages);
@@ -112,19 +100,33 @@ class ProductQuestionRule extends BaseQuestionRule
         return $validationMessages;
     }
 
-    private function validateBasicTicketFields(mixed $productRequestData, int|string $productIndex): array
+    private function validateBasicTicketFields(mixed $productRequestData, int|string $productIndex, bool $requireEmail = true): array
     {
         $validationMessages = [];
 
-        $validator = Validator::make($productRequestData, [
+        $rules = $this->requireAttendeeName ? [
             'first_name' => ['required', 'string', 'min:1', 'max:100'],
             'last_name' => ['required', 'string', 'min:1', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:100'],
-            'email_confirmation' => ['required', 'string', 'email', 'max:100', 'same:email'],
-        ], [
-            'email_confirmation.required' => __('Please confirm the email address'),
-            'email_confirmation.same' => __('Email addresses do not match'),
-        ]);
+        ] : [
+            'first_name' => ['nullable', 'string', 'max:100'],
+            'last_name' => ['nullable', 'string', 'max:100'],
+        ];
+
+        $messages = [];
+
+        if ($requireEmail) {
+            $rules['email'] = ['required', 'string', 'email', 'max:100'];
+            $rules['email_confirmation'] = ['required', 'string', 'email', 'max:100', 'same:email'];
+            $messages = [
+                'email_confirmation.required' => __('Please confirm the email address'),
+                'email_confirmation.same' => __('Email addresses do not match'),
+            ];
+        } else {
+            $rules['email'] = ['nullable', 'string', 'email', 'max:100'];
+            $rules['email_confirmation'] = ['nullable', 'string', 'email', 'max:100', 'same:email'];
+        }
+
+        $validator = Validator::make($productRequestData, $rules, $messages);
 
         if ($validator->fails()) {
             foreach ($validator->errors()->messages() as $field => $messages) {

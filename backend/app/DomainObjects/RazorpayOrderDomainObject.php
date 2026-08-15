@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class RazorpayOrderDomainObject extends Generated\RazorpayOrderDomainObjectAbstract {}
+class RazorpayOrderDomainObject extends Generated\RazorpayOrderDomainObjectAbstract
+{
+}

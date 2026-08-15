@@ -1,7 +1,5 @@
 <?php
 
-use HiEvents\Models\User;
-
 return [
 
     /*
@@ -68,7 +66,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => User::class,
+            'model' => \HiEvents\Models\User::class,
         ],
 
         // 'users' => [

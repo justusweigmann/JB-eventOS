@@ -7,4 +7,7 @@ use HiEvents\DomainObjects\EventDailyStatisticDomainObject;
 /**
  * @extends RepositoryInterface<EventDailyStatisticDomainObject>
  */
-interface EventDailyStatisticRepositoryInterface extends RepositoryInterface {}
+interface EventDailyStatisticRepositoryInterface extends RepositoryInterface
+{
+
+}

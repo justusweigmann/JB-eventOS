@@ -8,5 +8,7 @@ class AllowedSort
         public string $key,
         public ?string $ascDescription,
         public ?string $descDescription,
-    ) {}
+    )
+    {
+    }
 }

@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class PersonalAccessTokenDomainObject extends Generated\PersonalAccessTokenDomainObjectAbstract {}
+class PersonalAccessTokenDomainObject extends Generated\PersonalAccessTokenDomainObjectAbstract
+{
+}

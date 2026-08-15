@@ -13,7 +13,6 @@ use Tests\TestCase;
 class StripeClientFactoryTest extends TestCase
 {
     private StripeClientFactory $factory;
-
     private StripeConfigurationService $mockConfigService;
 
     protected function setUp(): void

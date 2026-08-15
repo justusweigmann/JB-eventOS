@@ -11,7 +11,6 @@ use Psr\Log\LoggerInterface;
 class ImageMetadataServiceTest extends TestCase
 {
     private LoggerInterface $logger;
-
     private ImageMetadataService $service;
 
     protected function setUp(): void
@@ -22,7 +21,7 @@ class ImageMetadataServiceTest extends TestCase
         $this->service = new ImageMetadataService($this->logger);
     }
 
-    public function test_extract_metadata_returns_null_when_imagick_not_available(): void
+    public function testExtractMetadataReturnsNullWhenImagickNotAvailable(): void
     {
         if (extension_loaded('imagick')) {
             $this->markTestSkipped('This test requires Imagick to NOT be installed');
@@ -35,9 +34,9 @@ class ImageMetadataServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function test_extract_metadata_returns_metadata_when_imagick_available(): void
+    public function testExtractMetadataReturnsMetadataWhenImagickAvailable(): void
     {
-        if (! extension_loaded('imagick')) {
+        if (!extension_loaded('imagick')) {
             $this->markTestSkipped('This test requires Imagick to be installed');
         }
 
@@ -55,9 +54,9 @@ class ImageMetadataServiceTest extends TestCase
         unlink($testImagePath);
     }
 
-    public function test_extract_metadata_logs_warning_on_failure(): void
+    public function testExtractMetadataLogsWarningOnFailure(): void
     {
-        if (! extension_loaded('imagick')) {
+        if (!extension_loaded('imagick')) {
             $this->markTestSkipped('This test requires Imagick to be installed');
         }
 
@@ -77,11 +76,11 @@ class ImageMetadataServiceTest extends TestCase
 
     private function createTestImage(): string
     {
-        $imagick = new \Imagick;
+        $imagick = new \Imagick();
         $imagick->newImage(100, 100, '#ff5500');
         $imagick->setImageFormat('png');
 
-        $tempPath = sys_get_temp_dir().'/test_image_'.uniqid().'.png';
+        $tempPath = sys_get_temp_dir() . '/test_image_' . uniqid() . '.png';
         $imagick->writeImage($tempPath);
         $imagick->destroy();
 

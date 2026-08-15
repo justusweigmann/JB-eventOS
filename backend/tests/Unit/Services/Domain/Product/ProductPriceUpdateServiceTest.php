@@ -20,7 +20,6 @@ use Tests\TestCase;
 class ProductPriceUpdateServiceTest extends TestCase
 {
     private ProductPriceRepository|MockInterface $productPriceRepository;
-
     private ProductPriceUpdateService $service;
 
     protected function setUp(): void
@@ -37,7 +36,7 @@ class ProductPriceUpdateServiceTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_throws_when_initial_quantity_available_is_less_than_quantity_sold(): void
+    public function testThrowsWhenInitialQuantityAvailableIsLessThanQuantitySold(): void
     {
         $existingPrices = new Collection([$this->createExistingPrice(id: 1, quantitySold: 10, label: 'Early Bird')]);
         [$product, $event] = $this->createProductAndEvent($existingPrices);
@@ -50,7 +49,7 @@ class ProductPriceUpdateServiceTest extends TestCase
         $this->service->updatePrices($product, $productsData, $existingPrices, $event);
     }
 
-    public function test_allows_initial_quantity_available_equal_to_quantity_sold(): void
+    public function testAllowsInitialQuantityAvailableEqualToQuantitySold(): void
     {
         $existingPrices = new Collection([$this->createExistingPrice(id: 1, quantitySold: 10, label: 'Early Bird')]);
         [$product, $event] = $this->createProductAndEvent($existingPrices);
@@ -65,7 +64,7 @@ class ProductPriceUpdateServiceTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_allows_null_initial_quantity_available(): void
+    public function testAllowsNullInitialQuantityAvailable(): void
     {
         $existingPrices = new Collection([$this->createExistingPrice(id: 1, quantitySold: 10, label: 'Early Bird')]);
         [$product, $event] = $this->createProductAndEvent($existingPrices);
@@ -80,7 +79,7 @@ class ProductPriceUpdateServiceTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_throws_for_correct_tier_in_tiered_product(): void
+    public function testThrowsForCorrectTierInTieredProduct(): void
     {
         $existingPrices = new Collection([
             $this->createExistingPrice(id: 1, quantitySold: 5, label: 'Tier 1'),
@@ -110,7 +109,6 @@ class ProductPriceUpdateServiceTest extends TestCase
         $price->shouldReceive('getId')->andReturn($id);
         $price->shouldReceive('getQuantitySold')->andReturn($quantitySold);
         $price->shouldReceive('getLabel')->andReturn($label);
-
         return $price;
     }
 

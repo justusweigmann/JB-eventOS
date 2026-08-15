@@ -6,4 +6,6 @@ namespace HiEvents\Exceptions;
 
 use Exception;
 
-class ResourceNotFoundException extends Exception {}
+class ResourceNotFoundException extends Exception
+{
+}

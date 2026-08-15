@@ -2,4 +2,7 @@
 
 namespace HiEvents\Exceptions;
 
-class CannotChangeProductTypeException extends BaseException {}
+class CannotChangeProductTypeException extends BaseException
+{
+
+}

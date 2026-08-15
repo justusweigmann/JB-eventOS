@@ -12,7 +12,9 @@ class CreateCapacityAssignmentHandler
 {
     public function __construct(
         private readonly CreateCapacityAssignmentService $createCapacityAssignmentService
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws UnrecognizedProductIdException

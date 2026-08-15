@@ -32,6 +32,16 @@ export interface EditOrderPayload {
     notes: string,
 }
 
+export interface CreateManualOrderPayload {
+    first_name: string;
+    last_name: string;
+    email: string;
+    send_confirmation_email: boolean;
+    products: ProductFormValue[];
+    promo_code?: string | null;
+    notes?: string | null;
+}
+
 export interface ProductPriceQuantityFormValue {
     price?: number,
     quantity: number,
@@ -41,7 +51,6 @@ export interface ProductPriceQuantityFormValue {
 export interface ProductFormValue {
     product_id: number,
     quantities: ProductPriceQuantityFormValue[],
-    event_occurrence_id?: number,
 }
 
 export interface ProductFormPayload {
@@ -87,9 +96,8 @@ export const orderClient = {
         return response.data;
     },
 
-    exportOrders: async (eventId: IdParam, eventOccurrenceId?: number | null): Promise<Blob> => {
-        const body = eventOccurrenceId ? {event_occurrence_id: eventOccurrenceId} : {};
-        const response = await api.post(`events/${eventId}/orders/export`, body, {
+    exportOrders: async (eventId: IdParam): Promise<Blob> => {
+        const response = await api.post(`events/${eventId}/orders/export`, {}, {
             responseType: 'blob',
         });
 
@@ -98,6 +106,16 @@ export const orderClient = {
 
     markAsPaid: async (eventId: IdParam, orderId: IdParam) => {
         const response = await api.post<GenericDataResponse<Order>>('events/' + eventId + '/orders/' + orderId + '/mark-as-paid');
+        return response.data;
+    },
+
+    approveOrder: async (eventId: IdParam, orderId: IdParam) => {
+        const response = await api.post<GenericDataResponse<Order>>('events/' + eventId + '/orders/' + orderId + '/approve');
+        return response.data;
+    },
+
+    rejectOrder: async (eventId: IdParam, orderId: IdParam) => {
+        const response = await api.post<GenericDataResponse<Order>>('events/' + eventId + '/orders/' + orderId + '/reject');
         return response.data;
     },
 
@@ -112,7 +130,12 @@ export const orderClient = {
     editOrder: async (eventId: IdParam, orderId: IdParam, payload: EditOrderPayload) => {
         const response = await api.put<GenericDataResponse<Order>>(`events/${eventId}/orders/${orderId}`, payload);
         return response.data;
-    }
+    },
+
+    createManualOrder: async (eventId: IdParam, payload: CreateManualOrderPayload) => {
+        const response = await api.post<GenericDataResponse<Order>>(`events/${eventId}/orders`, payload);
+        return response.data;
+    },
 }
 
 export const orderClientPublic = {
@@ -124,11 +147,15 @@ export const orderClientPublic = {
     findByShortId: async (
         eventId: number,
         orderShortId: string,
-        includes: string[] = []
+        includes: string[] = [],
+        sessionIdentifier?: string
     ) => {
         const query = new URLSearchParams();
         if (includes.length > 0) {
             query.append("include", includes.join(","));
+        }
+        if (sessionIdentifier) {
+            query.append("session_identifier", sessionIdentifier);
         }
 
         const response = await publicApi.get<GenericDataResponse<Order>>(
@@ -176,6 +203,11 @@ export const orderClientPublic = {
 
     abandonOrder: async (eventId: IdParam, orderShortId: IdParam) => {
         const response = await publicApi.post<GenericDataResponse<Order>>(`events/${eventId}/order/${orderShortId}/abandon`);
+        return response.data;
+    },
+
+    checkDuplicate: async (eventId: IdParam, email: string) => {
+        const response = await publicApi.get<{ is_duplicate: boolean }>(`events/${eventId}/order/check-duplicate?email=${encodeURIComponent(email)}`);
         return response.data;
     },
 }

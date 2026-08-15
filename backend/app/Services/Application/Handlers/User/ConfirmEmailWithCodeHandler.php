@@ -14,10 +14,12 @@ class ConfirmEmailWithCodeHandler
 {
     public function __construct(
         private readonly EmailVerificationCodeService $emailVerificationCodeService,
-        private readonly UserRepositoryInterface $userRepository,
-        private readonly DatabaseManager $databaseManager,
-        private readonly VerifyUserEmailService $verifyUserEmailService,
-    ) {}
+        private readonly UserRepositoryInterface      $userRepository,
+        private readonly DatabaseManager              $databaseManager,
+        private readonly VerifyUserEmailService       $verifyUserEmailService,
+    )
+    {
+    }
 
     public function handle(ConfirmEmailWithCodeDTO $dto): void
     {
@@ -28,7 +30,7 @@ class ConfirmEmailWithCodeHandler
                 throw new ResourceConflictException(__('Your email address has already been verified.'));
             }
 
-            if (! $this->emailVerificationCodeService->verifyCode($user->getEmail(), $dto->code)) {
+            if (!$this->emailVerificationCodeService->verifyCode($user->getEmail(), $dto->code)) {
                 throw new InvalidEmailVerificationCodeException(__('The verification code is invalid or has expired.'));
             }
 

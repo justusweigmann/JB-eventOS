@@ -4,8 +4,9 @@ namespace HiEvents\Exports;
 
 use Carbon\Carbon;
 use HiEvents\DomainObjects\AffiliateDomainObject;
+use HiEvents\Resources\Affiliate\AffiliateResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -19,13 +20,12 @@ class AffiliatesExport implements FromCollection, WithHeadings, WithMapping, Wit
     public function withData(LengthAwarePaginator $affiliates): AffiliatesExport
     {
         $this->affiliates = $affiliates;
-
         return $this;
     }
 
-    public function collection(): Collection
+    public function collection(): AnonymousResourceCollection
     {
-        return collect($this->affiliates->items());
+        return AffiliateResource::collection($this->affiliates);
     }
 
     public function headings(): array
@@ -44,7 +44,8 @@ class AffiliatesExport implements FromCollection, WithHeadings, WithMapping, Wit
     }
 
     /**
-     * @param  AffiliateDomainObject  $affiliate
+     * @param AffiliateDomainObject $affiliate
+     * @return array
      */
     public function map($affiliate): array
     {

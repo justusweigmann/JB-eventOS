@@ -11,7 +11,9 @@ class DeleteOrganizerHandler
 {
     public function __construct(
         private readonly OrganizerDeletionService $organizerDeletionService,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws CannotDeleteEntityException

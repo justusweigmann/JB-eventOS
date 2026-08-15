@@ -1,11 +1,11 @@
-import {Image} from '@tiptap/extension-image';
-import {NodeViewRendererProps} from '@tiptap/core';
+import Image from '@tiptap/extension-image';
+import { NodeViewProps } from '@tiptap/react';
 
 /**
  * Adapted from https://github.com/bae-sh/tiptap-extension-resize-image/blob/main/lib/imageResize.ts
  */
 export const ImageResize = Image.extend({
-    name: 'image',
+    name: 'imageResize',
     addAttributes() {
         return {
             ...this.parent?.(),
@@ -17,15 +17,12 @@ export const ImageResize = Image.extend({
                         ? `width: ${width}px; height: auto; cursor: pointer;`
                         : `${element.style.cssText}`;
                 },
-                renderHTML: (attributes: Record<string, string>) => {
-                    return { style: attributes.style };
-                },
             },
         };
     },
 
     addNodeView() {
-        return ({ node, editor, getPos }: NodeViewRendererProps) => {
+        return ({ node, editor, getPos }: NodeViewProps) => {
             const {
                 view,
                 options: { editable },
@@ -92,13 +89,11 @@ export const ImageResize = Image.extend({
 
             const dispatchNodeView = () => {
                 if (typeof getPos === 'function') {
-                    const pos = getPos();
-                    if (pos === undefined) return;
                     const newAttrs = {
                         ...node.attrs,
                         style: `${$img.style.cssText}`,
                     };
-                    view.dispatch(view.state.tr.setNodeMarkup(pos, null, newAttrs));
+                    view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
                 }
             };
 

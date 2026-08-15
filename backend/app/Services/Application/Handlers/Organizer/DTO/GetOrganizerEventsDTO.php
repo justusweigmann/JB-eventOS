@@ -8,8 +8,10 @@ use HiEvents\Http\DTO\QueryParamsDTO;
 class GetOrganizerEventsDTO extends BaseDTO
 {
     public function __construct(
-        public int $organizerId,
-        public int $accountId,
+        public int            $organizerId,
+        public int            $accountId,
         public QueryParamsDTO $queryParams
-    ) {}
+    )
+    {
+    }
 }

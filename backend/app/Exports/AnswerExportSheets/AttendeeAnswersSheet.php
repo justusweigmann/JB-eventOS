@@ -17,12 +17,21 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AttendeeAnswersSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, ShouldAutoSize
+class AttendeeAnswersSheet implements
+    FromCollection,
+    WithHeadings,
+    WithMapping,
+    WithStyles,
+    WithTitle,
+    WithColumnWidths,
+    ShouldAutoSize
 {
     public function __construct(
-        private readonly Collection $answers,
+        private readonly Collection              $answers,
         private readonly QuestionAnswerFormatter $questionAnswerFormatter,
-    ) {}
+    )
+    {
+    }
 
     public function collection(): Collection
     {
@@ -44,7 +53,7 @@ class AttendeeAnswersSheet implements FromCollection, WithHeadings, WithMapping,
     }
 
     /**
-     * @param  QuestionAndAnswerViewDomainObject  $row
+     * @param QuestionAndAnswerViewDomainObject $row
      */
     public function map($row): array
     {
@@ -55,7 +64,7 @@ class AttendeeAnswersSheet implements FromCollection, WithHeadings, WithMapping,
         );
 
         $linkText = __('View Order');
-        $hyperlink = '=HYPERLINK("'.$orderUrl.'","'.$linkText.'")';
+        $hyperlink = '=HYPERLINK("' . $orderUrl . '","' . $linkText . '")';
 
         return [
             $row->getTitle(),
@@ -65,7 +74,7 @@ class AttendeeAnswersSheet implements FromCollection, WithHeadings, WithMapping,
             ),
             $row->getOrderPublicId() ?? '',
             $row->getOrderEmail() ?? '',
-            trim($row->getFirstName().' '.$row->getLastName()),
+            trim($row->getFirstName() . ' ' . $row->getLastName()),
             $row->getAttendeeEmail() ?? '',
             $row->getProductTitle() ?? '',
             $hyperlink,
@@ -81,7 +90,7 @@ class AttendeeAnswersSheet implements FromCollection, WithHeadings, WithMapping,
         $highestRow = $sheet->getHighestRow();
 
         if ($highestRow > 1) {
-            $sheet->getStyle('H2:H'.$highestRow)->applyFromArray([
+            $sheet->getStyle('H2:H' . $highestRow)->applyFromArray([
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
                 ],
@@ -111,6 +120,9 @@ class AttendeeAnswersSheet implements FromCollection, WithHeadings, WithMapping,
         ];
     }
 
+    /**
+     * @return string
+     */
     public function title(): string
     {
         return __('Attendee Answers');

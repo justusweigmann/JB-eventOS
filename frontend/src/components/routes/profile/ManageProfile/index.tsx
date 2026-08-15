@@ -1,11 +1,10 @@
 import {Card} from "../../../common/Card";
 import {useForm, UseFormReturnType} from "@mantine/form";
 import {useGetMe} from "../../../../queries/useGetMe.ts";
-import {Button, Checkbox, NativeSelect, PasswordInput, Select, Tabs, TextInput} from "@mantine/core";
+import {Alert, Button, Checkbox, NativeSelect, PasswordInput, Select, Tabs, TextInput} from "@mantine/core";
 import classes from "./ManageProfile.module.scss";
 import {useEffect, useState} from "react";
-import {IconMail, IconPassword, IconUser, IconWorld} from "@tabler/icons-react";
-import {Callout} from "../../../common/Callout";
+import {IconInfoCircle, IconMail, IconPassword, IconUser, IconWorld} from "@tabler/icons-react";
 import {timezones} from "../../../../../data/timezones.ts";
 import {useUpdateMe} from "../../../../mutations/useUpdateMe.ts";
 import {showError, showSuccess} from "../../../../utilites/notifications.tsx";
@@ -123,8 +122,8 @@ export const ManageProfile = () => {
                     <Tabs.Panel value="profile">
                         <div className={classes.tabWrapper}>
                             {me?.has_pending_email_change && (
-                                <Callout variant="info" className={classes.emailChangeAlert}
-                                         title={t`Email change pending`}>
+                                <Alert className={classes.emailChangeAlert} variant="light" color="blue"
+                                       title={t`Email change pending`} icon={<IconInfoCircle/>}>
                                     <p>
                                         <Trans>Your email request change to <b>{me?.pending_email}</b> is pending.
                                             Please check your email to confirm</Trans>
@@ -137,7 +136,7 @@ export const ManageProfile = () => {
                                             {t`Cancel email change`}
                                         </Button>
                                     </p>
-                                </Callout>
+                                </Alert>
                             )}
                             <form
                                 onSubmit={profileForm.onSubmit((values) => handleProfileFormSubmit(values, profileForm))}>
@@ -156,20 +155,20 @@ export const ManageProfile = () => {
                                         </InputGroup>
                                         <TextInput required {...profileForm.getInputProps('email')} label={t`Email`}/>
                                         {(me && !me.is_email_verified && !emailConfirmationResent) && (
-                                            <Callout variant="tip" style={{marginTop: 10}}
-                                                     title={t`Email not verified`}>
+                                            <Alert variant="light" mt={10}
+                                                   title={t`Email not verified`} icon={<IconInfoCircle/>}>
                                                 <p>{t`Please verify your email address to access all features`}</p>
                                                 <Button size={'xs'} onClick={handleEmailConfirmationResend}>
                                                     {resendEmailConfirmationMutation.isPending ? t`Resending...` : t`Resend email confirmation`}
                                                 </Button>
-                                            </Callout>
+                                            </Alert>
                                         )}
 
                                         {emailConfirmationResent && (
-                                            <Callout variant="success" style={{marginTop: 10}}
-                                                     title={t`Email confirmation resent`}>
-                                                {t`Please check your email to confirm your email address`}
-                                            </Callout>
+                                            <Alert variant="light" mt={10} color="green"
+                                                   title={t`Email confirmation resent`} icon={<IconInfoCircle/>}>
+                                                <p>{t`Please check your email to confirm your email address`}</p>
+                                            </Alert>
                                         )}
                                     </Fieldset>
 

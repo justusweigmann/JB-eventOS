@@ -7,4 +7,7 @@ use HiEvents\DomainObjects\ImageDomainObject;
 /**
  * @extends RepositoryInterface<ImageDomainObject>
  */
-interface ImageRepositoryInterface extends RepositoryInterface {}
+interface ImageRepositoryInterface extends RepositoryInterface
+{
+
+}

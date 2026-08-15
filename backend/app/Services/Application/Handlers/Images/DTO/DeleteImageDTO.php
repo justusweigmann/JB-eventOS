@@ -8,5 +8,7 @@ class DeleteImageDTO
         public readonly int $imageId,
         public readonly int $userId,
         public readonly int $accountId,
-    ) {}
+    )
+    {
+    }
 }

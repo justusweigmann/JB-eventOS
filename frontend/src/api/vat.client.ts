@@ -3,9 +3,9 @@ import {GenericDataResponse, IdParam} from "../types.ts";
 
 export type VatValidationStatus = 'PENDING' | 'VALIDATING' | 'VALID' | 'INVALID' | 'FAILED';
 
-export interface VatSetting {
+export interface AccountVatSetting {
     id: number;
-    organizer_id: number;
+    account_id: number;
     vat_registered: boolean;
     vat_number: string | null;
     vat_validated: boolean;
@@ -26,17 +26,17 @@ export interface UpsertVatSettingRequest {
 }
 
 export const vatClient = {
-    getVatSetting: async (organizerId: IdParam) => {
-        const response = await api.get<GenericDataResponse<VatSetting>>(
-            `organizers/${organizerId}/vat-settings`,
+    getVatSetting: async (accountId: IdParam) => {
+        const response = await api.get<GenericDataResponse<AccountVatSetting>>(
+            `accounts/${accountId}/vat-settings`
         );
         return response.data;
     },
 
-    upsertVatSetting: async (organizerId: IdParam, data: UpsertVatSettingRequest) => {
-        const response = await api.post<GenericDataResponse<VatSetting>>(
-            `organizers/${organizerId}/vat-settings`,
-            data,
+    upsertVatSetting: async (accountId: IdParam, data: UpsertVatSettingRequest) => {
+        const response = await api.post<GenericDataResponse<AccountVatSetting>>(
+            `accounts/${accountId}/vat-settings`,
+            data
         );
         return response.data;
     },

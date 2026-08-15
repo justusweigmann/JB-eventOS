@@ -23,14 +23,16 @@ use Throwable;
 class ChargeRefundUpdatedHandler
 {
     public function __construct(
-        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly OrderRepositoryInterface          $orderRepository,
         private readonly StripePaymentsRepositoryInterface $stripePaymentsRepository,
-        private readonly Logger $logger,
-        private readonly DatabaseManager $databaseManager,
-        private readonly EventStatisticsRefundService $eventStatisticsRefundService,
-        private readonly OrderRefundRepositoryInterface $orderRefundRepository,
-        private readonly DomainEventDispatcherService $domainEventDispatcherService,
-    ) {}
+        private readonly Logger                            $logger,
+        private readonly DatabaseManager                   $databaseManager,
+        private readonly EventStatisticsRefundService      $eventStatisticsRefundService,
+        private readonly OrderRefundRepositoryInterface    $orderRefundRepository,
+        private readonly DomainEventDispatcherService      $domainEventDispatcherService,
+    )
+    {
+    }
 
     /**
      * @throws Throwable
@@ -39,10 +41,10 @@ class ChargeRefundUpdatedHandler
     {
         $this->databaseManager->transaction(function () use ($refund) {
             $stripePayment = $this->stripePaymentsRepository->findFirstWhere([
-                'payment_intent_id' => $refund->payment_intent,
+                'payment_intent_id' => $refund->payment_intent
             ]);
 
-            if (! $stripePayment) {
+            if (!$stripePayment) {
                 return;
             }
 
@@ -64,7 +66,6 @@ class ChargeRefundUpdatedHandler
 
             if ($refund->status !== 'succeeded') {
                 $this->handleFailure($refund, $order);
-
                 return;
             }
 

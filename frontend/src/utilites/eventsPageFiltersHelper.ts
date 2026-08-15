@@ -21,10 +21,10 @@ export const getEventQueryFiltersWithParams = (
         };
     } else if (eventsState === 'ended') {
         filter = {
-            additionalParams: {
-                eventsStatus: 'ended',
-            },
-            filterFields: {}
+            filterFields: {
+                end_date: {operator: QueryFilterOperator.LessThanOrEquals, value: 'now'},
+                status: {operator: QueryFilterOperator.NotEquals, value: EventStatus.ARCHIVED},
+            }
         };
     } else if (eventsState === 'archived') {
         filter = {

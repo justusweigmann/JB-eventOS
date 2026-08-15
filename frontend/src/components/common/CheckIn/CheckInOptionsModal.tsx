@@ -1,8 +1,7 @@
-import {Button, Modal, Stack} from "@mantine/core";
-import {IconCreditCard, IconUserCheck} from "@tabler/icons-react";
+import {Alert, Button, Modal, Stack} from "@mantine/core";
+import {IconAlertCircle, IconCreditCard, IconUserCheck} from "@tabler/icons-react";
 import {t, Trans} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
-import {Callout} from "../Callout";
 
 interface CheckInOptionsModalProps {
     isOpen: boolean;
@@ -29,9 +28,12 @@ export const CheckInOptionsModal = ({
             size="md"
         >
             <Stack>
-                <Callout variant="tip" title={t`Unpaid Order`}>
+                <Alert
+                    icon={<IconAlertCircle size={20}/>}
+                    variant={'light'}
+                    title={t`Unpaid Order`}>
                     {t`This attendee has an unpaid order.`}
-                </Callout>
+                </Alert>
                 <Button
                     leftSection={<IconUserCheck size={20}/>}
                     onClick={() => onCheckIn('check-in')}

@@ -18,7 +18,9 @@ class ProductPriceUpdateService
 {
     public function __construct(
         private readonly ProductPriceRepository $productPriceRepository,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws CannotDeleteEntityException
@@ -26,11 +28,12 @@ class ProductPriceUpdateService
      */
     public function updatePrices(
         ProductDomainObject $product,
-        UpsertProductDTO $productsData,
+        UpsertProductDTO    $productsData,
         /** @var Collection<ProductPriceDomainObject> $existingPrices */
-        Collection $existingPrices,
-        EventDomainObject $event,
-    ): void {
+        Collection          $existingPrices,
+        EventDomainObject   $event,
+    ): void
+    {
         $this->validateQuantityAvailable($productsData->prices, $existingPrices);
 
         if ($productsData->type !== ProductPriceType::TIERED) {
@@ -62,6 +65,7 @@ class ProductPriceUpdateService
                         : null,
                     'initial_quantity_available' => $price->initial_quantity_available,
                     'is_hidden' => $price->is_hidden,
+                    'is_hidden_without_promo_code' => $price->is_hidden_without_promo_code,
                     'order' => $order++,
                 ]);
             } else {
@@ -77,6 +81,7 @@ class ProductPriceUpdateService
                         : null,
                     'initial_quantity_available' => $price->initial_quantity_available,
                     'is_hidden' => $price->is_hidden,
+                    'is_hidden_without_promo_code' => $price->is_hidden_without_promo_code,
                     'order' => $order++,
                 ], [
                     'id' => $price->id,
@@ -102,7 +107,7 @@ class ProductPriceUpdateService
             }
 
             /** @var ProductPriceDomainObject|null $existingPrice */
-            $existingPrice = $existingPrices->first(fn (ProductPriceDomainObject $p) => $p->getId() === $price->id);
+            $existingPrice = $existingPrices->first(fn(ProductPriceDomainObject $p) => $p->getId() === $price->id);
 
             if ($existingPrice === null) {
                 continue;
@@ -127,7 +132,7 @@ class ProductPriceUpdateService
      */
     private function deletePrices(?Collection $prices, Collection $existingPrices): void
     {
-        $pricesIds = $prices?->map(fn ($price) => $price->id)->toArray();
+        $pricesIds = $prices?->map(fn($price) => $price->id)->toArray();
 
         $existingPrices->each(function (ProductPriceDomainObject $price) use ($pricesIds) {
             if (in_array($price->getId(), $pricesIds, true)) {

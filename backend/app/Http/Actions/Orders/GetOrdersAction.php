@@ -4,12 +4,10 @@ namespace HiEvents\Http\Actions\Orders;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
-use HiEvents\DomainObjects\EventOccurrenceDomainObject;
 use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\Http\Actions\BaseAction;
-use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Resources\Order\OrderResource;
 use Illuminate\Http\JsonResponse;
@@ -29,15 +27,7 @@ class GetOrdersAction extends BaseAction
         $this->isActionAuthorized($eventId, EventDomainObject::class);
 
         $orders = $this->orderRepository
-            ->loadRelation(new Relationship(
-                domainObject: OrderItemDomainObject::class,
-                nested: [
-                    new Relationship(
-                        domainObject: EventOccurrenceDomainObject::class,
-                        name: 'event_occurrence',
-                    ),
-                ],
-            ))
+            ->loadRelation(OrderItemDomainObject::class)
             ->loadRelation(AttendeeDomainObject::class)
             ->loadRelation(InvoiceDomainObject::class)
             ->findByEventId($eventId, $this->getPaginationQueryParams($request));

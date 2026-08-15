@@ -11,7 +11,9 @@ class CreateEventImageHandler
 {
     public function __construct(
         private readonly CreateEventImageService $createEventImageService,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws Throwable

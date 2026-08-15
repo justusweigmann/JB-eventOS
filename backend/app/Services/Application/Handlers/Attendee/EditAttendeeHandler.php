@@ -25,12 +25,14 @@ use Throwable;
 class EditAttendeeHandler
 {
     public function __construct(
-        private readonly AttendeeRepositoryInterface $attendeeRepository,
-        private readonly ProductRepositoryInterface $productRepository,
+        private readonly AttendeeRepositoryInterface  $attendeeRepository,
+        private readonly ProductRepositoryInterface   $productRepository,
         private readonly ProductQuantityUpdateService $productQuantityService,
-        private readonly DatabaseManager $databaseManager,
+        private readonly DatabaseManager              $databaseManager,
         private readonly DomainEventDispatcherService $domainEventDispatcherService,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws ValidationException
@@ -61,15 +63,14 @@ class EditAttendeeHandler
     private function adjustProductQuantities(AttendeeDomainObject $attendee, EditAttendeeDTO $editAttendeeDTO): void
     {
         if ($attendee->getProductPriceId() !== $editAttendeeDTO->product_price_id) {
-            $this->productQuantityService->decreaseQuantitySold($attendee->getProductPriceId(), 1, $attendee->getEventOccurrenceId());
-            $this->productQuantityService->increaseQuantitySold($editAttendeeDTO->product_price_id, 1, $attendee->getEventOccurrenceId());
+            $this->productQuantityService->decreaseQuantitySold($attendee->getProductPriceId());
+            $this->productQuantityService->increaseQuantitySold($editAttendeeDTO->product_price_id);
 
             event(new CapacityChangedEvent(
                 eventId: $editAttendeeDTO->event_id,
                 direction: CapacityChangeDirection::INCREASED,
                 productId: $attendee->getProductId(),
                 productPriceId: $attendee->getProductPriceId(),
-                eventOccurrenceId: $attendee->getEventOccurrenceId(),
             ));
         }
     }
@@ -95,7 +96,8 @@ class EditAttendeeHandler
     private function validateProductId(
         EditAttendeeDTO $editAttendeeDTO,
         AttendeeDomainObject $attendee,
-    ): void {
+    ): void
+    {
         /** @var ProductDomainObject $product */
         $product = $this->productRepository
             ->loadRelation(ProductPriceDomainObject::class)
@@ -109,8 +111,8 @@ class EditAttendeeHandler
             ]);
         }
 
-        $productPriceIds = $product->getProductPrices()->map(fn ($productPrice) => $productPrice->getId())->toArray();
-        if (! in_array($editAttendeeDTO->product_price_id, $productPriceIds, true)) {
+        $productPriceIds = $product->getProductPrices()->map(fn($productPrice) => $productPrice->getId())->toArray();
+        if (!in_array($editAttendeeDTO->product_price_id, $productPriceIds, true)) {
             throw ValidationException::withMessages([
                 'product_price_id' => __('Product price ID is not valid'),
             ]);

@@ -14,9 +14,11 @@ class EditOrganizerHandler
 {
     public function __construct(
         private readonly OrganizerRepositoryInterface $organizerRepository,
-        private readonly DatabaseManager $databaseManager,
-        private readonly HtmlPurifierService $htmlPurifierService,
-    ) {}
+        private readonly DatabaseManager              $databaseManager,
+        private readonly HtmlPurifierService          $htmlPurifierService,
+    )
+    {
+    }
 
     /**
      * @throws Throwable
@@ -24,7 +26,7 @@ class EditOrganizerHandler
     public function handle(EditOrganizerDTO $organizerData): OrganizerDomainObject
     {
         return $this->databaseManager->transaction(
-            fn () => $this->editOrganizer($organizerData)
+            fn() => $this->editOrganizer($organizerData)
         );
     }
 

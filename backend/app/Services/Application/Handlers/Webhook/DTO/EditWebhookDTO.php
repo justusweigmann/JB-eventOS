@@ -7,15 +7,16 @@ use HiEvents\DomainObjects\Status\WebhookStatus;
 class EditWebhookDTO extends CreateWebhookDTO
 {
     public function __construct(
-        public int $webhookId,
-        string $url,
-        array $eventTypes,
-        int $userId,
-        int $accountId,
+        public int    $webhookId,
+        string        $url,
+        array         $eventTypes,
+        int           $userId,
+        int           $accountId,
         WebhookStatus $status,
-        ?int $eventId = null,
-        ?int $organizerId = null,
-    ) {
+        ?int          $eventId = null,
+        ?int          $organizerId = null,
+    )
+    {
         parent::__construct(
             url: $url,
             eventTypes: $eventTypes,

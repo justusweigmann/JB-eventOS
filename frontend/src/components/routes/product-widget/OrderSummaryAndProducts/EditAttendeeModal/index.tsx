@@ -1,10 +1,10 @@
 import {t} from "@lingui/macro";
-import {Button, Group, Modal, TextInput} from "@mantine/core";
+import {Alert, Button, Group, Modal, Text, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
+import {IconInfoCircle} from "@tabler/icons-react";
 import {Attendee} from "../../../../../types";
 import classes from "./EditAttendeeModal.module.scss";
 import {InputGroup} from "../../../../common/InputGroup";
-import {Callout} from "../../../../common/Callout";
 
 interface EditAttendeeModalProps {
     opened: boolean;
@@ -73,9 +73,11 @@ export const EditAttendeeModal = ({
                     />
 
                     {emailChanged && (
-                        <Callout variant="info">
-                            {t`The email address has been changed. The attendee will receive a new ticket at the updated email address.`}
-                        </Callout>
+                        <Alert mb={20} icon={<IconInfoCircle size={16}/>} color="blue">
+                            <Text size="sm">
+                                {t`The email address has been changed. The attendee will receive a new ticket at the updated email address.`}
+                            </Text>
+                        </Alert>
                     )}
 
                     <Group justify="flex-end" gap="sm" mt="md">

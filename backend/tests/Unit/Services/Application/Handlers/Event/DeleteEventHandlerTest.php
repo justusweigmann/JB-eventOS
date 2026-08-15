@@ -10,13 +10,12 @@ use HiEvents\Services\Application\Handlers\Event\DTO\DeleteEventDTO;
 use HiEvents\Services\Domain\Event\EventDeletionService;
 use Illuminate\Database\DatabaseManager;
 use Mockery as m;
-use Psr\Log\LoggerInterface;
 use Tests\TestCase;
+use Psr\Log\LoggerInterface;
 
 class DeleteEventHandlerTest extends TestCase
 {
     private EventDeletionService $eventDeletionService;
-
     private DeleteEventHandler $handler;
 
     protected function setUp(): void
@@ -29,7 +28,7 @@ class DeleteEventHandlerTest extends TestCase
         $databaseManager = m::mock(DatabaseManager::class);
 
         $databaseManager->shouldReceive('transaction')
-            ->andReturnUsing(fn ($callback) => $callback());
+            ->andReturnUsing(fn($callback) => $callback());
 
         $this->eventDeletionService = new EventDeletionService(
             $eventRepository,
@@ -56,10 +55,9 @@ class DeleteEventHandlerTest extends TestCase
     }
 
     private OrderRepositoryInterface $orderRepository;
-
     private EventRepositoryInterface $eventRepository;
 
-    public function test_delete_event_successfully(): void
+    public function testDeleteEventSuccessfully(): void
     {
         $this->orderRepository->shouldReceive('countWhere')
             ->once()
@@ -78,7 +76,7 @@ class DeleteEventHandlerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_delete_event_fails_with_completed_orders(): void
+    public function testDeleteEventFailsWithCompletedOrders(): void
     {
         $this->orderRepository->shouldReceive('countWhere')
             ->once()

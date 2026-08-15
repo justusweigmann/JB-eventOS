@@ -12,7 +12,9 @@ class GetCheckInListAction extends BaseAction
 {
     public function __construct(
         private readonly GetCheckInListHandler $getCheckInListHandler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $eventId, int $checkInListId): JsonResponse
     {

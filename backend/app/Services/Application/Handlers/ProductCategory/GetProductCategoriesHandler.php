@@ -17,8 +17,10 @@ class GetProductCategoriesHandler
 {
     public function __construct(
         private readonly ProductCategoryRepositoryInterface $productCategoryRepository,
-        private readonly ProductFilterService $productFilterService,
-    ) {}
+        private readonly ProductFilterService               $productFilterService,
+    )
+    {
+    }
 
     public function handle(int $eventId): Collection
     {
@@ -28,7 +30,6 @@ class GetProductCategoriesHandler
                 nested: [
                     new Relationship(ProductPriceDomainObject::class),
                     new Relationship(TaxAndFeesDomainObject::class),
-                    new Relationship(domainObject: ProductDomainObject::class, name: 'addons'),
                 ],
                 orderAndDirections: [
                     new OrderAndDirection(
@@ -50,7 +51,6 @@ class GetProductCategoriesHandler
         return $this->productFilterService->filter(
             productsCategories: $categories,
             hideSoldOutProducts: false,
-            hideHiddenCategories: false,
         );
     }
 }

@@ -22,8 +22,9 @@ class SendScheduledMessagesJob implements ShouldQueue
 
     public function handle(
         MessageRepositoryInterface $messageRepository,
-        MessageDispatchService $messageDispatchService,
-    ): void {
+        MessageDispatchService     $messageDispatchService,
+    ): void
+    {
         $messages = $messageRepository->findWhere([
             'status' => MessageStatus::SCHEDULED->name,
             ['scheduled_at', '<=', Carbon::now()->toDateTimeString()],

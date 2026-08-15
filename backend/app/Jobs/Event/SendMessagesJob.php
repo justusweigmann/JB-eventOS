@@ -15,9 +15,12 @@ class SendMessagesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(
-        public readonly SendMessageDTO $messageData,
-    ) {}
+    private SendMessageDTO $messageData;
+
+    public function __construct(SendMessageDTO $messageData)
+    {
+        $this->messageData = $messageData;
+    }
 
     /**
      * @throws UnableToSendMessageException

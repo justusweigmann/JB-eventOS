@@ -19,6 +19,8 @@ class Product extends BaseModel
         return [
             ProductDomainObjectAbstract::SALES_VOLUME => 'float',
             ProductDomainObjectAbstract::SALES_TAX_VOLUME => 'float',
+            ProductDomainObjectAbstract::UPSELL_FOR_PRODUCT_IDS => 'array',
+            ProductDomainObjectAbstract::IS_UPSELL => 'boolean',
         ];
     }
 
@@ -35,13 +37,6 @@ class Product extends BaseModel
     public function tax_and_fees(): BelongsToMany
     {
         return $this->belongsToMany(TaxAndFee::class, 'product_taxes_and_fees');
-    }
-
-    public function addons(): BelongsToMany
-    {
-        return $this->belongsToMany(self::class, 'product_addons', 'product_id', 'addon_product_id')
-            ->withPivot('order')
-            ->orderByPivot('order');
     }
 
     public function capacity_assignments(): BelongsToMany

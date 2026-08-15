@@ -8,19 +8,20 @@ use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\Generated\CheckInListDomainObjectAbstract;
 use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\Exceptions\CannotCheckInException;
+use HiEvents\Helper\DateHelper;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
-use HiEvents\Services\Domain\CheckInList\CheckInListActivityValidator;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class GetCheckInListAttendeePublicHandler
 {
     public function __construct(
-        private readonly AttendeeRepositoryInterface $attendeeRepository,
+        private readonly AttendeeRepositoryInterface    $attendeeRepository,
         private readonly CheckInListRepositoryInterface $checkInListRepository,
-        private readonly CheckInListActivityValidator $checkInListActivityValidator,
-    ) {}
+    )
+    {
+    }
 
     /**
      * @throws CannotCheckInException
@@ -34,40 +35,30 @@ class GetCheckInListAttendeePublicHandler
                 CheckInListDomainObjectAbstract::SHORT_ID => $shortId,
             ]);
 
-        if (! $checkInList) {
+        if (!$checkInList) {
             throw new ResourceNotFoundException(__('Check-in list not found'));
         }
 
-        $this->checkInListActivityValidator->assertActive($checkInList);
+        $this->validateCheckInListIsActive($checkInList);
 
-        $attendee = $this->attendeeRepository->findFirstWhere([
+        return $this->attendeeRepository->findFirstWhere([
             'public_id' => $attendeePublicId,
             'event_id' => $checkInList->getEventId(),
         ]);
-
-        if (! $attendee) {
-            throw new ResourceNotFoundException(__('Attendee not found'));
-        }
-
-        $this->verifyAttendeeBelongsToCheckInList($checkInList, $attendee);
-
-        return $attendee;
     }
 
-    private function verifyAttendeeBelongsToCheckInList(
-        CheckInListDomainObject $checkInList,
-        AttendeeDomainObject $attendee,
-    ): void {
-        $allowedProductIds = $checkInList->getProducts()?->map(fn ($product) => $product->getId())->toArray() ?? [];
-
-        if (! empty($allowedProductIds) && ! in_array($attendee->getProductId(), $allowedProductIds, true)) {
-            throw new ResourceNotFoundException(__('Attendee not found'));
+    /**
+     * @todo - Move this to its own service. It's used 3 times
+     * @throws CannotCheckInException
+     */
+    private function validateCheckInListIsActive(CheckInListDomainObject $checkInList): void
+    {
+        if ($checkInList->getExpiresAt() && DateHelper::utcDateIsPast($checkInList->getExpiresAt())) {
+            throw new CannotCheckInException(__('Check-in list has expired'));
         }
 
-        if ($checkInList->getEventOccurrenceId() !== null
-            && $attendee->getEventOccurrenceId() !== $checkInList->getEventOccurrenceId()
-        ) {
-            throw new ResourceNotFoundException(__('Attendee not found'));
+        if ($checkInList->getActivatesAt() && DateHelper::utcDateIsFuture($checkInList->getActivatesAt())) {
+            throw new CannotCheckInException(__('Check-in list is not active yet'));
         }
     }
 }

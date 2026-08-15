@@ -7,4 +7,6 @@ use HiEvents\DomainObjects\StripePayoutDomainObject;
 /**
  * @extends RepositoryInterface<StripePayoutDomainObject>
  */
-interface StripePayoutsRepositoryInterface extends RepositoryInterface {}
+interface StripePayoutsRepositoryInterface extends RepositoryInterface
+{
+}

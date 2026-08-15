@@ -14,7 +14,9 @@ class GetAccountAction extends BaseAction
 {
     public function __construct(
         private readonly GetAccountHandler $handler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $accountId): JsonResponse
     {

@@ -57,6 +57,28 @@ class OrderAuditLogService
         ]);
     }
 
+    public function logOrderSelfCancelled(
+        OrderDomainObject $order,
+        array $oldValues,
+        array $newValues,
+        string $ipAddress,
+        ?string $userAgent
+    ): void {
+        $changedFields = array_keys($newValues);
+
+        $this->orderAuditLogRepository->create([
+            'event_id' => $order->getEventId(),
+            'order_id' => $order->getId(),
+            'attendee_id' => null,
+            'action' => OrderAuditAction::ORDER_SELF_CANCELLED->value,
+            'old_values' => $oldValues,
+            'new_values' => $newValues,
+            'changed_fields' => implode(',', $changedFields),
+            'ip_address' => $ipAddress,
+            'user_agent' => $userAgent,
+        ]);
+    }
+
     public function logEmailResent(
         string $action,
         int $eventId,
@@ -73,27 +95,6 @@ class OrderAuditLogService
             'old_values' => null,
             'new_values' => null,
             'changed_fields' => null,
-            'ip_address' => $ipAddress,
-            'user_agent' => $userAgent,
-        ]);
-    }
-
-    public function logManualAttendeeCapacityOverride(
-        int $eventId,
-        int $orderId,
-        int $attendeeId,
-        int $occurrenceId,
-        string $ipAddress,
-        ?string $userAgent,
-    ): void {
-        $this->orderAuditLogRepository->create([
-            'event_id' => $eventId,
-            'order_id' => $orderId,
-            'attendee_id' => $attendeeId,
-            'action' => OrderAuditAction::MANUAL_ATTENDEE_CAPACITY_OVERRIDE->value,
-            'old_values' => null,
-            'new_values' => ['event_occurrence_id' => $occurrenceId],
-            'changed_fields' => 'event_occurrence_id',
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent,
         ]);

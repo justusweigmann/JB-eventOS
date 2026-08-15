@@ -15,9 +15,11 @@ class DispatchEventWebhookJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public int $eventId,
+        public int             $eventId,
         public DomainEventType $eventType,
-    ) {}
+    )
+    {
+    }
 
     public function handle(WebhookDispatchService $webhookDispatchService): void
     {

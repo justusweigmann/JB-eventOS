@@ -4,7 +4,6 @@ namespace HiEvents\Resources\Order;
 
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\Resources\BaseResource;
-use HiEvents\Resources\EventOccurrence\EventOccurrenceResourcePublic;
 use HiEvents\Resources\Product\ProductResourcePublic;
 use Illuminate\Http\Request;
 
@@ -13,11 +12,6 @@ use Illuminate\Http\Request;
  */
 class OrderItemResourcePublic extends BaseResource
 {
-    public function __construct($resource, private readonly bool $includeOnlineConnectionDetails = false)
-    {
-        parent::__construct($resource);
-    }
-
     public function toArray(Request $request): array
     {
         return [
@@ -35,15 +29,7 @@ class OrderItemResourcePublic extends BaseResource
             'total_tax' => $this->getTotalTax(),
             'total_gross' => $this->getTotalGross(),
             'taxes_and_fees_rollup' => $this->getTaxesAndFeesRollup(),
-            'event_occurrence_id' => $this->getEventOccurrenceId(),
-            'event_occurrence' => $this->when(
-                ! is_null($this->getEventOccurrence()),
-                fn () => new EventOccurrenceResourcePublic(
-                    $this->getEventOccurrence(),
-                    includeOnlineConnectionDetails: $this->includeOnlineConnectionDetails,
-                ),
-            ),
-            'product' => $this->when((bool) $this->getProduct(), fn () => new ProductResourcePublic($this->getProduct())),
+            'product' => $this->when((bool)$this->getProduct(), fn() => new ProductResourcePublic($this->getProduct())),
         ];
     }
 }

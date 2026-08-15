@@ -37,7 +37,14 @@ abstract class ProductDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     final public const IS_HIGHLIGHTED = 'is_highlighted';
     final public const HIGHLIGHT_MESSAGE = 'highlight_message';
     final public const WAITLIST_ENABLED = 'waitlist_enabled';
-    final public const IS_ADDON_ONLY = 'is_addon_only';
+    final public const REQUIRE_ATTENDEE_DETAILS = 'require_attendee_details';
+    final public const REQUIRE_ATTENDEE_EMAIL = 'require_attendee_email';
+    final public const IS_UPSELL = 'is_upsell';
+    final public const UPSELL_FOR_PRODUCT_IDS = 'upsell_for_product_ids';
+    final public const UPSELL_DISPLAY_TEXT = 'upsell_display_text';
+    final public const ATTENDANCE_MODE = 'attendance_mode';
+    final public const ONLINE_MEETING_URL = 'online_meeting_url';
+    final public const VENUE_INSTRUCTIONS = 'venue_instructions';
 
     protected int $id;
     protected int $event_id;
@@ -66,7 +73,14 @@ abstract class ProductDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     protected bool $is_highlighted = false;
     protected ?string $highlight_message = null;
     protected ?bool $waitlist_enabled = null;
-    protected bool $is_addon_only = false;
+    protected bool $require_attendee_details = true;
+    protected bool $require_attendee_email = true;
+    protected bool $is_upsell = false;
+    protected array|string|null $upsell_for_product_ids = null;
+    protected ?string $upsell_display_text = null;
+    protected string $attendance_mode = 'IN_PERSON';
+    protected ?string $online_meeting_url = null;
+    protected ?string $venue_instructions = null;
 
     public function toArray(): array
     {
@@ -98,7 +112,14 @@ abstract class ProductDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
                     'is_highlighted' => $this->is_highlighted ?? null,
                     'highlight_message' => $this->highlight_message ?? null,
                     'waitlist_enabled' => $this->waitlist_enabled ?? null,
-                    'is_addon_only' => $this->is_addon_only ?? null,
+                    'require_attendee_details' => $this->require_attendee_details ?? null,
+                    'require_attendee_email' => $this->require_attendee_email ?? null,
+                    'is_upsell' => $this->is_upsell ?? null,
+                    'upsell_for_product_ids' => $this->upsell_for_product_ids ?? null,
+                    'upsell_display_text' => $this->upsell_display_text ?? null,
+                    'attendance_mode' => $this->attendance_mode ?? null,
+                    'online_meeting_url' => $this->online_meeting_url ?? null,
+                    'venue_instructions' => $this->venue_instructions ?? null,
                 ];
     }
 
@@ -399,14 +420,91 @@ abstract class ProductDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
         return $this->waitlist_enabled;
     }
 
-    public function setIsAddonOnly(bool $is_addon_only): self
+    public function setRequireAttendeeDetails(bool $require_attendee_details): self
     {
-        $this->is_addon_only = $is_addon_only;
+        $this->require_attendee_details = $require_attendee_details;
         return $this;
     }
 
-    public function getIsAddonOnly(): bool
+    public function getRequireAttendeeDetails(): bool
     {
-        return $this->is_addon_only;
+        return $this->require_attendee_details;
+    }
+
+    public function setRequireAttendeeEmail(bool $require_attendee_email): self
+    {
+        $this->require_attendee_email = $require_attendee_email;
+        return $this;
+    }
+
+    public function getRequireAttendeeEmail(): bool
+    {
+        return $this->require_attendee_email;
+    }
+
+    public function setIsUpsell(bool $is_upsell): self
+    {
+        $this->is_upsell = $is_upsell;
+        return $this;
+    }
+
+    public function getIsUpsell(): bool
+    {
+        return $this->is_upsell;
+    }
+
+    public function setUpsellForProductIds(array|string|null $upsell_for_product_ids): self
+    {
+        $this->upsell_for_product_ids = $upsell_for_product_ids;
+        return $this;
+    }
+
+    public function getUpsellForProductIds(): array|string|null
+    {
+        return $this->upsell_for_product_ids;
+    }
+
+    public function setUpsellDisplayText(?string $upsell_display_text): self
+    {
+        $this->upsell_display_text = $upsell_display_text;
+        return $this;
+    }
+
+    public function getUpsellDisplayText(): ?string
+    {
+        return $this->upsell_display_text;
+    }
+
+    public function setAttendanceMode(string $attendance_mode): self
+    {
+        $this->attendance_mode = $attendance_mode;
+        return $this;
+    }
+
+    public function getAttendanceMode(): string
+    {
+        return $this->attendance_mode;
+    }
+
+    public function setOnlineMeetingUrl(?string $online_meeting_url): self
+    {
+        $this->online_meeting_url = $online_meeting_url;
+        return $this;
+    }
+
+    public function getOnlineMeetingUrl(): ?string
+    {
+        return $this->online_meeting_url;
+    }
+
+    public function setVenueInstructions(?string $venue_instructions): self
+    {
+        $this->venue_instructions = $venue_instructions;
+        return $this;
+    }
+
+    public function getVenueInstructions(): ?string
+    {
+        return $this->venue_instructions;
     }
 }

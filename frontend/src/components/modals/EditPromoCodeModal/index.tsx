@@ -1,4 +1,4 @@
-import {GenericModalProps, PromoCode, PromoCodeDiscountAppliesTo} from "../../../types.ts";
+import {GenericModalProps, PromoCode} from "../../../types.ts";
 import {hasLength, useForm} from "@mantine/form";
 import {useParams} from "react-router";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
@@ -31,8 +31,11 @@ export const EditPromoCodeModal = ({onClose, promoCodeId}: EditPromoCodeModalPro
             discount: undefined,
             applicable_product_ids: [],
             expiry_date: undefined,
+            valid_from: undefined,
             discount_type: undefined,
             max_allowed_usages: undefined,
+            max_attendee_usages: undefined,
+            message: '',
         },
         validate: {
             code: hasLength({min: 3, max: 50}, t`Code must be between 3 and 50 characters long`),
@@ -67,9 +70,11 @@ export const EditPromoCodeModal = ({onClose, promoCodeId}: EditPromoCodeModalPro
             discount: promoCode.discount,
             applicable_product_ids: promoCode.applicable_product_ids ? promoCode.applicable_product_ids.map((id) => id.toString()) : [],
             expiry_date: utcToTz(promoCode.expiry_date, event.timezone),
+            valid_from: utcToTz(promoCode.valid_from, event.timezone),
             discount_type: promoCode.discount_type,
-            discount_applies_to: promoCode.discount_applies_to ?? PromoCodeDiscountAppliesTo.EachProduct,
             max_allowed_usages: promoCode.max_allowed_usages || undefined,
+            max_attendee_usages: promoCode.max_attendee_usages || undefined,
+            message: promoCode.message || '',
         });
     }, [promoCode, event]);
 
@@ -81,7 +86,7 @@ export const EditPromoCodeModal = ({onClose, promoCodeId}: EditPromoCodeModalPro
         >
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <PromoCodeForm form={form}/>
-                <Button type="submit" fullWidth mt="lg" disabled={mutation.isPending}>
+                <Button type="submit" fullWidth mt="xl" disabled={mutation.isPending}>
                     {mutation.isPending ? t`Working...` : t`Edit Promo Code`}
                 </Button>
             </form>

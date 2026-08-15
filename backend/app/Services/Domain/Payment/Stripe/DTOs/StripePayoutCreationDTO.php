@@ -14,5 +14,7 @@ class StripePayoutCreationDTO extends BaseDataObject
         public readonly ?\DateTimeInterface $payoutDate,
         public readonly ?string $status,
         public readonly ?array $metadata,
-    ) {}
+    ) {
+    }
 }
+

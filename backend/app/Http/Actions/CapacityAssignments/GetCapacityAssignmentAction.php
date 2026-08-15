@@ -12,7 +12,9 @@ class GetCapacityAssignmentAction extends BaseAction
 {
     public function __construct(
         private readonly GetCapacityAssignmentHandler $getCapacityAssignmentsHandler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $eventId, int $capacityAssignmentId): JsonResponse
     {

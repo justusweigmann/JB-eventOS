@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class EmailTemplateDomainObject extends Generated\EmailTemplateDomainObjectAbstract {}
+class EmailTemplateDomainObject extends Generated\EmailTemplateDomainObjectAbstract
+{
+}

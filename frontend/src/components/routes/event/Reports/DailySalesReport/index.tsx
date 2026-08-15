@@ -24,19 +24,19 @@ export const DailySalesReport = () => {
             key: 'sales_total_gross' as const,
             label: 'Sales Total Gross',
             sortable: true,
-            render: (value: string) => formatCurrency(value, event?.currency)
+            render: (value: string) => formatCurrency(value)
         },
         {
             key: 'total_tax' as const,
             label: 'Total Tax',
             sortable: true,
-            render: (value: string) => formatCurrency(value, event?.currency)
+            render: (value: string) => formatCurrency(value)
         },
         {
             key: 'sales_total_before_additions' as const,
             label: 'Net Sales',
             sortable: true,
-            render: (value: string) => formatCurrency(value, event?.currency)
+            render: (value: string) => formatCurrency(value)
         },
         {
             key: 'products_sold' as const,
@@ -52,13 +52,13 @@ export const DailySalesReport = () => {
             key: 'total_fee' as const,
             label: 'Total Fee',
             sortable: true,
-            render: (value: string) => formatCurrency(value, event?.currency)
+            render: (value: string) => formatCurrency(value)
         },
         {
             key: 'total_refunded' as const,
             label: 'Total Refunded',
             sortable: true,
-            render: (value: string) => formatCurrency(value, event?.currency)
+            render: (value: string) => formatCurrency(value)
         },
         {
             key: 'total_views' as const,

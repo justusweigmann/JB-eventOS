@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Services\Domain\Payment\Stripe;
 
-use HiEvents\DomainObjects\Generated\OrganizerStripePlatformDomainObjectAbstract;
+use HiEvents\DomainObjects\AccountDomainObject;
+use HiEvents\DomainObjects\AccountStripePlatformDomainObject;
 use HiEvents\Repository\Interfaces\AccountRepositoryInterface;
-use HiEvents\Repository\Interfaces\OrganizerRepositoryInterface;
-use HiEvents\Repository\Interfaces\OrganizerStripePlatformRepositoryInterface;
-use HiEvents\Repository\Interfaces\OrganizerVatSettingRepositoryInterface;
+use HiEvents\Repository\Interfaces\AccountStripePlatformRepositoryInterface;
+use HiEvents\Repository\Interfaces\AccountVatSettingRepositoryInterface;
 use HiEvents\Services\Domain\Payment\Stripe\StripeAccountSyncService;
 use Illuminate\Config\Repository;
 use Mockery as m;
@@ -17,17 +17,10 @@ use Tests\TestCase;
 class StripeAccountSyncServiceTest extends TestCase
 {
     private StripeAccountSyncService $service;
-
     private LoggerInterface $logger;
-
     private AccountRepositoryInterface $accountRepository;
-
-    private OrganizerRepositoryInterface $organizerRepository;
-
-    private OrganizerStripePlatformRepositoryInterface $organizerStripePlatformRepository;
-
-    private OrganizerVatSettingRepositoryInterface $vatSettingRepository;
-
+    private AccountStripePlatformRepositoryInterface $accountStripePlatformRepository;
+    private AccountVatSettingRepositoryInterface $vatSettingRepository;
     private Repository $config;
 
     protected function setUp(): void
@@ -36,71 +29,61 @@ class StripeAccountSyncServiceTest extends TestCase
 
         $this->logger = m::mock(LoggerInterface::class);
         $this->accountRepository = m::mock(AccountRepositoryInterface::class);
-        $this->organizerRepository = m::mock(OrganizerRepositoryInterface::class);
-        $this->organizerStripePlatformRepository = m::mock(OrganizerStripePlatformRepositoryInterface::class);
-        $this->vatSettingRepository = m::mock(OrganizerVatSettingRepositoryInterface::class);
+        $this->accountStripePlatformRepository = m::mock(AccountStripePlatformRepositoryInterface::class);
+        $this->vatSettingRepository = m::mock(AccountVatSettingRepositoryInterface::class);
         $this->config = m::mock(Repository::class);
 
         $this->service = new StripeAccountSyncService(
             $this->logger,
             $this->accountRepository,
-            $this->organizerRepository,
-            $this->organizerStripePlatformRepository,
+            $this->accountStripePlatformRepository,
             $this->vatSettingRepository,
             $this->config,
         );
     }
 
-    public function test_is_stripe_account_complete_returns_true_when_both_enabled(): void
+    public function testIsStripeAccountCompleteReturnsTrueWhenBothEnabled(): void
     {
-        $stripeAccount = new Account;
+        $stripeAccount = new Account();
         $stripeAccount->charges_enabled = true;
         $stripeAccount->payouts_enabled = true;
 
-        $this->assertTrue($this->service->isStripeAccountComplete($stripeAccount));
+        $result = $this->service->isStripeAccountComplete($stripeAccount);
+
+        $this->assertTrue($result);
     }
 
-    public function test_is_stripe_account_complete_returns_false_when_anything_disabled(): void
+    public function testIsStripeAccountCompleteReturnsFalseWhenChargesDisabled(): void
     {
-        foreach ([[false, true], [true, false], [false, false]] as [$charges, $payouts]) {
-            $stripeAccount = new Account;
-            $stripeAccount->charges_enabled = $charges;
-            $stripeAccount->payouts_enabled = $payouts;
-            $this->assertFalse($this->service->isStripeAccountComplete($stripeAccount));
-        }
+        $stripeAccount = new Account();
+        $stripeAccount->charges_enabled = false;
+        $stripeAccount->payouts_enabled = true;
+
+        $result = $this->service->isStripeAccountComplete($stripeAccount);
+
+        $this->assertFalse($result);
     }
 
-    public function test_sync_by_account_id_updates_all_organizer_rows_and_stops_if_incomplete(): void
+    public function testIsStripeAccountCompleteReturnsFalseWhenPayoutsDisabled(): void
     {
-        $stripeAccount = Account::constructFrom([
-            'id' => 'acct_123',
-            'charges_enabled' => false,
-            'payouts_enabled' => false,
-            'country' => 'US',
-            'type' => 'standard',
-            'business_type' => 'individual',
-            'capabilities' => [],
-            'requirements' => [
-                'currently_due' => ['external_account'],
-                'eventually_due' => [],
-                'past_due' => [],
-                'pending_verification' => [],
-            ],
-        ]);
+        $stripeAccount = new Account();
+        $stripeAccount->charges_enabled = true;
+        $stripeAccount->payouts_enabled = false;
 
-        $this->organizerStripePlatformRepository
-            ->shouldReceive('updateWhere')
-            ->once()
-            ->with(
-                m::on(fn ($attrs) => array_key_exists(OrganizerStripePlatformDomainObjectAbstract::STRIPE_SETUP_COMPLETED_AT, $attrs)
-                    && $attrs[OrganizerStripePlatformDomainObjectAbstract::STRIPE_SETUP_COMPLETED_AT] === null),
-                [OrganizerStripePlatformDomainObjectAbstract::STRIPE_ACCOUNT_ID => 'acct_123'],
-            )
-            ->andReturn(2);
+        $result = $this->service->isStripeAccountComplete($stripeAccount);
 
-        $this->service->syncStripeAccountStatusByAccountId($stripeAccount);
+        $this->assertFalse($result);
+    }
 
-        $this->addToAssertionCount(1);
+    public function testIsStripeAccountCompleteReturnsFalseWhenBothDisabled(): void
+    {
+        $stripeAccount = new Account();
+        $stripeAccount->charges_enabled = false;
+        $stripeAccount->payouts_enabled = false;
+
+        $result = $this->service->isStripeAccountComplete($stripeAccount);
+
+        $this->assertFalse($result);
     }
 
     protected function tearDown(): void

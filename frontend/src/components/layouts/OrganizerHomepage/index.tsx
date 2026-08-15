@@ -5,7 +5,7 @@ import classes from './OrganizerHomepage.module.scss';
 import React, {useEffect, useState} from 'react';
 import {Event, GenericPaginatedResponse, Organizer} from "../../../types.ts";
 import {OrganizerDocumentHead} from "../../common/OrganizerDocumentHead";
-import {IconExternalLink, IconMail, IconMapPin, IconWorld} from '@tabler/icons-react';
+import {IconCalendar, IconExternalLink, IconMail, IconMapPin, IconWorld} from '@tabler/icons-react';
 import {t} from "@lingui/macro";
 import {PoweredByFooter} from "../../common/PoweredByFooter";
 import {socialMediaConfig} from "../../../constants/socialMediaConfig";
@@ -17,9 +17,6 @@ import {StatusToggle} from "../../common/StatusToggle";
 import {getConfig} from "../../../utilites/config.ts";
 import {Pagination} from "../../common/Pagination";
 import {computeThemeVariables, validateThemeSettings} from "../../../utilites/themeUtils.ts";
-import {ensureHomepageFontLoaded} from "../../../utilites/fontLoader.ts";
-import {useOrganizerTrackingPixels} from "../../../hooks/useOrganizerTrackingPixels";
-import {CookieConsentBanner} from "../../common/CookieConsentBanner";
 
 interface OrganizerHomepageProps {
     organizer?: Organizer;
@@ -47,10 +44,6 @@ export const OrganizerHomepage = ({
                                   }: OrganizerHomepageProps) => {
     const navigate = useNavigate();
     const [contactModalOpen, setContactModalOpen] = useState(false);
-
-    const {consentPending, onConsent} = useOrganizerTrackingPixels(
-        organizer?.settings?.tracking_pixels
-    );
 
     if (!organizer) {
         return null;
@@ -92,10 +85,6 @@ export const OrganizerHomepage = ({
     const cssVars = computeThemeVariables(themeSettings);
     const backgroundType = themeSettings.background_type;
 
-    useEffect(() => {
-        ensureHomepageFontLoaded(themeSettings.font_family);
-    }, [themeSettings.font_family]);
-
     const themeStyles = {
         '--organizer-bg-color': themeSettings.background,
         '--organizer-content-bg-color': cssVars['--theme-surface'],
@@ -107,8 +96,6 @@ export const OrganizerHomepage = ({
         '--organizer-accent-soft': cssVars['--theme-accent-soft'],
         '--organizer-accent-muted': cssVars['--theme-accent-muted'],
         '--organizer-border-color': cssVars['--theme-border'],
-        '--theme-font-family': cssVars['--theme-font-family'],
-        fontFamily: cssVars['--theme-font-family'],
     } as React.CSSProperties;
 
     return (
@@ -199,16 +186,16 @@ export const OrganizerHomepage = ({
                                                 <div className={classes.nameSection}>
                                                     <h1>{organizer?.name}</h1>
                                                     <div className={classes.organizerMeta}>
-                                                        {getShortLocationDisplay(organizer?.location?.structured_address) && (
+                                                        {getShortLocationDisplay(organizer?.settings?.location_details) && (
                                                             <div className={classes.metaItem}>
                                                                 <IconMapPin size={15} className={classes.metaIcon}/>
                                                                 <a
-                                                                    href={getGoogleMapsUrl(organizer.location!.structured_address!)}
+                                                                    href={getGoogleMapsUrl(organizer.settings!.location_details)}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
                                                                     className={classes.mapLink}
                                                                 >
-                                                                    <span>{getShortLocationDisplay(organizer.location!.structured_address!)}</span>
+                                                                    <span>{getShortLocationDisplay(organizer.settings!.location_details)}</span>
                                                                     <IconExternalLink size={12}/>
                                                                 </a>
                                                             </div>
@@ -257,6 +244,13 @@ export const OrganizerHomepage = ({
                                                         <IconMail size={14} style={{marginRight: 6}}/>
                                                         {t`Contact`}
                                                     </button>
+                                                    <a
+                                                        href={`${getConfig('VITE_API_URL_CLIENT')}/public/organizers/${organizer.id}/events.ics`}
+                                                        className={classes.contactButton}
+                                                    >
+                                                        <IconCalendar size={14} style={{marginRight: 6}}/>
+                                                        {t`Subscribe`}
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -335,14 +329,14 @@ export const OrganizerHomepage = ({
                         <div className={classes.footerSection}>
                             <div className={classes.footerLinks}>
                                 <Anchor
-                                    href={getConfig('VITE_PRIVACY_URL', 'https://hi.events/privacy-policy?utm_source=app-organizer-footer')}
+                                    href={organizer?.settings?.privacy_policy_url || getConfig('VITE_PRIVACY_URL', 'https://hi.events/privacy-policy?utm_source=app-organizer-footer')}
                                     className={classes.footerLink}
                                 >
                                     {t`Privacy Policy`}
                                 </Anchor>
                                 <span className={classes.footerSeparator}>•</span>
                                 <Anchor
-                                    href={getConfig('VITE_TOS_URL', 'https://hi.events/terms-of-service?utm_source=app-organizer-footer')}
+                                    href={organizer?.settings?.terms_of_service_url || getConfig('VITE_TOS_URL', 'https://hi.events/terms-of-service?utm_source=app-organizer-footer')}
                                     className={classes.footerLink}
                                 >
                                     {t`Terms of Service`}
@@ -359,9 +353,6 @@ export const OrganizerHomepage = ({
                         organizer={organizer}
                     />
                 </div>
-                {consentPending && (
-                    <CookieConsentBanner onConsent={onConsent}/>
-                )}
             </main>
         </>
     );

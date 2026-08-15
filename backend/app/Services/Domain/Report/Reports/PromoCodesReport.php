@@ -8,15 +8,12 @@ use Illuminate\Support\Carbon;
 
 class PromoCodesReport extends AbstractReportService
 {
-    protected function getSqlQuery(Carbon $startDate, Carbon $endDate, ?int $occurrenceId = null): string
+    protected function getSqlQuery(Carbon $startDate, Carbon $endDate): string
     {
         $startDateString = $startDate->format('Y-m-d H:i:s');
         $endDateString = $endDate->format('Y-m-d H:i:s');
         $reservedString = OrderStatus::RESERVED->name;
         $completedStatus = OrderStatus::COMPLETED->name;
-        $occurrenceFilter = $occurrenceId !== null
-            ? 'AND oi.event_occurrence_id = :occurrence_id'
-            : '';
 
         $translatedStringMap = [
             'Expired' => __('Expired'),
@@ -44,7 +41,6 @@ class PromoCodesReport extends AbstractReportService
                       AND o.event_id = :event_id
                       AND o.created_at >= '$startDateString'
                       AND o.created_at <= '$endDateString'
-                      $occurrenceFilter
 
                     GROUP BY
                         o.id,

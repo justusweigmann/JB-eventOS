@@ -5,12 +5,12 @@ import {PageBody} from "../../common/PageBody";
 import {AttendeeTable} from "../../common/AttendeeTable";
 import {SearchBarWrapper} from "../../common/SearchBar";
 import {Pagination} from "../../common/Pagination";
-import {Button, Group} from "@mantine/core";
-import {IconDownload, IconPlus} from "@tabler/icons-react";
+import {Button} from "@mantine/core";
+import {IconDownload, IconPlus, IconQrcode} from "@tabler/icons-react";
 import {ToolBar} from "../../common/ToolBar";
 import {TableSkeleton} from "../../common/TableSkeleton";
 import {useFilterQueryParamSync} from "../../../hooks/useFilterQueryParamSync.ts";
-import {EventType, IdParam, ProductType, QueryFilterOperator, QueryFilters} from "../../../types.ts";
+import {IdParam, ProductType, QueryFilterOperator, QueryFilters} from "../../../types.ts";
 import {useDisclosure} from "@mantine/hooks";
 import {CreateAttendeeModal} from "../../modals/CreateAttendeeModal";
 import {downloadBinary} from "../../../utilites/download.ts";
@@ -21,14 +21,16 @@ import {withLoadingNotification} from "../../../utilites/withLoadingNotification
 import {FilterModal, FilterOption} from "../../common/FilterModal";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
 import {getProductsFromEvent} from "../../../utilites/helpers.ts";
-import {useGetEventOccurrences} from "../../../queries/useGetEventOccurrences.ts";
-import {SortSelector} from "../../common/SortSelector";
-import {OccurrenceSelect} from "../../common/OccurrenceSelect";
 
 const attendeeStatuses = [
     {label: t`Active`, value: 'ACTIVE'},
     {label: t`Cancelled`, value: 'CANCELLED'},
     {label: t`Awaiting Payment`, value: 'AWAITING_PAYMENT'},
+];
+
+const checkInStatuses = [
+    {label: t`Checked In`, value: 'checked_in'},
+    {label: t`Not Checked In`, value: 'not_checked_in'},
 ];
 
 const Attendees = () => {
@@ -40,12 +42,6 @@ const Attendees = () => {
     const [createModalOpen, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
     const [downloadPending, setDownloadPending] = useState(false);
     const {data: event} = useGetEvent(eventId);
-    const isRecurring = event?.type === EventType.RECURRING;
-    const {data: occurrencesData} = useGetEventOccurrences(eventId, {pageNumber: 1, perPage: 100} as QueryFilters, isRecurring);
-
-    const occurrences = occurrencesData?.data || [];
-    const occurrenceFilter = searchParams.filterFields?.event_occurrence_id;
-    const selectedOccurrenceId = (occurrenceFilter && !Array.isArray(occurrenceFilter) ? String(occurrenceFilter.value) : null);
 
     const productOptions = getProductsFromEvent(event)
         ?.filter(product => product.product_type === ProductType.Ticket)
@@ -81,29 +77,17 @@ const Attendees = () => {
             label: t`Attendee Status`,
             type: 'multi-select',
             options: attendeeStatuses
+        },
+        {
+            field: 'checked_in',
+            label: t`Check-In Status`,
+            type: 'single-select',
+            options: checkInStatuses
         }
     ];
 
-    const handleOccurrenceChange = (value: string | null) => {
-        const filterFields = {...(searchParams.filterFields || {})};
-        if (value) {
-            filterFields.event_occurrence_id = {operator: QueryFilterOperator.Equals, value};
-        } else {
-            delete filterFields.event_occurrence_id;
-        }
-        setSearchParams({
-            ...searchParams,
-            filterFields,
-            pageNumber: 1,
-        } as QueryFilters, true);
-    };
-
     const handleFilterChange = (values: Record<string, any>) => {
         const filterFields: any = {};
-
-        if (selectedOccurrenceId) {
-            filterFields.event_occurrence_id = {operator: QueryFilterOperator.Equals, value: selectedOccurrenceId};
-        }
 
         if (values.product_id?.length > 0) {
             const productIds: string[] = [];
@@ -127,6 +111,11 @@ const Attendees = () => {
         if (values.status?.length > 0) {
             filterFields.status = {operator: QueryFilterOperator.In, value: values.status};
         }
+        if (values.checked_in) {
+            filterFields.checked_in_at = values.checked_in === 'checked_in'
+                ? {operator: QueryFilterOperator.NotEquals, value: 'null'}
+                : {operator: QueryFilterOperator.Equals, value: 'null'};
+        }
 
         setSearchParams({
             ...searchParams,
@@ -136,22 +125,17 @@ const Attendees = () => {
     };
 
     const handleResetFilters = () => {
-        const filterFields: any = {};
-        if (selectedOccurrenceId) {
-            filterFields.event_occurrence_id = {operator: QueryFilterOperator.Equals, value: selectedOccurrenceId};
-        }
         setSearchParams({
             ...searchParams,
-            filterFields,
+            filterFields: {},
             pageNumber: 1
         } as QueryFilters, true);
     };
 
     const handleExport = async (eventId: IdParam) => {
-        const occurrenceId = selectedOccurrenceId ? Number(selectedOccurrenceId) : null;
         await withLoadingNotification(async () => {
                 setDownloadPending(true);
-                const blob = await attendeesClient.export(eventId, occurrenceId);
+                const blob = await attendeesClient.export(eventId);
                 downloadBinary(blob, 'attendees.xlsx');
             },
             {
@@ -193,7 +177,7 @@ const Attendees = () => {
 
     const currentFilters = {
         product_id: getProductFilterValues(),
-        status: getFilterValue(searchParams.filterFields?.status),
+        status: getFilterValue(searchParams.filterFields?.status)
     };
 
     return (
@@ -206,51 +190,34 @@ const Attendees = () => {
                 </PageTitle>
 
                 <ToolBar
+                    filterComponent={
+                        <FilterModal
+                            filters={filterOptions}
+                            activeFilters={currentFilters}
+                            onChange={handleFilterChange}
+                            onReset={handleResetFilters}
+                            title={t`Filter Attendees`}
+                        />
+                    }
                     searchComponent={() => (
                         <SearchBarWrapper
                             placeholder={t`Search by attendee name, email or order #...`}
                             setSearchParams={setSearchParams}
                             searchParams={searchParams}
+                            pagination={pagination}
                         />
                     )}
-                    filterComponent={
-                        <Group gap="sm" wrap="wrap">
-                            {pagination?.allowed_sorts && (
-                                <SortSelector
-                                    selected={searchParams.sortBy && searchParams.sortDirection
-                                        ? searchParams.sortBy + ':' + searchParams.sortDirection
-                                        : pagination.default_sort + ':' + pagination.default_sort_direction}
-                                    options={pagination.allowed_sorts}
-                                    onSortSelect={(key, sortDirection) => {
-                                        setSearchParams({sortBy: key, sortDirection});
-                                    }}
-                                />
-                            )}
-                            {isRecurring && occurrences.length > 0 && event?.timezone && (
-                                <OccurrenceSelect
-                                    occurrences={occurrences}
-                                    timezone={event.timezone}
-                                    value={selectedOccurrenceId}
-                                    onChange={handleOccurrenceChange}
-                                    placeholder={t`All Dates`}
-                                    clearable
-                                    size="sm"
-                                />
-                            )}
-                            <FilterModal
-                                filters={filterOptions}
-                                activeFilters={currentFilters}
-                                onChange={handleFilterChange}
-                                onReset={handleResetFilters}
-                                title={t`Filter Attendees`}
-                            />
-                        </Group>
-                    }
-                    resultCount={pagination?.total}
-                    resultLabel={t`attendees`}
                 >
-                    <Button color={'green'} size={'sm'} data-testid="attendee-create-button" onClick={openCreateModal} rightSection={<IconPlus/>}>
+                    <Button color={'green'} size={'sm'} onClick={openCreateModal} rightSection={<IconPlus/>}>
                         {t`Create`}
+                    </Button>
+
+                    <Button color={'green'}
+                            size={'sm'}
+                            onClick={() => window?.open(`/manage/event/${eventId}/attendees/print-qr`, '_blank')}
+                            rightSection={<IconQrcode/>}
+                    >
+                        {t`Print QR Codes`}
                     </Button>
 
                     <Button color={'green'}
@@ -267,7 +234,6 @@ const Attendees = () => {
 
                 {(!!attendees) && <AttendeeTable openCreateModal={openCreateModal}
                                                  attendees={attendees}
-                                                 occurrenceId={selectedOccurrenceId ?? undefined}
                 />}
 
                 {!!attendees?.length

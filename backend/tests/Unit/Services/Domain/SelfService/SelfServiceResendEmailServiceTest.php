@@ -25,17 +25,11 @@ use Tests\TestCase;
 class SelfServiceResendEmailServiceTest extends TestCase
 {
     private SelfServiceResendEmailService $service;
-
     private MockInterface|SendAttendeeTicketService $sendAttendeeTicketService;
-
     private MockInterface|SendOrderDetailsService $sendOrderDetailsService;
-
     private MockInterface|AttendeeRepositoryInterface $attendeeRepository;
-
     private MockInterface|OrderRepositoryInterface $orderRepository;
-
     private MockInterface|EventRepositoryInterface $eventRepository;
-
     private MockInterface|OrderAuditLogService $orderAuditLogService;
 
     protected function setUp(): void
@@ -59,7 +53,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
         );
     }
 
-    public function test_resend_attendee_ticket_successfully(): void
+    public function testResendAttendeeTicketSuccessfully(): void
     {
         $attendeeId = 456;
         $orderId = 123;
@@ -81,6 +75,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
 
         $this->attendeeRepository
             ->shouldReceive('loadRelation')
+            ->once()
             ->with(Mockery::type(Relationship::class))
             ->andReturnSelf();
 
@@ -96,6 +91,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
+            ->twice()
             ->andReturnSelf();
 
         $this->eventRepository
@@ -138,7 +134,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_resend_order_confirmation_successfully(): void
+    public function testResendOrderConfirmationSuccessfully(): void
     {
         $orderId = 123;
         $eventId = 1;
@@ -161,6 +157,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
 
         $this->orderRepository
             ->shouldReceive('loadRelation')
+            ->times(3)
             ->andReturnSelf();
 
         $this->orderRepository
@@ -174,6 +171,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
+            ->twice()
             ->andReturnSelf();
 
         $this->eventRepository
@@ -215,7 +213,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_resend_attendee_ticket_loads_correct_relationships(): void
+    public function testResendAttendeeTicketLoadsCorrectRelationships(): void
     {
         $attendeeId = 456;
         $orderId = 123;
@@ -233,7 +231,12 @@ class SelfServiceResendEmailServiceTest extends TestCase
 
         $this->attendeeRepository
             ->shouldReceive('loadRelation')
-            ->with(Mockery::type(Relationship::class))
+            ->once()
+            ->with(Mockery::on(function ($relationship) {
+                return $relationship instanceof Relationship
+                    && $relationship->getDomainObject() === OrderDomainObject::class
+                    && $relationship->getName() === 'order';
+            }))
             ->andReturnSelf();
 
         $this->attendeeRepository
@@ -243,6 +246,17 @@ class SelfServiceResendEmailServiceTest extends TestCase
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
+            ->once()
+            ->with(Mockery::on(function ($relationship) {
+                return $relationship instanceof Relationship
+                    && $relationship->getDomainObject() === OrganizerDomainObject::class;
+            }))
+            ->andReturnSelf();
+
+        $this->eventRepository
+            ->shouldReceive('loadRelation')
+            ->once()
+            ->with(EventSettingDomainObject::class)
             ->andReturnSelf();
 
         $this->eventRepository
@@ -269,7 +283,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_resend_order_confirmation_loads_correct_relationships(): void
+    public function testResendOrderConfirmationLoadsCorrectRelationships(): void
     {
         $orderId = 123;
         $eventId = 1;
@@ -284,8 +298,18 @@ class SelfServiceResendEmailServiceTest extends TestCase
         $event->shouldReceive('getEventSettings')->andReturn($eventSettings);
         $event->shouldReceive('getOrganizer')->andReturn($organizer);
 
+        $loadRelationCallCount = 0;
         $this->orderRepository
             ->shouldReceive('loadRelation')
+            ->times(3)
+            ->with(Mockery::on(function ($domainObject) use (&$loadRelationCallCount) {
+                $loadRelationCallCount++;
+                return in_array($domainObject, [
+                    OrderItemDomainObject::class,
+                    AttendeeDomainObject::class,
+                    InvoiceDomainObject::class,
+                ]);
+            }))
             ->andReturnSelf();
 
         $this->orderRepository
@@ -295,6 +319,7 @@ class SelfServiceResendEmailServiceTest extends TestCase
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
+            ->twice()
             ->andReturnSelf();
 
         $this->eventRepository

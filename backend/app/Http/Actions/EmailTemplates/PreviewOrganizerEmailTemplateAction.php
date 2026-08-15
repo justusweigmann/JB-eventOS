@@ -11,7 +11,9 @@ class PreviewOrganizerEmailTemplateAction extends BaseEmailTemplateAction
 {
     public function __construct(
         private readonly PreviewEmailTemplateHandler $handler
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(Request $request, int $organizerId): JsonResponse
     {

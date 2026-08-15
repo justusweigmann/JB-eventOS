@@ -15,11 +15,13 @@ use Throwable;
 readonly class ConfirmEmailChangeHandler
 {
     public function __construct(
-        private LoggerInterface $logger,
+        private LoggerInterface         $logger,
         private UserRepositoryInterface $userRepository,
         private EncryptedPayloadService $encryptedPayloadService,
-        private DatabaseManager $databaseManager,
-    ) {}
+        private DatabaseManager         $databaseManager,
+    )
+    {
+    }
 
     /**
      * @throws DecryptionFailedException|Throwable

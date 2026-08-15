@@ -9,9 +9,7 @@ use HiEvents\Http\ResponseCodes;
 use HiEvents\Resources\Question\QuestionResource;
 use HiEvents\Services\Application\Handlers\Question\CreateQuestionHandler;
 use HiEvents\Services\Application\Handlers\Question\DTO\UpsertQuestionDTO;
-use HiEvents\Services\Domain\Product\Exception\UnrecognizedProductIdException;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class CreateQuestionAction extends BaseAction
 {
@@ -26,24 +24,17 @@ class CreateQuestionAction extends BaseAction
     {
         $this->isActionAuthorized($eventId, EventDomainObject::class);
 
-        try {
-            $question = $this->createQuestionHandler->handle(UpsertQuestionDTO::fromArray([
-                'title' => $request->input('title'),
-                'type' => $request->input('type'),
-                'required' => $request->boolean('required'),
-                'options' => $request->input('options'),
-                'event_id' => $eventId,
-                'product_ids' => $request->input('product_ids'),
-                'belongs_to' => $request->input('belongs_to'),
-                'is_hidden' => $request->boolean('is_hidden'),
-                'description' => $request->input('description'),
-            ]));
-        } catch (UnrecognizedProductIdException $exception) {
-            return $this->errorResponse(
-                message: $exception->getMessage(),
-                statusCode: Response::HTTP_UNPROCESSABLE_ENTITY,
-            );
-        }
+        $question = $this->createQuestionHandler->handle(UpsertQuestionDTO::fromArray([
+            'title' => $request->input('title'),
+            'type' => $request->input('type'),
+            'required' => $request->boolean('required'),
+            'options' => $request->input('options'),
+            'event_id' => $eventId,
+            'product_ids' => $request->input('product_ids'),
+            'belongs_to' => $request->input('belongs_to'),
+            'is_hidden' => $request->boolean('is_hidden'),
+            'description' => $request->input('description'),
+        ]));
 
         return $this->resourceResponse(
             resource: QuestionResource::class,

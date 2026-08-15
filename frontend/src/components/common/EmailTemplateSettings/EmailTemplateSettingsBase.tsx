@@ -1,7 +1,6 @@
 import {useState} from 'react';
-import {ActionIcon, Badge, Button, Group, LoadingOverlay, Modal, Paper, Stack, Text} from '@mantine/core';
-import {IconBrandStripe, IconEdit, IconMail, IconPlus, IconTrash} from '@tabler/icons-react';
-import {Callout} from '../Callout';
+import {ActionIcon, Alert, Badge, Button, Group, LoadingOverlay, Modal, Paper, Stack, Text} from '@mantine/core';
+import {IconAlertCircle, IconEdit, IconInfoCircle, IconMail, IconPlus, IconTrash} from '@tabler/icons-react';
 import {t, Trans} from '@lingui/macro';
 import {useDisclosure} from '@mantine/hooks';
 import {EmailTemplateEditor} from '../EmailTemplateEditor';
@@ -12,15 +11,13 @@ import {
     CreateEmailTemplateRequest,
     EmailTemplate,
     EmailTemplateType,
-    EventType,
     UpdateEmailTemplateRequest,
     DefaultEmailTemplate
 } from '../../../types';
 import {Card} from '../Card';
 import {HeadingWithDescription} from '../Card/CardHeading';
 import {useGetAccount} from '../../../queries/useGetAccount';
-import {NavLink} from 'react-router';
-import {useGetEvent} from '../../../queries/useGetEvent';
+import {StripeConnectButton} from '../StripeConnectButton';
 
 interface EmailTemplateSettingsBaseProps {
     // Context 
@@ -56,7 +53,6 @@ interface EmailTemplateSettingsBaseProps {
     onSaveSuccess?: () => void;
     onDeleteSuccess?: () => void;
     onError?: (error: any, message: string) => void;
-    eventType?: EventType;
 }
 
 export const EmailTemplateSettingsBase = ({
@@ -72,25 +68,20 @@ export const EmailTemplateSettingsBase = ({
     onCreateTemplate,
     onSaveSuccess,
     onDeleteSuccess,
-    onError,
-    eventType
+    onError
 }: EmailTemplateSettingsBaseProps) => {
     const [editorOpened, {open: openEditor, close: closeEditor}] = useDisclosure(false);
     const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
     const [editingType, setEditingType] = useState<EmailTemplateType>('order_confirmation');
     const handleFormError = useFormErrorResponseHandler();
     const {data: account, isFetched: isAccountFetched} = useGetAccount();
-    const eventQuery = useGetEvent(contextType === 'event' ? contextId : undefined);
-    const stripeOrganizerId = contextType === 'organizer'
-        ? contextId
-        : eventQuery.data?.organizer_id;
     const isAccountVerified = isAccountFetched && account?.is_account_email_confirmed;
     const accountRequiresManualVerification = isAccountFetched && account?.requires_manual_verification;
     const isModifyDisabled = !isAccountVerified || accountRequiresManualVerification;
 
     const orderConfirmationTemplate = templates.find(t => t.template_type === 'order_confirmation');
     const attendeeTicketTemplate = templates.find(t => t.template_type === 'attendee_ticket');
-    const occurrenceCancellationTemplate = templates.find(t => t.template_type === 'occurrence_cancellation');
+    const orderFailedTemplate = templates.find(t => t.template_type === 'order_failed');
 
     const handleCreateTemplate = (type: EmailTemplateType) => {
         setEditingTemplate(null);
@@ -209,13 +200,13 @@ export const EmailTemplateSettingsBase = ({
     const templateTypeLabels: Record<EmailTemplateType, string> = {
         'order_confirmation': t`Order Confirmation`,
         'attendee_ticket': t`Attendee Ticket`,
-        'occurrence_cancellation': t`Date Cancellation`,
+        'order_failed': t`Order Failed`,
     };
 
     const templateDescriptions: Record<EmailTemplateType, string> = {
         'order_confirmation': t`Sent to customers when they place an order`,
         'attendee_ticket': t`Sent to each attendee with their ticket details`,
-        'occurrence_cancellation': t`Sent to attendees when a scheduled date is cancelled`,
+        'order_failed': t`Sent to the customer when their order is not successful`,
     };
 
     const getTemplateStatusBadge = (template?: EmailTemplate) => {
@@ -307,7 +298,6 @@ export const EmailTemplateSettingsBase = ({
                         <Button
                             size="xs"
                             leftSection={<IconPlus size={16}/>}
-                            data-testid="email-template-create-button"
                             onClick={() => handleCreateTemplate(type)}
                             disabled={isModifyDisabled}
                         >
@@ -351,32 +341,29 @@ export const EmailTemplateSettingsBase = ({
             />
 
             {(!isAccountVerified && isAccountFetched) && (
-                <Callout variant="tip">
-                    {t`You need to verify your account email before you can modify email templates.`}
-                </Callout>
+                <Alert icon={<IconAlertCircle size={16}/>} variant="light" mb="lg" color="orange">
+                    <Text size="sm">
+                        {t`You need to verify your account email before you can modify email templates.`}
+                    </Text>
+                </Alert>
             )}
 
             {accountRequiresManualVerification && (
-                <Callout variant="tip" title={t`Connect Stripe to enable email template editing`}>
-                    {t`Due to the high risk of spam, you must connect a Stripe account before you can modify email templates. This is to ensure that all event organizers are verified and accountable.`}
-                    {stripeOrganizerId && (
-                        <div style={{marginTop: '0.75rem'}}>
-                            <Button
-                                component={NavLink}
-                                to={`/manage/organizer/${stripeOrganizerId}/settings#payouts`}
-                                leftSection={<IconBrandStripe size={16}/>}
-                                variant="light"
-                            >
-                                {t`Connect Stripe`}
-                            </Button>
-                        </div>
-                    )}
-                </Callout>
+                <Alert icon={<IconAlertCircle size={16}/>} variant="light" mb="lg" color="orange" title={t`Connect Stripe to enable email template editing`}>
+                    <Text size="sm">
+                        {t`Due to the high risk of spam, you must connect a Stripe account before you can modify email templates. This is to ensure that all event organizers are verified and accountable.`}
+                    </Text>
+                    <div style={{marginTop: '0.75rem'}}>
+                        <StripeConnectButton/>
+                    </div>
+                </Alert>
             )}
 
-            <Callout variant="info">
-                {getAlertMessage()}
-            </Callout>
+            <Alert icon={<IconInfoCircle size={16}/>} variant="light" mb="lg">
+                <Text size="sm">
+                    {getAlertMessage()}
+                </Text>
+            </Alert>
 
             <div style={{position: 'relative'}}>
                 <LoadingOverlay visible={isLoading}/>
@@ -396,14 +383,12 @@ export const EmailTemplateSettingsBase = ({
                         description={templateDescriptions.attendee_ticket}
                     />
 
-                    {(contextType === 'organizer' || eventType === EventType.RECURRING) && (
-                        <TemplateCard
-                            type="occurrence_cancellation"
-                            template={occurrenceCancellationTemplate}
-                            label={templateTypeLabels.occurrence_cancellation}
-                            description={templateDescriptions.occurrence_cancellation}
-                        />
-                    )}
+                    <TemplateCard
+                        type="order_failed"
+                        template={orderFailedTemplate}
+                        label={templateTypeLabels.order_failed}
+                        description={templateDescriptions.order_failed}
+                    />
                 </Stack>
             </div>
 

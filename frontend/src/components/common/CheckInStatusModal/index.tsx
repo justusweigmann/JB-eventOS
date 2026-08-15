@@ -22,7 +22,7 @@ export const CheckInStatusModal = ({
     isOpen,
     onClose
 }: CheckInStatusModalProps) => {
-    const {data: checkInListsResponse, isLoading} = useGetEventCheckInLists(eventId);
+    const {data: checkInListsResponse, isLoading, ...rest} = useGetEventCheckInLists(eventId);
 
     if (isLoading) {
         return (
@@ -48,17 +48,11 @@ export const CheckInStatusModal = ({
         );
     }
 
-    const allCheckInLists = checkInListsResponse?.data || [];
-    const checkInLists = allCheckInLists.filter(list =>
-        !list.event_occurrence_id || list.event_occurrence_id === attendee.event_occurrence_id
-    );
+    const checkInLists = checkInListsResponse?.data || [];
     const attendeeCheckIns = attendee.check_ins || [];
 
     const getCheckInForList = (listId: number | undefined) => {
-        return attendeeCheckIns.find(ci =>
-            ci.check_in_list_id === listId
-            && (!attendee.event_occurrence_id || ci.event_occurrence_id === attendee.event_occurrence_id)
-        );
+        return attendeeCheckIns.find(ci => ci.check_in_list_id === listId);
     };
 
     const isAttendeeEligibleForList = (list: CheckInList) => {

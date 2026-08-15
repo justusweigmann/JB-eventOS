@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class EventQuestionDomainObject extends Generated\EventQuestionDomainObjectAbstract {}
+class EventQuestionDomainObject extends Generated\EventQuestionDomainObjectAbstract
+{
+}

@@ -13,8 +13,6 @@ class CheckInListDomainObject extends Generated\CheckInListDomainObjectAbstract 
 
     private ?EventDomainObject $event = null;
 
-    private ?EventOccurrenceDomainObject $eventOccurrence = null;
-
     private ?int $checkedInCount = null;
 
     private ?int $totalAttendeesCount = null;
@@ -75,18 +73,6 @@ class CheckInListDomainObject extends Generated\CheckInListDomainObjectAbstract 
     public function setEvent(?EventDomainObject $event): static
     {
         $this->event = $event;
-
-        return $this;
-    }
-
-    public function getEventOccurrence(): ?EventOccurrenceDomainObject
-    {
-        return $this->eventOccurrence;
-    }
-
-    public function setEventOccurrence(?EventOccurrenceDomainObject $eventOccurrence): static
-    {
-        $this->eventOccurrence = $eventOccurrence;
 
         return $this;
     }

@@ -6,7 +6,6 @@ namespace HiEvents\Repository\Eloquent;
 
 use BadMethodCallException;
 use Carbon\Carbon;
-use Closure;
 use HiEvents\DomainObjects\Interfaces\DomainObjectInterface;
 use HiEvents\DomainObjects\Interfaces\IsSortable;
 use HiEvents\Http\DTO\QueryParamsDTO;
@@ -19,7 +18,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Foundation\Application;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -28,7 +26,6 @@ use TypeError;
 
 /**
  * @template T of DomainObjectInterface
- *
  * @implements RepositoryInterface<T>
  */
 abstract class BaseRepository implements RepositoryInterface
@@ -53,18 +50,20 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Returns a FQCL of the model
+     *
+     * @return string
      */
     abstract protected function getModel(): string;
 
     /**
-     * @param  class-string<IsSortable>  $domainObjectClass
+     * @param class-string<IsSortable> $domainObjectClass
      */
     protected function validateSortColumn(?string $sortBy, string $domainObjectClass): string
     {
         $allowedColumns = array_keys($domainObjectClass::getAllowedSorts()->toArray());
         $default = $domainObjectClass::getDefaultSort();
 
-        if ($sortBy === null || ! in_array($sortBy, $allowedColumns, true)) {
+        if ($sortBy === null || !in_array($sortBy, $allowedColumns, true)) {
             return $default;
         }
 
@@ -87,63 +86,61 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function all(array $columns = self::DEFAULT_COLUMNS): Collection
     {
-        return $this->runQuery(
-            fn () => $this->handleResults($this->model->all($columns))
-        );
+        $models = $this->model->all($columns);
+        $this->resetModel();
+
+        return $this->handleResults($models);
     }
 
     public function paginate(
-        ?int $limit = null,
+        ?int  $limit = null,
         array $columns = self::DEFAULT_COLUMNS
-    ): LengthAwarePaginator {
-        return $this->runQuery(
-            fn () => $this->handleResults(
-                $this->model->paginate($this->getPaginationPerPage($limit), $columns)
-            )
-        );
+    ): LengthAwarePaginator
+    {
+        $results = $this->model->paginate($this->getPaginationPerPage($limit), $columns);
+        $this->resetModel();
+
+        return $this->handleResults($results);
     }
 
     public function paginateWhere(
         array $where,
-        ?int $limit = null,
+        ?int  $limit = null,
         array $columns = self::DEFAULT_COLUMNS,
-        ?int $page = null,
-    ): LengthAwarePaginator {
-        return $this->runQuery(function () use ($where, $limit, $columns, $page) {
-            $this->applyConditions($where);
+        ?int  $page = null,
+    ): LengthAwarePaginator
+    {
+        $this->applyConditions($where);
+        $results = $this->model->paginate(
+            perPage: $this->getPaginationPerPage($limit),
+            columns: $columns,
+            page: $page,
+        );
+        $this->resetModel();
 
-            return $this->handleResults($this->model->paginate(
-                perPage: $this->getPaginationPerPage($limit),
-                columns: $columns,
-                page: $page,
-            ));
-        });
+        return $this->handleResults($results);
     }
 
     public function simplePaginateWhere(
         array $where,
-        ?int $limit = null,
+        ?int  $limit = null,
         array $columns = self::DEFAULT_COLUMNS,
-    ): Paginator {
-        return $this->runQuery(function () use ($where, $limit, $columns) {
-            $this->applyConditions($where);
+    ): Paginator
+    {
+        $this->applyConditions($where);
+        $results = $this->model->simplePaginate($this->getPaginationPerPage($limit), $columns);
+        $this->resetModel();
 
-            return $this->handleResults(
-                $this->model->simplePaginate($this->getPaginationPerPage($limit), $columns)
-            );
-        });
+        return $this->handleResults($results);
     }
 
     public function paginateEloquentRelation(
         Relation $relation,
-        ?int $limit = null,
-        array $columns = self::DEFAULT_COLUMNS
-    ): LengthAwarePaginator {
-        return $this->runQuery(
-            fn () => $this->handleResults(
-                $relation->paginate($this->getPaginationPerPage($limit), $columns)
-            )
-        );
+        ?int     $limit = null,
+        array    $columns = self::DEFAULT_COLUMNS
+    ): LengthAwarePaginator
+    {
+        return $this->handleResults($relation->paginate($this->getPaginationPerPage($limit), $columns));
     }
 
     /**
@@ -151,97 +148,101 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function findById(int $id, array $columns = self::DEFAULT_COLUMNS): DomainObjectInterface
     {
-        return $this->runQuery(
-            fn () => $this->handleSingleResult($this->model->findOrFail($id, $columns))
-        );
+        $model = $this->model->findOrFail($id, $columns);
+        $this->resetModel();
+
+        return $this->handleSingleResult($model);
     }
 
     public function findFirstByField(
-        string $field,
+        string  $field,
         ?string $value = null,
-        array $columns = ['*']
-    ): ?DomainObjectInterface {
-        return $this->runQuery(
-            fn () => $this->handleSingleResult(
-                $this->model->where($field, '=', $value)->first($columns)
-            )
-        );
+        array   $columns = ['*']
+    ): ?DomainObjectInterface
+    {
+        $model = $this->model->where($field, '=', $value)->first($columns);
+        $this->resetModel();
+
+        return $this->handleSingleResult($model);
     }
 
     public function findFirst(int $id, array $columns = self::DEFAULT_COLUMNS): ?DomainObjectInterface
     {
-        return $this->runQuery(
-            fn () => $this->handleSingleResult($this->model->findOrFail($id, $columns))
-        );
+        $model = $this->model->findOrFail($id, $columns);
+        $this->resetModel();
+
+        return $this->handleSingleResult($model);
     }
 
     public function findWhere(
         array $where,
         array $columns = self::DEFAULT_COLUMNS,
         array $orderAndDirections = [],
-        ?int $limit = null,
-    ): Collection {
-        return $this->runQuery(function () use ($where, $columns, $orderAndDirections, $limit) {
-            $this->applyConditions($where);
+    ): Collection
+    {
+        $this->applyConditions($where);
 
+        if ($orderAndDirections) {
             foreach ($orderAndDirections as $orderAndDirection) {
                 $this->model = $this->model->orderBy(
                     $orderAndDirection->getOrder(),
                     $orderAndDirection->getDirection()
                 );
             }
+        }
 
-            if ($limit !== null) {
-                $this->model = $this->model->limit($limit);
-            }
+        $model = $this->model->get($columns);
 
-            return $this->handleResults($this->model->get($columns));
-        });
+        $this->resetModel();
+
+        return $this->handleResults($model);
     }
 
     public function findFirstWhere(array $where, array $columns = self::DEFAULT_COLUMNS): ?DomainObjectInterface
     {
-        return $this->runQuery(function () use ($where, $columns) {
-            $this->applyConditions($where);
+        $this->applyConditions($where);
+        $model = $this->model->first($columns);
+        $this->resetModel();
 
-            return $this->handleSingleResult($this->model->first($columns));
-        });
+        return $this->handleSingleResult($model);
     }
 
     public function findWhereIn(string $field, array $values, array $additionalWhere = [], array $columns = self::DEFAULT_COLUMNS): Collection
     {
-        return $this->runQuery(function () use ($field, $values, $additionalWhere, $columns) {
-            if ($additionalWhere) {
-                $this->applyConditions($additionalWhere);
-            }
+        if ($additionalWhere) {
+            $this->applyConditions($additionalWhere);
+        }
 
-            return $this->handleResults($this->model->whereIn($field, $values)->get($columns));
-        });
+        $model = $this->model->whereIn($field, $values)->get($columns);
+        $this->resetModel();
+
+        return $this->handleResults($model);
     }
 
     public function create(array $attributes): DomainObjectInterface
     {
-        return $this->runQuery(function () use ($attributes) {
-            $model = $this->model->newInstance(collect($attributes)->toArray());
-            $model->save();
+        $model = $this->model->newInstance(collect($attributes)->toArray());
+        $model->save();
+        $this->resetModel();
 
-            return $this->handleSingleResult($model);
-        });
+        return $this->handleSingleResult($model);
     }
 
     public function insert(array $inserts): bool
     {
-        return $this->runQuery(function () use ($inserts) {
-            foreach ($inserts as $index => $insert) {
-                if (! isset($insert['created_at'], $insert['updated_at'])) {
-                    $now = Carbon::now();
-                    $inserts[$index]['created_at'] = $now;
-                    $inserts[$index]['updated_at'] = $now;
-                }
+        // When doing a bulk insert Eloquent doesn't autofill the updated/created dates,
+        // so we need to do it manually
+        foreach ($inserts as $index => $insert) {
+            if (!isset($insert['created_at'], $insert['updated_at'])) {
+                $now = Carbon::now();
+                $inserts[$index]['created_at'] = $now;
+                $inserts[$index]['updated_at'] = $now;
             }
+        }
+        $insert = $this->model->insert($inserts);
+        $this->resetModel();
 
-            return $this->model->insert($inserts);
-        });
+        return $insert;
     }
 
     public function updateFromDomainObject(int $id, DomainObjectInterface $domainObject): DomainObjectInterface
@@ -251,100 +252,93 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function updateFromArray(int $id, array $attributes): DomainObjectInterface
     {
-        return $this->runQuery(function () use ($id, $attributes) {
-            $model = $this->model->findOrFail($id);
-            $model->fill($attributes);
-            $model->save();
+        $model = $this->model->findOrFail($id);
+        $model->fill($attributes);
+        $model->save();
+        $this->resetModel();
 
-            return $this->handleSingleResult($model);
-        });
+        return $this->handleSingleResult($model);
     }
 
     public function updateWhere(array $attributes, array $where): int
     {
-        return $this->runQuery(function () use ($attributes, $where) {
-            $this->applyConditions($where);
+        $this->applyConditions($where);
+        $count = $this->model->update($attributes);
+        $this->resetModel();
 
-            return $this->model->update($attributes);
-        });
+        return $count;
     }
 
     public function updateByIdWhere(int $id, array $attributes, array $where): DomainObjectInterface
     {
-        return $this->runQuery(function () use ($id, $attributes, $where) {
-            $model = $this->model->where($where)->findOrFail($id);
-            $model->update($attributes);
+        $model = $this->model->where($where)->findOrFail($id);
+        $model->update($attributes);
+        $this->resetModel();
 
-            return $this->handleSingleResult($model);
-        });
+        return $this->handleSingleResult($model);
     }
 
     public function deleteById(int $id): bool
     {
-        return $this->runQuery(
-            fn () => (bool) $this->model->findOrFail($id)->delete()
-        );
+        return $this->model->findOrFail($id)->delete();
     }
 
     public function incrementEach(array $columns, array $additionalUpdates = [], ?array $where = null): int
     {
-        return $this->runQuery(function () use ($columns, $additionalUpdates, $where) {
-            if ($where) {
-                $this->applyConditions($where);
-            }
+        if ($where) {
+            $this->applyConditions($where);
+        }
 
-            return $this->resolveBaseQuery()->incrementEach($columns, $additionalUpdates);
-        });
+        $count = $this->model->incrementEach($columns, $additionalUpdates);
+        $this->resetModel();
+
+        return $count;
     }
 
     public function decrementEach(array $where, array $columns, array $extra = []): int
     {
-        return $this->runQuery(function () use ($where, $columns, $extra) {
-            $this->applyConditions($where);
+        $this->applyConditions($where);
+        $count = $this->model->decrementEach($columns, $extra);
+        $this->resetModel();
 
-            return $this->resolveBaseQuery()->decrementEach($columns, $extra);
-        });
+        return $count;
     }
 
     public function increment(int|float $id, string $column, int|float $amount = 1): int
     {
-        return $this->runQuery(
-            fn () => $this->model->findOrFail($id)->increment($column, $amount)
-        );
+        return $this->model->findOrFail($id)->increment($column, $amount);
     }
 
     public function incrementWhere(array $where, string $column, int|float $amount = 1): int
     {
-        return $this->runQuery(function () use ($where, $column, $amount) {
-            $this->applyConditions($where);
+        $this->applyConditions($where);
+        $count = $this->model->increment($column, $amount);
+        $this->resetModel();
 
-            return $this->model->increment($column, $amount);
-        });
+        return $count;
     }
 
     public function decrement(int|float $id, string $column, int|float $amount = 1): int
     {
-        return $this->runQuery(
-            fn () => $this->model->findOrFail($id)->decrement($column, $amount)
-        );
+        return $this->model->findOrFail($id)?->decrement($column, $amount);
     }
 
     public function deleteWhere(array $conditions): int
     {
-        return $this->runQuery(function () use ($conditions) {
-            $this->applyConditions($conditions);
+        $this->applyConditions($conditions);
+        $deleted = $this->model->delete();
+        $this->resetModel();
 
-            return $this->model->delete();
-        });
+        return $deleted;
     }
 
     public function countWhere(array $conditions): int
     {
-        return $this->runQuery(function () use ($conditions) {
-            $this->applyConditions($conditions);
+        $this->applyConditions($conditions);
+        $count = $this->model->count();
+        $this->resetModel();
 
-            return $this->model->count();
-        });
+        return $count;
     }
 
     public function loadRelation(string|Relationship $relationship): static
@@ -369,7 +363,7 @@ abstract class BaseRepository implements RepositoryInterface
     protected function applyConditions(array $where): void
     {
         foreach ($where as $field => $value) {
-            if (is_callable($value) && ! is_string($value)) {
+            if (is_callable($value) && !is_string($value)) {
                 $this->model = $this->model->where($value);
             } elseif (is_array($value)) {
                 [$field, $condition, $val] = $value;
@@ -412,35 +406,6 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->app->make($model ?: $this->getModel());
     }
 
-    /**
-     * @template TReturn
-     *
-     * @param  Closure(): TReturn  $callback
-     * @return TReturn
-     */
-    protected function runQuery(Closure $callback): mixed
-    {
-        try {
-            return $callback();
-        } finally {
-            $this->resetState();
-        }
-    }
-
-    protected function resetState(): void
-    {
-        $model = $this->getModel();
-        $this->model = new $model;
-        $this->eagerLoads = [];
-    }
-
-    private function resolveBaseQuery(): QueryBuilder
-    {
-        return $this->model instanceof Builder
-            ? $this->model->getQuery()
-            : $this->model->newQuery()->getQuery();
-    }
-
     protected function handleResults($results, ?string $domainObjectOverride = null)
     {
         $domainObjects = [];
@@ -463,9 +428,10 @@ abstract class BaseRepository implements RepositoryInterface
 
     protected function handleSingleResult(
         ?BaseModel $model,
-        ?string $domainObjectOverride = null
-    ): ?DomainObjectInterface {
-        if (! $model) {
+        ?string    $domainObjectOverride = null
+    ): ?DomainObjectInterface
+    {
+        if (!$model) {
             return null;
         }
 
@@ -476,10 +442,11 @@ abstract class BaseRepository implements RepositoryInterface
         QueryParamsDTO $params,
         array $allowedFilterFields = [],
         ?string $prefix = null,
-    ): void {
+    ): void
+    {
         if ($params->filter_fields && $params->filter_fields->isNotEmpty()) {
             $params->filter_fields->each(function ($filterField) use ($prefix, $allowedFilterFields) {
-                if (! in_array($filterField->field, $allowedFilterFields, true)) {
+                if (!in_array($filterField->field, $allowedFilterFields, true)) {
                     return;
                 }
 
@@ -500,7 +467,7 @@ abstract class BaseRepository implements RepositoryInterface
                     sprintf('Operator %s is not supported', $filterField->operator)
                 );
 
-                $field = $prefix ? $prefix.'.'.$filterField->field : $filterField->field;
+                $field = $prefix ? $prefix . '.' . $filterField->field : $filterField->field;
 
                 // Special handling for IN operator
                 if ($operator === 'IN') {
@@ -524,13 +491,10 @@ abstract class BaseRepository implements RepositoryInterface
         }
     }
 
-    /**
-     * @deprecated Use resetState() instead. Kept for backwards compatibility with
-     *             subclass repositories that build custom queries on $this->model.
-     */
     protected function resetModel(): void
     {
-        $this->resetState();
+        $model = $this->getModel();
+        $this->model = new $model();
     }
 
     private function getPaginationPerPage(?int $perPage): int
@@ -539,26 +503,30 @@ abstract class BaseRepository implements RepositoryInterface
             $perPage = self::DEFAULT_PAGINATE_LIMIT;
         }
 
-        return (int) min($perPage, $this->maxPerPage);
+        return (int)min($perPage, $this->maxPerPage);
     }
 
     /**
-     * @param  string|null  $domainObjectOverride  A FQCN of a DO
+     * @param Model $model
+     * @param string|null $domainObjectOverride A FQCN of a DO
+     * @param array|null $relationships
+     * @return DomainObjectInterface
      *
      * @todo use hydrate method from AbstractDomainObject
      */
     private function hydrateDomainObjectFromModel(
-        Model $model,
+        Model   $model,
         ?string $domainObjectOverride = null,
-        ?array $relationships = null,
-    ): DomainObjectInterface {
+        ?array  $relationships = null,
+    ): DomainObjectInterface
+    {
         /** @var DomainObjectInterface $object */
         $object = $domainObjectOverride ?: $this->getDomainObject();
-        $object = new $object;
+        $object = new $object();
 
         foreach ($model->attributesToArray() as $attribute => $value) {
-            $method = 'set'.Str::studly($attribute);
-            if (is_callable([$object, $method])) {
+            $method = 'set' . ucfirst(Str::camel($attribute));
+            if (is_callable(array($object, $method))) {
                 try {
                     $object->$method($value);
                 } catch (TypeError $e) {
@@ -570,7 +538,7 @@ abstract class BaseRepository implements RepositoryInterface
                             var_export($value, true),
                             $e->getMessage()
                         ),
-                        (int) $e->getCode(),
+                        (int)$e->getCode(),
                         $e
                     );
                 }
@@ -586,20 +554,24 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * This method will handle nested eager loading of relationships
      *
-     * @param  Relationship[]|null  $relationships
+     * @param Model $model
+     * @param DomainObjectInterface $object
+     * @param Relationship[]|null $relationships
+     *
+     * @return void
      */
     private function handleEagerLoads(Model $model, DomainObjectInterface $object, ?array $relationships): void
     {
         $eagerLoads = $relationships ?: $this->eagerLoads;
 
         foreach ($eagerLoads as $eagerLoad) {
-            if (! $model->relationLoaded($eagerLoad->getName())) {
+            if (!$model->relationLoaded($eagerLoad->getName())) {
                 continue;
             }
             $relatedModels = $model->getRelation($eagerLoad->getName());
-            $setterMethod = 'set'.Str::studly($eagerLoad->getName());
+            $setterMethod = 'set' . Str::studly($eagerLoad->getName());
 
-            if (! is_callable([$object, $setterMethod])) {
+            if (!is_callable([$object, $setterMethod])) {
                 throw new BadMethodCallException(
                     sprintf(
                         'Method %s is not callable on %s. Does it exist?',
@@ -618,7 +590,7 @@ abstract class BaseRepository implements RepositoryInterface
                     );
                 });
                 $object->$setterMethod($relatedDomainObjects);
-            } elseif ($relatedModels instanceof BaseModel) {
+            } else if ($relatedModels instanceof BaseModel) {
                 $relatedDomainObject = $this->hydrateDomainObjectFromModel(
                     $relatedModels,
                     $eagerLoad->getDomainObject(),

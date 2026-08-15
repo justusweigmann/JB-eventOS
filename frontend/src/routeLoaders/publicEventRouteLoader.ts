@@ -8,8 +8,6 @@ export const publicEventRouteLoader = async ({params, request}: LoaderFunctionAr
         const url = new URL(request.url);
         const queryParams = new URLSearchParams(url.search);
         const promoCode = queryParams.get("promo_code") ?? null;
-        const occurrenceIdParam = queryParams.get("occurrence_id");
-        const occurrenceId = occurrenceIdParam ? Number(occurrenceIdParam) : null;
 
         let promoCodeValid: boolean | undefined = undefined;
 
@@ -22,7 +20,6 @@ export const publicEventRouteLoader = async ({params, request}: LoaderFunctionAr
             params.eventId,
             promoCode,
             promoCodeValid ?? false,
-            occurrenceId,
         );
 
         const event = await getQueryClient().fetchQuery(eventQuery);
@@ -34,7 +31,7 @@ export const publicEventRouteLoader = async ({params, request}: LoaderFunctionAr
             );
         }
 
-        return {event, promoCodeValid, promoCode, occurrenceId};
+        return {event, promoCodeValid, promoCode};
     } catch (error: any) {
         // Re-throw redirect responses so React Router can handle them
         if (error instanceof Response) {

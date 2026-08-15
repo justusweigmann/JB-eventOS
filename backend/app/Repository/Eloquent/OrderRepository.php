@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace HiEvents\Repository\Eloquent;
 
-use HiEvents\DomainObjects\AccountDomainObject;
 use HiEvents\DomainObjects\AttendeeDomainObject;
-use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
@@ -21,6 +19,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use HiEvents\DomainObjects\EventDomainObject;
+use HiEvents\DomainObjects\AccountDomainObject;
 
 /**
  * @extends BaseRepository<OrderDomainObject>
@@ -29,11 +29,16 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 {
     public function findByEventId(int $eventId, QueryParamsDTO $params): LengthAwarePaginator
     {
+        $hasStatusFilter = $params->filter_fields?->contains(fn($f) => $f->field === 'status');
+
         $where = [
             [OrderDomainObjectAbstract::EVENT_ID, '=', $eventId],
-            [OrderDomainObjectAbstract::STATUS, '!=', OrderStatus::RESERVED->name],
-            [OrderDomainObjectAbstract::STATUS, '!=', OrderStatus::ABANDONED->name],
         ];
+
+        if (!$hasStatusFilter) {
+            $where[] = [OrderDomainObjectAbstract::STATUS, '!=', OrderStatus::RESERVED->name];
+            $where[] = [OrderDomainObjectAbstract::STATUS, '!=', OrderStatus::ABANDONED->name];
+        }
 
         if ($params->query) {
             $where[] = static function (Builder $builder) use ($params) {
@@ -45,22 +50,15 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                                 OrderDomainObjectAbstract::FIRST_NAME,
                                 OrderDomainObjectAbstract::LAST_NAME
                             )
-                        ), 'ilike', '%'.$params->query.'%')
-                    ->orWhere(OrderDomainObjectAbstract::LAST_NAME, 'ilike', '%'.$params->query.'%')
-                    ->orWhere(OrderDomainObjectAbstract::PUBLIC_ID, 'ilike', '%'.$params->query.'%')
-                    ->orWhere(OrderDomainObjectAbstract::EMAIL, 'ilike', '%'.$params->query.'%');
+                        ), 'ilike', '%' . $params->query . '%')
+                    ->orWhere(OrderDomainObjectAbstract::LAST_NAME, 'ilike', '%' . $params->query . '%')
+                    ->orWhere(OrderDomainObjectAbstract::PUBLIC_ID, 'ilike', '%' . $params->query . '%')
+                    ->orWhere(OrderDomainObjectAbstract::EMAIL, 'ilike', '%' . $params->query . '%');
             };
         }
 
-        if (! empty($params->filter_fields)) {
+        if (!empty($params->filter_fields)) {
             $this->applyFilterFields($params, OrderDomainObject::getAllowedFilterFields());
-
-            $occurrenceFilter = $params->filter_fields->firstWhere('field', 'event_occurrence_id');
-            if ($occurrenceFilter) {
-                $this->model = $this->model->whereHas('order_items', function (Builder $query) use ($occurrenceFilter) {
-                    $query->where('order_items.event_occurrence_id', $occurrenceFilter->value);
-                });
-            }
         }
 
         $this->model = $this->model->orderBy(
@@ -77,10 +75,14 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
     public function findByOrganizerId(int $organizerId, int $accountId, QueryParamsDTO $params): LengthAwarePaginator
     {
-        $where = [
-            ['orders.status', '!=', OrderStatus::RESERVED->name],
-            ['orders.status', '!=', OrderStatus::ABANDONED->name],
-        ];
+        $hasStatusFilter = $params->filter_fields?->contains(fn($f) => $f->field === 'status');
+
+        $where = [];
+
+        if (!$hasStatusFilter) {
+            $where[] = ['orders.status', '!=', OrderStatus::RESERVED->name];
+            $where[] = ['orders.status', '!=', OrderStatus::ABANDONED->name];
+        }
 
         if ($params->query) {
             $where[] = static function (Builder $builder) use ($params) {
@@ -92,14 +94,14 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                                 OrderDomainObjectAbstract::FIRST_NAME,
                                 OrderDomainObjectAbstract::LAST_NAME
                             )
-                        ), 'ilike', '%'.$params->query.'%')
-                    ->orWhere(OrderDomainObjectAbstract::LAST_NAME, 'ilike', '%'.$params->query.'%')
-                    ->orWhere(OrderDomainObjectAbstract::PUBLIC_ID, 'ilike', '%'.$params->query.'%')
-                    ->orWhere(OrderDomainObjectAbstract::EMAIL, 'ilike', '%'.$params->query.'%');
+                        ), 'ilike', '%' . $params->query . '%')
+                    ->orWhere(OrderDomainObjectAbstract::LAST_NAME, 'ilike', '%' . $params->query . '%')
+                    ->orWhere(OrderDomainObjectAbstract::PUBLIC_ID, 'ilike', '%' . $params->query . '%')
+                    ->orWhere(OrderDomainObjectAbstract::EMAIL, 'ilike', '%' . $params->query . '%');
             };
         }
 
-        if (! empty($params->filter_fields)) {
+        if (!empty($params->filter_fields)) {
             $this->applyFilterFields($params, OrderDomainObject::getAllowedFilterFields());
         }
 
@@ -111,7 +113,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         $sortBy = $this->validateSortColumn($params->sort_by, OrderDomainObject::class);
         $this->model = $this->model->orderBy(
-            column: 'orders.'.$sortBy,
+            column: 'orders.' . $sortBy,
             direction: $this->validateSortDirection($params->sort_direction, OrderDomainObject::class),
         );
 
@@ -145,6 +147,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $this->handleSingleResult($orderItem, OrderItemDomainObject::class);
     }
 
+    /**
+     * @param string $orderShortId
+     * @return OrderDomainObject|null
+     */
     public function findByShortId(string $orderShortId): ?OrderDomainObject
     {
         return $this->findFirstByField('short_id', $orderShortId);
@@ -160,43 +166,24 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return Order::class;
     }
 
-    public function findOrdersAssociatedWithProducts(
-        int $eventId,
-        array $productIds,
-        array $orderStatuses,
-        ?int $eventOccurrenceId = null,
-        ?array $eventOccurrenceIds = null,
-    ): Collection {
-        $query = $this->model
-            ->whereHas('order_items', static function (Builder $query) use ($productIds, $eventOccurrenceId, $eventOccurrenceIds) {
-                $query->whereIn('product_id', $productIds);
-                if (! empty($eventOccurrenceIds)) {
-                    $query->whereIn('order_items.event_occurrence_id', $eventOccurrenceIds);
-                } elseif ($eventOccurrenceId !== null) {
-                    $query->where('order_items.event_occurrence_id', $eventOccurrenceId);
-                }
-            })
-            ->whereIn('status', $orderStatuses)
-            ->where('event_id', $eventId);
-
-        return $this->handleResults($query->get());
+    public function findOrdersAssociatedWithProducts(int $eventId, array $productIds, array $orderStatuses): Collection
+    {
+        return $this->handleResults(
+            $this->model
+                ->whereHas('order_items', static function (Builder $query) use ($productIds) {
+                    $query->whereIn('product_id', $productIds);
+                })
+                ->whereIn('status', $orderStatuses)
+                ->where('event_id', $eventId)
+                ->get()
+        );
     }
 
-    public function countOrdersAssociatedWithProducts(
-        int $eventId,
-        array $productIds,
-        array $orderStatuses,
-        ?int $eventOccurrenceId = null,
-        ?array $eventOccurrenceIds = null,
-    ): int {
+    public function countOrdersAssociatedWithProducts(int $eventId, array $productIds, array $orderStatuses): int
+    {
         $count = $this->model
-            ->whereHas('order_items', static function (Builder $query) use ($productIds, $eventOccurrenceId, $eventOccurrenceIds) {
+            ->whereHas('order_items', static function (Builder $query) use ($productIds) {
                 $query->whereIn('product_id', $productIds);
-                if (! empty($eventOccurrenceIds)) {
-                    $query->whereIn('order_items.event_occurrence_id', $eventOccurrenceIds);
-                } elseif ($eventOccurrenceId !== null) {
-                    $query->where('order_items.event_occurrence_id', $eventOccurrenceId);
-                }
             })
             ->whereIn('status', $orderStatuses)
             ->where('event_id', $eventId)
@@ -207,19 +194,23 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $count;
     }
 
-    public function countActivePromoCodeUsage(int $promoCodeId): int
+    public function findMarketingOptedInOrders(int $eventId): Collection
+    {
+        return $this->handleResults(
+            $this->model
+                ->where('event_id', $eventId)
+                ->whereNotNull('opted_into_marketing_at')
+                ->where('status', 'COMPLETED')
+                ->get()
+        );
+    }
+
+    public function countMarketingOptedInOrders(int $eventId): int
     {
         $count = $this->model
-            ->where('promo_code_id', $promoCodeId)
-            ->where(static function (Builder $query) {
-                $query->whereIn('status', [
-                    OrderStatus::COMPLETED->name,
-                    OrderStatus::AWAITING_OFFLINE_PAYMENT->name,
-                ])->orWhere(static function (Builder $reserved) {
-                    $reserved->where('status', OrderStatus::RESERVED->name)
-                        ->where('reserved_until', '>', now());
-                });
-            })
+            ->where('event_id', $eventId)
+            ->whereNotNull('opted_into_marketing_at')
+            ->where('status', 'COMPLETED')
             ->count();
 
         $this->resetModel();
@@ -240,11 +231,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         if ($search) {
             $this->model = $this->model->where(function ($q) use ($search) {
-                $q->where(OrderDomainObjectAbstract::EMAIL, 'ilike', '%'.$search.'%')
-                    ->orWhere(OrderDomainObjectAbstract::FIRST_NAME, 'ilike', '%'.$search.'%')
-                    ->orWhere(OrderDomainObjectAbstract::LAST_NAME, 'ilike', '%'.$search.'%')
-                    ->orWhere(OrderDomainObjectAbstract::PUBLIC_ID, 'ilike', '%'.$search.'%')
-                    ->orWhere(OrderDomainObjectAbstract::SHORT_ID, 'ilike', '%'.$search.'%');
+                $q->where(OrderDomainObjectAbstract::EMAIL, 'ilike', '%' . $search . '%')
+                    ->orWhere(OrderDomainObjectAbstract::FIRST_NAME, 'ilike', '%' . $search . '%')
+                    ->orWhere(OrderDomainObjectAbstract::LAST_NAME, 'ilike', '%' . $search . '%')
+                    ->orWhere(OrderDomainObjectAbstract::PUBLIC_ID, 'ilike', '%' . $search . '%')
+                    ->orWhere(OrderDomainObjectAbstract::SHORT_ID, 'ilike', '%' . $search . '%');
             });
         }
 
@@ -255,10 +246,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $sortColumn = in_array($sortBy, $allowedSortColumns, true) ? $sortBy : 'created_at';
         $sortDir = in_array(strtolower($sortDirection), ['asc', 'desc']) ? $sortDirection : 'desc';
 
-        $this->model = $this->model->orderBy('orders.'.$sortColumn, $sortDir);
+        $this->model = $this->model->orderBy('orders.' . $sortColumn, $sortDir);
 
         $this->loadRelation(new Relationship(EventDomainObject::class, nested: [
-            new Relationship(AccountDomainObject::class, name: 'account'),
+            new Relationship(AccountDomainObject::class, name: 'account')
         ], name: 'event'));
 
         return $this->paginate($perPage);
@@ -279,12 +270,16 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $exists;
     }
 
-    public function accountHasCompletedOrders(int $accountId): bool
+    public function existsCompletedOrderForEmail(int $eventId, string $email): bool
     {
-        return $this->runQuery(fn () => $this->model
-            ->join('events', 'orders.event_id', '=', 'events.id')
-            ->where('events.account_id', $accountId)
-            ->where('orders.status', OrderStatus::COMPLETED->name)
-            ->exists());
+        $exists = $this->model
+            ->where(OrderDomainObjectAbstract::EVENT_ID, $eventId)
+            ->where(OrderDomainObjectAbstract::EMAIL, $email)
+            ->where(OrderDomainObjectAbstract::STATUS, OrderStatus::COMPLETED->name)
+            ->exists();
+
+        $this->resetModel();
+
+        return $exists;
     }
 }

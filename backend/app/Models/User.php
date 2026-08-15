@@ -13,6 +13,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,17 +29,22 @@ use RuntimeException;
  */
 class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, JWTSubject
 {
+    use SoftDeletes;
+    use Notifiable;
     use Authenticatable;
     use Authorizable;
     use CanResetPassword;
+    use MustVerifyEmail;
     use HasFactory;
     use Impersonate;
-    use MustVerifyEmail;
-    use Notifiable;
-    use SoftDeletes;
 
     /** @var array */
     protected $guarded = [];
+
+    protected $casts = [
+        'mfa_enabled' => 'boolean',
+        'passkey_enabled' => 'boolean',
+    ];
 
     protected static ?int $currentAccountId;
 
@@ -100,5 +106,15 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function canBeImpersonated(): bool
     {
         return $this->currentAccountUser->role !== Role::SUPERADMIN->name;
+    }
+
+    public function webAuthnCredentials(): HasMany
+    {
+        return $this->hasMany(WebAuthnCredential::class);
+    }
+
+    public function mfaAuditLogs(): HasMany
+    {
+        return $this->hasMany(MfaAuditLog::class);
     }
 }

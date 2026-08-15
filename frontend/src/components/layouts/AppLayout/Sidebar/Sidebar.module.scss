@@ -4,9 +4,10 @@
   display: flex;
   flex-direction: column;
   grid-area: sidebar;
-  background: linear-gradient(180deg, var(--hi-ink) 0%, var(--hi-ink-deep) 100%);
+  background: linear-gradient(180deg, var(--mantine-color-primary-9), var(--mantine-color-secondary-9));
   color: var(--hi-color-white);
   position: relative;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
   height: 100vh;
 
   &.closed {
@@ -17,23 +18,18 @@
 
   .logo {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     position: relative;
     z-index: 1;
-    padding: 16px 18px 12px;
-    margin-bottom: 4px;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
 
     a {
       display: flex;
-      justify-content: center;
-    }
-
-    img {
-      max-height: 36px;
-      max-width: 160px;
-      width: auto;
+      width: 100%;
     }
   }
 
@@ -69,13 +65,12 @@
     }
 
     .sectionHeading {
-      padding: 18px 20px 6px;
-      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-      font-size: 0.625rem;
+      padding: 16px 20px 8px;
+      font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: color-mix(in srgb, white 45%, transparent);
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.6);
     }
 
     a,
@@ -83,23 +78,24 @@
     .link {
       display: flex;
       align-items: center;
-      color: color-mix(in srgb, white 78%, transparent);
-      padding: 7px 10px;
+      color: rgba(255, 255, 255, 0.85);
+      padding: 4px 10px;
       text-decoration: none;
-      margin: 2px 12px;
-      border-radius: var(--hi-radius-lg);
-      font-size: 0.875rem;
+      margin: 3px 10px;
+      border-radius: var(--hi-radius-md);
+      font-size: 0.9em;
       font-weight: 500;
-      transition: background-color 0.15s ease, color 0.15s ease;
+      transition: all 0.2s ease;
       position: relative;
+      overflow: hidden;
       cursor: pointer;
-      width: calc(100% - 24px);
+      width: calc(100% - 20px);
       background: none;
       border: none;
       text-align: left;
 
       .navBadge {
-        background: var(--mantine-color-secondary-5);
+        background: var(--hi-primary);
         color: white;
         padding: 2px 6px;
         border-radius: 12px;
@@ -108,10 +104,17 @@
         margin-left: auto;
       }
 
-      .navBadgeAlert {
-        margin-left: auto;
-        background: #d97706;
-        color: white;
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+        border-radius: 10px;
+        transition: width 0.25s ease;
+        z-index: -1;
       }
 
       &.loading {
@@ -129,41 +132,31 @@
       }
 
       &.linkActive {
-        background: color-mix(in srgb, white 11%, transparent);
+        background: rgba(255, 255, 255, 0.12);
         color: white;
         font-weight: 600;
-
-        &::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 3px;
-          height: 18px;
-          border-radius: 2px;
-          background: var(--mantine-color-secondary-5);
-        }
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
         .linkIcon {
-          color: white;
+          color: rgba(255, 255, 255, 1);
         }
       }
 
       &:hover {
-        background: color-mix(in srgb, white 7%, transparent);
+        background: rgba(255, 255, 255, 0.08);
         color: white;
+        transform: translateY(-1px);
+
+        &::before {
+          width: 100%;
+        }
       }
 
       svg {
         margin-right: 12px;
         min-width: 20px;
-        color: color-mix(in srgb, white 55%, transparent);
-        transition: color 0.15s ease;
-      }
-
-      &:hover svg {
-        color: color-mix(in srgb, white 85%, transparent);
+        color: rgba(255, 255, 255, 0.7);
+        transition: color 0.2s ease;
       }
     }
   }
@@ -194,7 +187,7 @@
   .sidebarClose {
     width: 24px;
     height: 24px;
-    color: color-mix(in srgb, white 55%, transparent);
+    color: rgba(255, 255, 255, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -202,12 +195,12 @@
     right: -2px;
     top: 50%;
     transform: translateY(-50%);
-    transition: color 0.15s ease, transform 0.15s ease;
+    transition: all 0.2s ease;
     z-index: 5;
     flex-shrink: 0;
 
     &:hover {
-      transform: translateY(-50%) scale(1.2);
+      transform: translateY(-50%) scale(1.4);
       color: white;
     }
 
@@ -215,7 +208,7 @@
       right: 16px;
       top: 28px;
       transform: none;
-
+      
       &:hover {
         transform: scale(1.1);
       }

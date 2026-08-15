@@ -5,22 +5,23 @@ namespace HiEvents\Services\Application\Handlers\Question;
 use HiEvents\DomainObjects\QuestionDomainObject;
 use HiEvents\Services\Application\Handlers\Question\DTO\UpsertQuestionDTO;
 use HiEvents\Services\Domain\Question\EditQuestionService;
-use HiEvents\Services\Infrastructure\HtmlPurifier\HtmlPurifierService;
 use Throwable;
 
 class EditQuestionHandler
 {
     public function __construct(
         private readonly EditQuestionService $editQuestionService,
-        private readonly HtmlPurifierService $purifier,
-    ) {}
+
+    )
+    {
+    }
 
     /**
      * @throws Throwable
      */
     public function handle(int $questionId, UpsertQuestionDTO $createQuestionDTO): QuestionDomainObject
     {
-        $question = (new QuestionDomainObject)
+        $question = (new QuestionDomainObject())
             ->setId($questionId)
             ->setTitle($createQuestionDTO->title)
             ->setEventId($createQuestionDTO->event_id)
@@ -29,7 +30,9 @@ class EditQuestionHandler
             ->setRequired($createQuestionDTO->required)
             ->setOptions($createQuestionDTO->options)
             ->setIsHidden($createQuestionDTO->is_hidden)
-            ->setDescription($this->purifier->purify($createQuestionDTO->description));
+            ->setDescription($createQuestionDTO->description)
+            ->setConditions($createQuestionDTO->conditions)
+            ->setValidationRules($createQuestionDTO->validation_rules);
 
         return $this->editQuestionService->editQuestion(
             question: $question,

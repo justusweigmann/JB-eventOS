@@ -17,9 +17,10 @@ import {
     IconCreditCard,
     IconHome,
     IconListCheck,
+    IconLock,
     IconMapPin,
     IconPercentage,
-    IconRepeat,
+    IconShare,
 } from "@tabler/icons-react";
 import {useMediaQuery} from "@mantine/hooks";
 import {useEffect, useMemo, useState} from "react";
@@ -27,19 +28,14 @@ import {Card} from "../../../common/Card";
 import {PaymentAndInvoicingSettings} from "./Sections/PaymentSettings";
 import {PlatformFeesSettings} from "./Sections/PlatformFeesSettings";
 import {WaitlistSettings} from "./Sections/WaitlistSettings";
-import {RecurringEventSettings} from "./Sections/RecurringEventSettings";
 import {DangerZoneSettings} from "./Sections/DangerZoneSettings";
+import {SocialLinksSettings} from "./Sections/SocialLinksSettings";
+import {AccessControlSettings} from "./Sections/AccessControlSettings";
 import {useGetAccount} from "../../../../queries/useGetAccount.ts";
-import {useGetEvent} from "../../../../queries/useGetEvent.ts";
-import {useParams} from "react-router";
-import {EventType} from "../../../../types.ts";
 
 export const Settings = () => {
     const {data: account} = useGetAccount();
     const isSaasMode = account?.is_saas_mode_enabled;
-    const {eventId} = useParams();
-    const {data: event} = useGetEvent(eventId);
-    const isRecurring = event?.type === EventType.RECURRING;
 
     const SECTIONS = useMemo(() => {
         const baseSections = [
@@ -61,17 +57,17 @@ export const Settings = () => {
                 icon: IconHome,
                 component: HomepageAndCheckoutSettings
             },
-            ...(isRecurring ? [{
-                id: 'recurring-event-settings',
-                label: t`Recurring Event`,
-                icon: IconRepeat,
-                component: RecurringEventSettings,
-            }] : []),
             {
                 id: 'seo-settings',
                 label: t`SEO`,
                 icon: IconBrandGoogleAnalytics,
                 component: SeoSettings
+            },
+            {
+                id: 'social-links',
+                label: t`Social Links`,
+                icon: IconShare,
+                component: SocialLinksSettings
             },
             {
                 id: 'email-settings',
@@ -98,6 +94,12 @@ export const Settings = () => {
                 component: PaymentAndInvoicingSettings,
             },
             {
+                id: 'access-control',
+                label: t`Access Control`,
+                icon: IconLock,
+                component: AccessControlSettings,
+            },
+            {
                 id: 'danger-zone',
                 label: t`Danger Zone`,
                 icon: IconAlertTriangle,
@@ -116,9 +118,9 @@ export const Settings = () => {
         }
 
         return baseSections;
-    }, [isSaasMode, isRecurring]);
+    }, [isSaasMode]);
 
-    const isLargeScreen = useMediaQuery('(min-width: 1200px)', true);
+    const isLargeScreen = useMediaQuery('(min-width: 1400px)', true);
     const [activeSection, setActiveSection] = useState(() => {
         if (typeof window === 'undefined') return 'event-details';
         const hash = window.location.hash.replace('#', '');
@@ -174,7 +176,7 @@ export const Settings = () => {
 
             {isLargeScreen ? (
                 <Group align="flex-start" gap="md">
-                    <Box w={240} style={{position: 'sticky', top: 20}}>
+                    <Box w={240} style={{position: 'sticky', top: 20, zIndex: 10}}>
                         {sideMenu}
                     </Box>
                     <Box style={{flex: 1}}>{content}</Box>

@@ -17,12 +17,21 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ProductAnswersSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, ShouldAutoSize
+class ProductAnswersSheet implements
+    FromCollection,
+    WithHeadings,
+    WithMapping,
+    WithStyles,
+    WithTitle,
+    WithColumnWidths,
+    ShouldAutoSize
 {
     public function __construct(
-        private readonly Collection $answers,
+        private readonly Collection              $answers,
         private readonly QuestionAnswerFormatter $questionAnswerFormatter,
-    ) {}
+    )
+    {
+    }
 
     public function collection(): Collection
     {
@@ -43,7 +52,7 @@ class ProductAnswersSheet implements FromCollection, WithHeadings, WithMapping, 
     }
 
     /**
-     * @param  QuestionAndAnswerViewDomainObject  $row
+     * @param QuestionAndAnswerViewDomainObject $row
      */
     public function map($row): array
     {
@@ -54,7 +63,7 @@ class ProductAnswersSheet implements FromCollection, WithHeadings, WithMapping, 
         );
 
         $linkText = __('View Order');
-        $hyperlink = '=HYPERLINK("'.$orderUrl.'","'.$linkText.'")';
+        $hyperlink = '=HYPERLINK("' . $orderUrl . '","' . $linkText . '")';
 
         return [
             $row->getTitle(),
@@ -63,7 +72,7 @@ class ProductAnswersSheet implements FromCollection, WithHeadings, WithMapping, 
                 QuestionTypeEnum::fromName($row->getQuestionType())
             ),
             $row->getOrderPublicId() ?? '',
-            trim($row->getOrderFirstName().' '.$row->getOrderLastName()),
+            trim($row->getOrderFirstName() . ' ' . $row->getOrderLastName()),
             $row->getOrderEmail() ?? '',
             $row->getProductTitle() ?? '',
             $hyperlink,
@@ -75,7 +84,7 @@ class ProductAnswersSheet implements FromCollection, WithHeadings, WithMapping, 
         $highestRow = $sheet->getHighestRow();
 
         if ($highestRow > 1) {
-            $sheet->getStyle('G2:G'.$highestRow)->applyFromArray([
+            $sheet->getStyle('G2:G' . $highestRow)->applyFromArray([
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
                 ],

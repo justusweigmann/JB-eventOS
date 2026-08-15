@@ -2,7 +2,6 @@
 
 namespace HiEvents\Services\Application\Handlers\CheckInList;
 
-use HiEvents\Exceptions\ResourceConflictException;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
@@ -10,7 +9,9 @@ class DeleteCheckInListHandler
 {
     public function __construct(
         private readonly CheckInListRepositoryInterface $checkInListRepository,
-    ) {}
+    )
+    {
+    }
 
     public function handle(int $eventId, int $checkInListId): void
     {
@@ -22,12 +23,6 @@ class DeleteCheckInListHandler
 
         if ($checkInList === null) {
             throw new ResourceNotFoundException(__('Check-in list not found'));
-        }
-
-        if ($checkInList->getIsSystemDefault()) {
-            throw new ResourceConflictException(
-                __('The default check-in list can\'t be deleted.')
-            );
         }
 
         $this->checkInListRepository->deleteWhere([

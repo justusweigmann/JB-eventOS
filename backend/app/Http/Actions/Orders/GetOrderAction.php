@@ -4,7 +4,6 @@ namespace HiEvents\Http\Actions\Orders;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
-use HiEvents\DomainObjects\EventOccurrenceDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\QuestionAndAnswerViewDomainObject;
@@ -33,15 +32,7 @@ class GetOrderAction extends BaseAction
         $this->isActionAuthorized($eventId, EventDomainObject::class);
 
         $order = $this->orderRepository
-            ->loadRelation(new Relationship(
-                domainObject: OrderItemDomainObject::class,
-                nested: [
-                    new Relationship(
-                        domainObject: EventOccurrenceDomainObject::class,
-                        name: 'event_occurrence',
-                    ),
-                ],
-            ))
+            ->loadRelation(OrderItemDomainObject::class)
             ->loadRelation(AttendeeDomainObject::class)
             ->loadRelation(new Relationship(domainObject: QuestionAndAnswerViewDomainObject::class, orderAndDirections: [
                 new OrderAndDirection(order: 'question_id'),

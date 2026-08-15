@@ -11,7 +11,6 @@ class WebhookDomainObject extends Generated\WebhookDomainObjectAbstract
     public function setLogs(Collection $logs): static
     {
         $this->logs = $logs;
-
         return $this;
     }
 

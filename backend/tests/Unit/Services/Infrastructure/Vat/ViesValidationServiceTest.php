@@ -3,19 +3,17 @@
 namespace Tests\Unit\Services\Infrastructure\Vat;
 
 use HiEvents\Services\Infrastructure\Vat\ViesValidationService;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpClient;
 use Illuminate\Http\Client\Response;
-use Mockery;
+use Illuminate\Http\Client\ConnectionException;
 use Psr\Log\LoggerInterface;
+use Mockery;
 use Tests\TestCase;
 
 class ViesValidationServiceTest extends TestCase
 {
     private HttpClient $httpClient;
-
     private LoggerInterface $logger;
-
     private ViesValidationService $service;
 
     protected function setUp(): void
@@ -27,7 +25,7 @@ class ViesValidationServiceTest extends TestCase
         $this->service = new ViesValidationService($this->httpClient, $this->logger);
     }
 
-    public function test_valid_vat_number_returns_success_response(): void
+    public function testValidVatNumberReturnsSuccessResponse(): void
     {
         $vatNumber = 'IE1234567A';
         $response = Mockery::mock(Response::class);
@@ -71,7 +69,7 @@ class ViesValidationServiceTest extends TestCase
         $this->assertEquals('IE', $result->countryCode);
     }
 
-    public function test_invalid_vat_number_returns_failure_response(): void
+    public function testInvalidVatNumberReturnsFailureResponse(): void
     {
         $vatNumber = 'IE9999999ZZ';
         $response = Mockery::mock(Response::class);
@@ -103,7 +101,7 @@ class ViesValidationServiceTest extends TestCase
         $this->assertNull($result->businessName);
     }
 
-    public function test_ms_max_concurrent_req_returns_transient_error(): void
+    public function testMsMaxConcurrentReqReturnsTransientError(): void
     {
         $vatNumber = 'DE123456789';
         $response = Mockery::mock(Response::class);
@@ -129,8 +127,8 @@ class ViesValidationServiceTest extends TestCase
             ->andReturn([
                 'actionSucceed' => false,
                 'errorWrappers' => [
-                    ['error' => 'MS_MAX_CONCURRENT_REQ'],
-                ],
+                    ['error' => 'MS_MAX_CONCURRENT_REQ']
+                ]
             ]);
 
         $this->logger
@@ -145,7 +143,7 @@ class ViesValidationServiceTest extends TestCase
         $this->assertNotNull($result->errorMessage);
     }
 
-    public function test_ms_unavailable_returns_transient_error(): void
+    public function testMsUnavailableReturnsTransientError(): void
     {
         $vatNumber = 'FR12345678901';
         $response = Mockery::mock(Response::class);
@@ -171,8 +169,8 @@ class ViesValidationServiceTest extends TestCase
             ->andReturn([
                 'actionSucceed' => false,
                 'errorWrappers' => [
-                    ['error' => 'MS_UNAVAILABLE'],
-                ],
+                    ['error' => 'MS_UNAVAILABLE']
+                ]
             ]);
 
         $this->logger
@@ -185,7 +183,7 @@ class ViesValidationServiceTest extends TestCase
         $this->assertTrue($result->isTransientError);
     }
 
-    public function test_invalid_input_returns_non_transient_error(): void
+    public function testInvalidInputReturnsNonTransientError(): void
     {
         $vatNumber = 'XX12345678';
         $response = Mockery::mock(Response::class);
@@ -211,8 +209,8 @@ class ViesValidationServiceTest extends TestCase
             ->andReturn([
                 'actionSucceed' => false,
                 'errorWrappers' => [
-                    ['error' => 'INVALID_INPUT'],
-                ],
+                    ['error' => 'INVALID_INPUT']
+                ]
             ]);
 
         $this->logger
@@ -225,7 +223,7 @@ class ViesValidationServiceTest extends TestCase
         $this->assertFalse($result->isTransientError);
     }
 
-    public function test_http_error_returns_transient_error(): void
+    public function testHttpErrorReturnsTransientError(): void
     {
         $vatNumber = 'DE123456789';
         $response = Mockery::mock(Response::class);
@@ -265,7 +263,7 @@ class ViesValidationServiceTest extends TestCase
         $this->assertTrue($result->isTransientError);
     }
 
-    public function test_connection_exception_returns_transient_error(): void
+    public function testConnectionExceptionReturnsTransientError(): void
     {
         $vatNumber = 'FR12345678901';
 
@@ -289,7 +287,7 @@ class ViesValidationServiceTest extends TestCase
         $this->assertEquals('FR', $result->countryCode);
     }
 
-    public function test_unexpected_exception_returns_transient_error(): void
+    public function testUnexpectedExceptionReturnsTransientError(): void
     {
         $vatNumber = 'ES12345678';
 

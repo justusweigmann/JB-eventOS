@@ -50,9 +50,10 @@ export const AttendeeProductAndInformation = () => {
                 attendee={attendee as Attendee}
                 product={attendee.product as Product}
                 event={event}
+                showPoweredBy
             />
 
-            <OnlineEventDetails event={event} occurrence={attendee?.event_occurrence ?? null}/>
+            {((['online', 'hybrid'].includes(event?.settings?.event_location_type || '') || event?.settings?.is_online_event) && <OnlineEventDetails eventSettings={event.settings}/>)}
 
             <PoweredByFooter/>
         </Container>

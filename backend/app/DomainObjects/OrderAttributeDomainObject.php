@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class OrderAttributeDomainObject extends Generated\OrderAttributeDomainObjectAbstract {}
+class OrderAttributeDomainObject extends Generated\OrderAttributeDomainObjectAbstract
+{
+}

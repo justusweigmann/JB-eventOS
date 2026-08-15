@@ -24,11 +24,13 @@ class CreateImageHandler
     ];
 
     public function __construct(
-        private readonly ImageUploadService $imageUploadService,
+        private readonly ImageUploadService           $imageUploadService,
         private readonly OrganizerRepositoryInterface $organizerRepository,
-        private readonly EventRepositoryInterface $eventRepository,
-        private readonly ImageRepositoryInterface $imageRepository,
-    ) {}
+        private readonly EventRepositoryInterface     $eventRepository,
+        private readonly ImageRepositoryInterface     $imageRepository,
+    )
+    {
+    }
 
     /**
      * @throws CouldNotUploadImageException

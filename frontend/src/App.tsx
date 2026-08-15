@@ -1,10 +1,9 @@
-import React, {FC, PropsWithChildren, useCallback, useEffect} from "react";
-import {MantineProvider, v8CssVariablesResolver} from "@mantine/core";
+import React, {FC, PropsWithChildren, useEffect} from "react";
+import {MantineProvider} from "@mantine/core";
 import {Notifications} from "@mantine/notifications";
 import {i18n} from "@lingui/core";
 import {I18nProvider} from "@lingui/react";
 import {ModalsProvider} from "@mantine/modals";
-import {DatesProvider} from "@mantine/dates";
 import {HydrationBoundary, QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {Helmet, HelmetProvider} from "react-helmet-async";
 import {generateColors} from '@mantine/colors-generator';
@@ -16,14 +15,20 @@ import "@mantine/tiptap/styles.css";
 import "@mantine/dropzone/styles.css";
 import '@mantine/dates/styles.css';
 import "@mantine/charts/styles.css";
+import "@fontsource/outfit/400.css";
+import "@fontsource/outfit/500.css";
+import "@fontsource/outfit/600.css";
+import "@fontsource/outfit/700.css";
+import "@fontsource/outfit/800.css";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
 import "./styles/global.scss";
 import {isSsr} from "./utilites/helpers.ts";
 import {StartupChecks} from "./StartupChecks.tsx";
 import {ThirdPartyScripts} from "./components/common/ThirdPartyScripts";
 import {getConfig} from "./utilites/config.ts";
-import {CookieConsentBanner} from "./components/common/CookieConsentBanner";
-import {isConsentPending, setConsentState, updateGoogleConsentMode} from "./utilites/trackingPixels/consent";
-import "./utilites/dateLocales.ts";
 
 declare global {
     interface Window {
@@ -40,14 +45,6 @@ export const App: FC<
     }>
 > = (props) => {
     const [isLoadedOnBrowser, setIsLoadedOnBrowser] = React.useState(false);
-    const showGlobalConsentBanner = getConfig('VITE_COOKIE_CONSENT_ENABLED') === 'true'
-        && !isSsr() && isConsentPending();
-
-    const handleGlobalConsent = useCallback((granted: boolean) => {
-        setConsentState(granted ? 'granted' : 'denied');
-        updateGoogleConsentMode(granted);
-        window.dispatchEvent(new CustomEvent('hi_consent_change', {detail: {granted}}));
-    }, []);
 
     useEffect(() => {
         setIsLoadedOnBrowser(!isSsr());
@@ -73,7 +70,6 @@ export const App: FC<
                 }}
             />
             <MantineProvider
-                cssVariablesResolver={v8CssVariablesResolver}
                 theme={{
                     colors: {
                         primary: generateColors(getConfig("VITE_APP_PRIMARY_COLOR", "#40296C") as string),
@@ -82,12 +78,10 @@ export const App: FC<
                     primaryColor: "primary",
                     fontFamily: "Outfit, sans-serif",
                     primaryShade: 8,
-                    defaultRadius: "sm",
                 }}
             >
                 <HelmetProvider context={props.helmetContext}>
                     <I18nProvider i18n={i18n}>
-                        <DatesProvider settings={{locale: props.locale}}>
                         <QueryClientProvider client={props.queryClient}>
                             <HydrationBoundary state={props.dehydratedState}>
                                 <StartupChecks/>
@@ -102,13 +96,9 @@ export const App: FC<
                                     </Helmet>
                                     {props.children}
                                 </ModalsProvider>
-                                <Notifications pauseResetOnHover="notification"/>
-                                {showGlobalConsentBanner && (
-                                    <CookieConsentBanner onConsent={handleGlobalConsent}/>
-                                )}
+                                <Notifications/>
                             </HydrationBoundary>
                         </QueryClientProvider>
-                        </DatesProvider>
                     </I18nProvider>
                 </HelmetProvider>
             </MantineProvider>

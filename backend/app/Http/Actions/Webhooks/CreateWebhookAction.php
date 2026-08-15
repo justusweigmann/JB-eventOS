@@ -3,9 +3,10 @@
 namespace HiEvents\Http\Actions\Webhooks;
 
 use HiEvents\DomainObjects\EventDomainObject;
+use HiEvents\DomainObjects\Status\WebhookStatus;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Http\Request\Webhook\UpsertWebhookRequest;
-use HiEvents\Resources\Webhook\WebhookResourceWithSecret;
+use HiEvents\Resources\Webhook\WebhookResource;
 use HiEvents\Services\Application\Handlers\Webhook\CreateWebhookHandler;
 use HiEvents\Services\Application\Handlers\Webhook\DTO\CreateWebhookDTO;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +15,9 @@ class CreateWebhookAction extends BaseAction
 {
     public function __construct(
         private readonly CreateWebhookHandler $createWebhookHandler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $eventId, UpsertWebhookRequest $request): JsonResponse
     {
@@ -26,13 +29,13 @@ class CreateWebhookAction extends BaseAction
                 eventTypes: $request->validated('event_types'),
                 userId: $this->getAuthenticatedUser()->getId(),
                 accountId: $this->getAuthenticatedAccountId(),
-                status: $request->getStatus(),
+                status: WebhookStatus::fromName($request->validated('status')),
                 eventId: $eventId,
             )
         );
 
         return $this->resourceResponse(
-            resource: WebhookResourceWithSecret::class,
+            resource: WebhookResource::class,
             data: $webhook
         );
     }

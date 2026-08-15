@@ -9,5 +9,7 @@ class ConfirmEmailChangeDTO extends BaseDTO
     public function __construct(
         public string $token,
         public int $accountId,
-    ) {}
+    )
+    {
+    }
 }

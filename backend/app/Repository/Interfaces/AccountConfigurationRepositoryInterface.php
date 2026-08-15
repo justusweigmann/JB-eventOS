@@ -7,4 +7,7 @@ use HiEvents\DomainObjects\AccountConfigurationDomainObject;
 /**
  * @extends RepositoryInterface<AccountConfigurationDomainObject>
  */
-interface AccountConfigurationRepositoryInterface extends RepositoryInterface {}
+interface AccountConfigurationRepositoryInterface extends RepositoryInterface
+{
+
+}

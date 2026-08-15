@@ -4,4 +4,7 @@ namespace HiEvents\Services\Infrastructure\Encryption\Exception;
 
 use Exception;
 
-class EncryptedPayloadExpiredException extends Exception {}
+class EncryptedPayloadExpiredException extends Exception
+{
+
+}

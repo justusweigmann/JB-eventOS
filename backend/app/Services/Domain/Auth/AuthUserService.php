@@ -18,13 +18,15 @@ readonly class AuthUserService
         /**
          * @var AuthManager
          */
-        private AuthManager $authManager,
+        private AuthManager                    $authManager,
         private AccountUserRepositoryInterface $accountUserRepository,
-    ) {}
+    )
+    {
+    }
 
     public function getAuthenticatedAccountId(): ?int
     {
-        if (! $this->authManager->check()) {
+        if (!$this->authManager->check()) {
             return null;
         }
 
@@ -40,7 +42,7 @@ readonly class AuthUserService
 
     public function getAuthenticatedUserRole(): ?Role
     {
-        if (! $this->authManager->check()) {
+        if (!$this->authManager->check()) {
             return null;
         }
 

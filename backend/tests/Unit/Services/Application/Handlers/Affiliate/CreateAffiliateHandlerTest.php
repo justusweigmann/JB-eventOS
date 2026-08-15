@@ -14,7 +14,6 @@ use Tests\TestCase;
 class CreateAffiliateHandlerTest extends TestCase
 {
     private AffiliateRepositoryInterface $affiliateRepository;
-
     private CreateAffiliateHandler $handler;
 
     protected function setUp(): void
@@ -25,7 +24,7 @@ class CreateAffiliateHandlerTest extends TestCase
         $this->handler = new CreateAffiliateHandler($this->affiliateRepository);
     }
 
-    public function test_handle_successfully_creates_affiliate(): void
+    public function testHandleSuccessfullyCreatesAffiliate(): void
     {
         $eventId = 1;
         $accountId = 2;
@@ -66,7 +65,7 @@ class CreateAffiliateHandlerTest extends TestCase
         $this->assertSame($expectedAffiliate, $result);
     }
 
-    public function test_handle_successfully_creates_affiliate_without_email(): void
+    public function testHandleSuccessfullyCreatesAffiliateWithoutEmail(): void
     {
         $eventId = 1;
         $accountId = 2;
@@ -107,7 +106,7 @@ class CreateAffiliateHandlerTest extends TestCase
         $this->assertSame($expectedAffiliate, $result);
     }
 
-    public function test_handle_converts_code_to_uppercase(): void
+    public function testHandleConvertsCodeToUppercase(): void
     {
         $eventId = 1;
         $accountId = 2;
@@ -148,7 +147,7 @@ class CreateAffiliateHandlerTest extends TestCase
         $this->assertSame($expectedAffiliate, $result);
     }
 
-    public function test_handle_throws_exception_when_affiliate_code_already_exists(): void
+    public function testHandleThrowsExceptionWhenAffiliateCodeAlreadyExists(): void
     {
         $eventId = 1;
         $accountId = 2;

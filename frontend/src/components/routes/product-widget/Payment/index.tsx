@@ -2,7 +2,6 @@ import React, {useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {useGetEventPublic} from "../../../../queries/useGetEventPublic.ts";
 import {CheckoutContent} from "../../../layouts/Checkout/CheckoutContent";
-import {CheckoutStepTitle} from "../../../layouts/Checkout/CheckoutStepTitle";
 import {StripePaymentMethod} from "./PaymentMethods/Stripe";
 import {OfflinePaymentMethod} from "./PaymentMethods/Offline";
 import {Event} from "../../../../types.ts";
@@ -27,7 +26,6 @@ const Payment = () => {
     const {data: event, isFetched: isEventFetched} = useGetEventPublic(eventId);
     const {data: order, isFetched: isOrderFetched} = useGetOrderPublic(eventId, orderShortId, ['event']);
     const isLoading = !isOrderFetched;
-    const checkoutEvent = order?.event || event;
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     const [activePaymentMethod, setActivePaymentMethod] = useState<'STRIPE' | 'OFFLINE' | null>(null);
     const [submitHandler, setSubmitHandler] = useState<(() => Promise<void>) | null>(null);
@@ -95,10 +93,8 @@ const Payment = () => {
     return (
         <>
             <CheckoutContent>
-                <CheckoutStepTitle title={t`Payment`} subtitle={t`Next: review your order`}/>
-
-                {(checkoutEvent && order) && (
-                    <InlineOrderSummary event={checkoutEvent} order={order} defaultExpanded={false}/>
+                {(event && order) && (
+                    <InlineOrderSummary event={event} order={order} defaultExpanded={false}/>
                 )}
                 {isStripeEnabled && (
                     <div style={{display: activePaymentMethod === 'STRIPE' ? 'block' : 'none'}}>
@@ -108,7 +104,7 @@ const Payment = () => {
 
                 {isOfflineEnabled && (
                     <div style={{display: activePaymentMethod === 'OFFLINE' ? 'block' : 'none'}}>
-                        <OfflinePaymentMethod event={checkoutEvent as Event}/>
+                        <OfflinePaymentMethod event={event as Event}/>
                     </div>
                 )}
 
@@ -143,7 +139,6 @@ const Payment = () => {
                         className={classes.continueButton}
                         loading={isLoading || isPaymentLoading}
                         onClick={handleSubmit}
-                        data-testid={activePaymentMethod === 'OFFLINE' ? 'offline-payment-button' : undefined}
                     >
                         {order?.is_payment_required ? (
                             <Group gap={8} wrap="nowrap">
@@ -152,12 +147,12 @@ const Payment = () => {
                             </Group>
                         ) : t`Complete Payment`}
                     </Button>
-                    {getConfig('VITE_TOS_URL') && (
+                    {(event?.organizer?.settings?.terms_of_service_url || getConfig('VITE_TOS_URL')) && (
                         <p className={classes.tosNotice}>
                             <Trans>
                                 By continuing, you agree to the{' '}
                                 <a
-                                    href={getConfig('VITE_TOS_URL', 'https://hi.events/terms-of-service') as string}
+                                    href={(event?.organizer?.settings?.terms_of_service_url || getConfig('VITE_TOS_URL', 'https://hi.events/terms-of-service')) as string}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >

@@ -16,10 +16,12 @@ class DeleteAttendeeCheckInPublicHandler
 {
     public function __construct(
         private readonly DeleteAttendeeCheckInService $deleteAttendeeCheckInService,
-        private readonly LoggerInterface $logger,
+        private readonly LoggerInterface              $logger,
         private readonly DomainEventDispatcherService $domainEventDispatcherService,
-        private readonly DatabaseManager $databaseManager
-    ) {}
+        private readonly DatabaseManager              $databaseManager
+    )
+    {
+    }
 
     /**
      * @throws CannotCheckInException

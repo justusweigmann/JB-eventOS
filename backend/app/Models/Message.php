@@ -2,7 +2,6 @@
 
 namespace HiEvents\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,11 +18,6 @@ class Message extends BaseModel
     public function outgoing_messages(): HasMany
     {
         return $this->hasMany(OutgoingMessage::class);
-    }
-
-    public function event_occurrence(): BelongsTo
-    {
-        return $this->belongsTo(EventOccurrence::class);
     }
 
     protected function getCastMap(): array

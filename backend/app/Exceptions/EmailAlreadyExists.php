@@ -4,4 +4,7 @@ namespace HiEvents\Exceptions;
 
 use Exception;
 
-class EmailAlreadyExists extends Exception {}
+class EmailAlreadyExists extends Exception
+{
+
+}

@@ -15,16 +15,18 @@ class EventDeletionService
     public function __construct(
         private readonly EventRepositoryInterface $eventRepository,
         private readonly OrderRepositoryInterface $orderRepository,
-        private readonly LoggerInterface $logger,
-        private readonly DatabaseManager $databaseManager,
-    ) {}
+        private readonly LoggerInterface          $logger,
+        private readonly DatabaseManager          $databaseManager,
+    )
+    {
+    }
 
     public function canDeleteEvent(int $eventId): bool
     {
         return $this->orderRepository->countWhere([
-            'event_id' => $eventId,
-            'status' => OrderStatus::COMPLETED->name,
-        ]) === 0;
+                'event_id' => $eventId,
+                'status' => OrderStatus::COMPLETED->name,
+            ]) === 0;
     }
 
     /**
@@ -34,7 +36,7 @@ class EventDeletionService
     public function deleteEvent(int $eventId, int $accountId): void
     {
         $this->databaseManager->transaction(function () use ($eventId, $accountId) {
-            if (! $this->canDeleteEvent($eventId)) {
+            if (!$this->canDeleteEvent($eventId)) {
                 throw new CannotDeleteEntityException(
                     __('This event cannot be deleted because it has completed orders. Please cancel or refund all orders first.')
                 );

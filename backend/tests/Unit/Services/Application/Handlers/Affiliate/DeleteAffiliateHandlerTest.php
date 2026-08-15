@@ -12,7 +12,6 @@ use Tests\TestCase;
 class DeleteAffiliateHandlerTest extends TestCase
 {
     private AffiliateRepositoryInterface $affiliateRepository;
-
     private DeleteAffiliateHandler $handler;
 
     protected function setUp(): void
@@ -23,7 +22,7 @@ class DeleteAffiliateHandlerTest extends TestCase
         $this->handler = new DeleteAffiliateHandler($this->affiliateRepository);
     }
 
-    public function test_handle_successfully_deletes_affiliate(): void
+    public function testHandleSuccessfullyDeletesAffiliate(): void
     {
         $affiliateId = 1;
         $eventId = 2;
@@ -34,7 +33,7 @@ class DeleteAffiliateHandlerTest extends TestCase
             ->once()
             ->with([
                 'id' => $affiliateId,
-                'event_id' => $eventId,
+                'event_id' => $eventId
             ])
             ->andReturn($existingAffiliate);
 
@@ -49,7 +48,7 @@ class DeleteAffiliateHandlerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_handle_throws_exception_when_affiliate_not_found(): void
+    public function testHandleThrowsExceptionWhenAffiliateNotFound(): void
     {
         $affiliateId = 1;
         $eventId = 2;
@@ -59,7 +58,7 @@ class DeleteAffiliateHandlerTest extends TestCase
             ->once()
             ->with([
                 'id' => $affiliateId,
-                'event_id' => $eventId,
+                'event_id' => $eventId
             ])
             ->andReturn(null);
 
@@ -72,7 +71,7 @@ class DeleteAffiliateHandlerTest extends TestCase
         $this->handler->handle($affiliateId, $eventId);
     }
 
-    public function test_handle_checks_correct_event_id(): void
+    public function testHandleChecksCorrectEventId(): void
     {
         $affiliateId = 1;
         $eventId = 2;
@@ -82,7 +81,7 @@ class DeleteAffiliateHandlerTest extends TestCase
             ->once()
             ->with([
                 'id' => $affiliateId,
-                'event_id' => $eventId,
+                'event_id' => $eventId
             ])
             ->andReturn(null);
 
@@ -92,7 +91,7 @@ class DeleteAffiliateHandlerTest extends TestCase
         $this->handler->handle($affiliateId, $eventId);
     }
 
-    public function test_handle_validates_affiliate_exists_before_deleting(): void
+    public function testHandleValidatesAffiliateExistsBeforeDeleting(): void
     {
         $affiliateId = 1;
         $eventId = 2;
@@ -103,7 +102,7 @@ class DeleteAffiliateHandlerTest extends TestCase
             ->once()
             ->with([
                 'id' => $affiliateId,
-                'event_id' => $eventId,
+                'event_id' => $eventId
             ])
             ->andReturn($existingAffiliate);
 
@@ -118,7 +117,7 @@ class DeleteAffiliateHandlerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_handle_only_deletes_affiliate_from_correct_event(): void
+    public function testHandleOnlyDeletesAffiliateFromCorrectEvent(): void
     {
         $affiliateId = 1;
         $eventId = 2;
@@ -129,7 +128,7 @@ class DeleteAffiliateHandlerTest extends TestCase
             ->once()
             ->with([
                 'id' => $affiliateId,
-                'event_id' => $eventId,
+                'event_id' => $eventId
             ])
             ->andReturn(null);
 

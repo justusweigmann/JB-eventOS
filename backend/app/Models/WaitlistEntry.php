@@ -21,11 +21,6 @@ class WaitlistEntry extends BaseModel
         return $this->belongsTo(ProductPrice::class);
     }
 
-    public function event_occurrence(): BelongsTo
-    {
-        return $this->belongsTo(EventOccurrence::class);
-    }
-
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

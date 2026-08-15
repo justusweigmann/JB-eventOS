@@ -51,13 +51,6 @@ export const organizerClient = {
         return response.data;
     },
 
-    updateLocation: async (organizerId: IdParam, locationId: IdParam | null) => {
-        const response = await api.patch<GenericDataResponse<Organizer>>('organizers/' + organizerId + '/location', {
-            location_id: locationId,
-        });
-        return response.data;
-    },
-
     findEventsByOrganizerId: async (organizerId: IdParam, pagination: QueryFilters) => {
         const response = await api.get<GenericPaginatedResponse<Event>>(
             'organizers/' + organizerId + '/events' + queryParamsHelper.buildQueryString(pagination)
@@ -65,17 +58,8 @@ export const organizerClient = {
         return response.data;
     },
 
-    getOrganizerStats: async (
-        organizerId: IdParam,
-        options: {currencyCode: string; startDate?: string; endDate?: string},
-    ) => {
-        const params = new URLSearchParams();
-        params.append('currency_code', options.currencyCode);
-        if (options.startDate) params.append('start_date', options.startDate);
-        if (options.endDate) params.append('end_date', options.endDate);
-        const response = await api.get<GenericDataResponse<OrganizerStats>>(
-            `organizers/${organizerId}/stats?${params.toString()}`,
-        );
+    getOrganizerStats: async (organizerId: IdParam, currencyCode: string) => {
+        const response = await api.get<GenericDataResponse<OrganizerStats>>('organizers/' + organizerId + '/stats?currency_code=' + currencyCode);
         return response.data;
     },
 

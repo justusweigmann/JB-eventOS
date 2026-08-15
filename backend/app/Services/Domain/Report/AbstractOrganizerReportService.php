@@ -13,17 +13,20 @@ abstract class AbstractOrganizerReportService
     private const CACHE_TTL_SECONDS = 30;
 
     public function __construct(
-        private readonly Repository $cache,
-        private readonly DatabaseManager $queryBuilder,
-        private readonly OrganizerRepositoryInterface $organizerRepository,
-    ) {}
+        private readonly Repository                    $cache,
+        private readonly DatabaseManager               $queryBuilder,
+        private readonly OrganizerRepositoryInterface  $organizerRepository,
+    )
+    {
+    }
 
     public function generateReport(
-        int $organizerId,
+        int     $organizerId,
         ?string $currency = null,
         ?Carbon $startDate = null,
         ?Carbon $endDate = null,
-    ): Collection {
+    ): Collection
+    {
         $organizer = $this->organizerRepository->findById($organizerId);
         $timezone = $organizer->getTimezone();
 
@@ -37,7 +40,7 @@ abstract class AbstractOrganizerReportService
         $reportResults = $this->cache->remember(
             key: $this->getCacheKey($organizerId, $currency, $startDate, $endDate),
             ttl: Carbon::now()->addSeconds(self::CACHE_TTL_SECONDS),
-            callback: fn () => $this->queryBuilder->select(
+            callback: fn() => $this->queryBuilder->select(
                 $this->getSqlQuery($startDate, $endDate, $currency),
                 [
                     'organizer_id' => $organizerId,
@@ -56,12 +59,11 @@ abstract class AbstractOrganizerReportService
             return '';
         }
         $escapedCurrency = addslashes($currency);
-
         return "AND $column = '$escapedCurrency'";
     }
 
     protected function getCacheKey(int $organizerId, ?string $currency, ?Carbon $startDate, ?Carbon $endDate): string
     {
-        return static::class."$organizerId.$currency.{$startDate?->toDateString()}.{$endDate?->toDateString()}";
+        return static::class . "$organizerId.$currency.{$startDate?->toDateString()}.{$endDate?->toDateString()}";
     }
 }

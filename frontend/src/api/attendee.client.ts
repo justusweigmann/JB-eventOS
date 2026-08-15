@@ -12,6 +12,7 @@ export interface EditAttendeeRequest {
     product_id?: IdParam;
     product_price_id?: IdParam;
     status?: string;
+    cancellation_reason?: string | null;
 }
 
 export interface CreateAttendeeRequest extends EditAttendeeRequest {
@@ -19,8 +20,7 @@ export interface CreateAttendeeRequest extends EditAttendeeRequest {
     send_confirmation_email: boolean,
     taxes_and_fees: TaxAndFee[],
     locale: SupportedLocales,
-    event_occurrence_id?: number | null,
-    override_capacity?: boolean,
+    question_answers?: { question_id: number; answer: string | string[] }[],
 }
 
 export const attendeesClient = {
@@ -58,9 +58,8 @@ export const attendeesClient = {
         });
         return response.data;
     },
-    export: async (eventId: IdParam, eventOccurrenceId?: number | null): Promise<Blob> => {
-        const body = eventOccurrenceId ? {event_occurrence_id: eventOccurrenceId} : {};
-        const response = await api.post(`events/${eventId}/attendees/export`, body, {
+    export: async (eventId: IdParam): Promise<Blob> => {
+        const response = await api.post(`events/${eventId}/attendees/export`, {}, {
             responseType: 'blob',
         });
 

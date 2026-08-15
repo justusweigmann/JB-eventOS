@@ -19,13 +19,15 @@ use Throwable;
 class AcceptInvitationHandler
 {
     public function __construct(
-        private readonly EncryptedPayloadService $encryptedPayloadService,
-        private readonly UserRepositoryInterface $userRepository,
+        private readonly EncryptedPayloadService        $encryptedPayloadService,
+        private readonly UserRepositoryInterface        $userRepository,
         private readonly AccountUserRepositoryInterface $accountUserRepository,
-        private readonly Hasher $hasher,
-        private readonly DatabaseManager $databaseManager,
-        private readonly LoggerInterface $logger
-    ) {}
+        private readonly Hasher                         $hasher,
+        private readonly DatabaseManager                $databaseManager,
+        private readonly LoggerInterface                $logger
+    )
+    {
+    }
 
     /**
      * @throws DecryptionFailedException

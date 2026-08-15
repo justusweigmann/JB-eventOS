@@ -8,6 +8,8 @@ class CheckinEvent extends BaseDomainEvent
 {
     public function __construct(
         public DomainEventType $type,
-        public int $attendeeCheckinId,
-    ) {}
+        public int             $attendeeCheckinId,
+    )
+    {
+    }
 }

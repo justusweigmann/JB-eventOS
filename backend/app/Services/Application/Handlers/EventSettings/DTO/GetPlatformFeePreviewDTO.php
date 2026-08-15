@@ -7,7 +7,8 @@ use HiEvents\DataTransferObjects\BaseDataObject;
 class GetPlatformFeePreviewDTO extends BaseDataObject
 {
     public function __construct(
-        public readonly int $eventId,
+        public readonly int   $eventId,
         public readonly float $price,
-    ) {}
+    ) {
+    }
 }

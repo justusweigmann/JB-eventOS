@@ -19,11 +19,8 @@ use Tests\TestCase;
 class UpdateOrganizerStatusHandlerTest extends TestCase
 {
     private OrganizerRepositoryInterface $organizerRepository;
-
     private AccountRepositoryInterface $accountRepository;
-
     private EventRepositoryInterface $eventRepository;
-
     private UpdateOrganizerStatusHandler $handler;
 
     protected function setUp(): void
@@ -37,7 +34,7 @@ class UpdateOrganizerStatusHandlerTest extends TestCase
         $databaseManager = m::mock(DatabaseManager::class);
 
         $databaseManager->shouldReceive('transaction')
-            ->andReturnUsing(fn ($callback) => $callback());
+            ->andReturnUsing(fn($callback) => $callback());
 
         $logger->shouldReceive('info')->byDefault();
 
@@ -50,7 +47,7 @@ class UpdateOrganizerStatusHandlerTest extends TestCase
         );
     }
 
-    public function test_archive_last_active_organizer_fails(): void
+    public function testArchiveLastActiveOrganizerFails(): void
     {
         $account = m::mock(AccountDomainObject::class);
         $account->shouldReceive('getAccountVerifiedAt')->andReturn('2024-01-01');
@@ -77,7 +74,7 @@ class UpdateOrganizerStatusHandlerTest extends TestCase
         $this->handler->handle($dto);
     }
 
-    public function test_archive_organizer_succeeds_when_other_active_organizers_exist(): void
+    public function testArchiveOrganizerSucceedsWhenOtherActiveOrganizersExist(): void
     {
         $account = m::mock(AccountDomainObject::class);
         $account->shouldReceive('getAccountVerifiedAt')->andReturn('2024-01-01');
@@ -96,8 +93,8 @@ class UpdateOrganizerStatusHandlerTest extends TestCase
         $this->organizerRepository->shouldReceive('updateWhere')
             ->once()
             ->with(
-                m::on(fn ($attrs) => $attrs['status'] === OrganizerStatus::ARCHIVED->name),
-                m::on(fn ($where) => $where['id'] === 1 && $where['account_id'] === 10),
+                m::on(fn($attrs) => $attrs['status'] === OrganizerStatus::ARCHIVED->name),
+                m::on(fn($where) => $where['id'] === 1 && $where['account_id'] === 10),
             )
             ->andReturn(1);
 

@@ -16,5 +16,6 @@ class UpsertAffiliateDTO extends BaseDTO
         public AffiliateStatus $status = AffiliateStatus::ACTIVE,
         public ?int $event_id = null,
         public ?int $account_id = null,
-    ) {}
+    ) {
+    }
 }

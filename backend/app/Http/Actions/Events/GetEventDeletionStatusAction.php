@@ -13,7 +13,9 @@ class GetEventDeletionStatusAction extends BaseAction
 {
     public function __construct(
         private readonly EventDeletionService $eventDeletionService,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(int $eventId): JsonResponse
     {

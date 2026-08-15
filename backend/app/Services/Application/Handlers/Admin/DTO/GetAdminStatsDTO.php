@@ -11,5 +11,7 @@ class GetAdminStatsDTO extends BaseDataObject
         public readonly int $total_accounts,
         public readonly int $total_live_events,
         public readonly int $total_tickets_sold,
-    ) {}
+    )
+    {
+    }
 }

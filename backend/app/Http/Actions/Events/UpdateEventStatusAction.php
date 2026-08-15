@@ -16,7 +16,9 @@ class UpdateEventStatusAction extends BaseAction
 {
     public function __construct(
         private readonly UpdateEventStatusHandler $updateEventStatusHandler,
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(UpdateEventStatusRequest $request, int $eventId): JsonResponse
     {

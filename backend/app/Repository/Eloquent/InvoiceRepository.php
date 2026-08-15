@@ -23,7 +23,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
     public function findLatestInvoiceForEvent(int $eventId): ?InvoiceDomainObject
     {
-        $invoice = $this->model
+        $invoice =  $this->model
             ->whereHas('order', function ($query) use ($eventId) {
                 $query->where('event_id', $eventId);
             })
@@ -35,11 +35,22 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
     public function findLatestInvoiceForOrder(int $orderId): ?InvoiceDomainObject
     {
-        $invoice = $this->model
+        $invoice =  $this->model
             ->where('order_id', $orderId)
             ->orderBy('id', 'desc')
             ->first();
 
         return $this->handleSingleResult($invoice);
+    }
+
+    public function findByEventId(int $eventId, int $page = 1, int $perPage = 20): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        return $this->model
+            ->whereHas('order', function ($query) use ($eventId) {
+                $query->where('event_id', $eventId);
+            })
+            ->with('order')
+            ->orderBy('created_at', 'desc')
+            ->paginate(perPage: $perPage, page: $page);
     }
 }

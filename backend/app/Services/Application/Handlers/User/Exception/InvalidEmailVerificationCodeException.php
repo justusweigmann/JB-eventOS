@@ -4,4 +4,7 @@ namespace HiEvents\Services\Application\Handlers\User\Exception;
 
 use Exception;
 
-class InvalidEmailVerificationCodeException extends Exception {}
+class InvalidEmailVerificationCodeException extends Exception
+{
+
+}

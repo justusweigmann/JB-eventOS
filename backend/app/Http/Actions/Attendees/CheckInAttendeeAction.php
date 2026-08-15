@@ -16,7 +16,9 @@ class CheckInAttendeeAction extends BaseAction
 {
     public function __construct(
         private readonly CheckInAttendeeHandler $checkInAttendeeHandler
-    ) {}
+    )
+    {
+    }
 
     public function __invoke(CheckInAttendeeRequest $request, int $eventId, string $attendeePublicId): JsonResponse
     {

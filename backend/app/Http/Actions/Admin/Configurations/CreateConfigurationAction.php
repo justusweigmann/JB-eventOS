@@ -6,8 +6,8 @@ namespace HiEvents\Http\Actions\Admin\Configurations;
 
 use HiEvents\DomainObjects\Enums\Role;
 use HiEvents\Http\Actions\BaseAction;
-use HiEvents\Repository\Interfaces\OrganizerConfigurationRepositoryInterface;
-use HiEvents\Resources\Organizer\OrganizerConfigurationResource;
+use HiEvents\Repository\Interfaces\AccountConfigurationRepositoryInterface;
+use HiEvents\Resources\Account\AccountConfigurationResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,8 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 class CreateConfigurationAction extends BaseAction
 {
     public function __construct(
-        private readonly OrganizerConfigurationRepositoryInterface $repository,
-    ) {}
+        private readonly AccountConfigurationRepositoryInterface $repository,
+    ) {
+    }
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -39,7 +40,7 @@ class CreateConfigurationAction extends BaseAction
         ]);
 
         return $this->jsonResponse(
-            new OrganizerConfigurationResource($configuration),
+            new AccountConfigurationResource($configuration),
             statusCode: Response::HTTP_CREATED,
             wrapInData: true
         );

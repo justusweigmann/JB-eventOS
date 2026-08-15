@@ -7,4 +7,7 @@ use HiEvents\DomainObjects\OutgoingMessageDomainObject;
 /**
  * @extends RepositoryInterface<OutgoingMessageDomainObject>
  */
-interface OutgoingMessageRepositoryInterface extends RepositoryInterface {}
+interface OutgoingMessageRepositoryInterface extends RepositoryInterface
+{
+
+}

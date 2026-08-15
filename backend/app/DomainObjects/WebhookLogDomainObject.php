@@ -2,4 +2,6 @@
 
 namespace HiEvents\DomainObjects;
 
-class WebhookLogDomainObject extends Generated\WebhookLogDomainObjectAbstract {}
+class WebhookLogDomainObject extends Generated\WebhookLogDomainObjectAbstract
+{
+}

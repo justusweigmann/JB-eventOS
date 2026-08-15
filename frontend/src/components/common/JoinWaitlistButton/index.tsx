@@ -2,7 +2,6 @@ import {Event, IdParam, Product} from "../../../types.ts";
 import {useDisclosure} from "@mantine/hooks";
 import {JoinWaitlistModal} from "../../modals/JoinWaitlistModal";
 import {t} from "@lingui/macro";
-import {IconCheck} from "@tabler/icons-react";
 import {useWaitlistJoined} from "../../../hooks/useWaitlistJoined.ts";
 
 interface JoinWaitlistButtonProps {
@@ -10,34 +9,26 @@ interface JoinWaitlistButtonProps {
     event: Event;
     productPriceId: IdParam;
     priceLabel?: string;
-    eventOccurrenceId?: IdParam;
 }
 
-export const JoinWaitlistButton = ({product, event, productPriceId, priceLabel, eventOccurrenceId}: JoinWaitlistButtonProps) => {
+export const JoinWaitlistButton = ({product, event, productPriceId, priceLabel}: JoinWaitlistButtonProps) => {
     const [modalOpen, {open: openModal, close: closeModal}] = useDisclosure(false);
-    const {joined: hasJoined, markJoined} = useWaitlistJoined(event.id, productPriceId, eventOccurrenceId);
+    const {joined: hasJoined, markJoined} = useWaitlistJoined(event.id, productPriceId);
 
     return (
         <>
-            {hasJoined ? (
-                <span className="hi-waitlist-joined" data-testid="join-waitlist-button">
-                    <IconCheck size={14} stroke={2.5}/>
-                    {t`On the waitlist`}
-                </span>
-            ) : (
-                <button
-                    type="button"
-                    className="hi-waitlist-button"
-                    data-testid="join-waitlist-button"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openModal();
-                    }}
-                >
-                    {t`Join Waitlist`}
-                </button>
-            )}
+            <button
+                type="button"
+                className="hi-waitlist-button"
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openModal();
+                }}
+                disabled={hasJoined}
+            >
+                {hasJoined ? t`Joined` : t`Join Waitlist`}
+            </button>
             {modalOpen && (
                 <JoinWaitlistModal
                     onClose={closeModal}
@@ -46,7 +37,6 @@ export const JoinWaitlistButton = ({product, event, productPriceId, priceLabel, 
                     event={event}
                     productPriceId={productPriceId}
                     priceLabel={priceLabel}
-                    eventOccurrenceId={eventOccurrenceId}
                     onSuccess={() => {
                         markJoined();
                         closeModal();

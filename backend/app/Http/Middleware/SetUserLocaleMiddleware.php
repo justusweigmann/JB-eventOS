@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Auth;
 
 class SetUserLocaleMiddleware
 {
-    public function __construct(private readonly LocaleService $localeService) {}
+    public function __construct(private readonly LocaleService $localeService)
+    {
+    }
 
     public function handle(Request $request, Closure $next)
     {
@@ -38,7 +40,6 @@ class SetUserLocaleMiddleware
     {
         if ($locale = $request->cookie('locale')) {
             App::setLocale($this->localeService->getLocaleOrDefault($locale));
-
             return true;
         }
 
@@ -51,7 +52,6 @@ class SetUserLocaleMiddleware
             /** @var UserDomainObject $user */
             $user = UserDomainObject::hydrateFromModel(Auth::user());
             App::setLocale($user->getLocale());
-
             return true;
         }
 
@@ -62,7 +62,6 @@ class SetUserLocaleMiddleware
     {
         if ($request->hasHeader('Accept-Language')) {
             App::setLocale($this->localeService->getLocaleOrDefault($request->getPreferredLanguage()));
-
             return true;
         }
 

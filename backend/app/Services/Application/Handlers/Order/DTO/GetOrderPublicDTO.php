@@ -7,8 +7,10 @@ use HiEvents\DataTransferObjects\BaseDTO;
 class GetOrderPublicDTO extends BaseDTO
 {
     public function __construct(
-        public int $eventId,
+        public int    $eventId,
         public string $orderShortId,
-        public bool $includeEventInResponse = false,
-    ) {}
+        public bool   $includeEventInResponse = false,
+    )
+    {
+    }
 }

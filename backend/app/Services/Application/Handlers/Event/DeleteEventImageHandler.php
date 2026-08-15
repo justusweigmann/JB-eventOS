@@ -14,10 +14,12 @@ use Throwable;
 class DeleteEventImageHandler
 {
     public function __construct(
-        private readonly ImageRepositoryInterface $imageRepository,
+        private readonly ImageRepositoryInterface         $imageRepository,
         private readonly EventSettingsRepositoryInterface $eventSettingsRepository,
-        private readonly DatabaseManager $databaseManager,
-    ) {}
+        private readonly DatabaseManager                  $databaseManager,
+    )
+    {
+    }
 
     /**
      * @throws Throwable

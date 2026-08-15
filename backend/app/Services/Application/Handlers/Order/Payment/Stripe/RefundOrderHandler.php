@@ -6,6 +6,7 @@ use Brick\Math\Exception\MathException;
 use Brick\Math\Exception\NumberFormatException;
 use Brick\Math\Exception\RoundingNecessaryException;
 use Brick\Money\Exception\UnknownCurrencyException;
+use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
@@ -16,6 +17,7 @@ use HiEvents\DomainObjects\StripePaymentDomainObject;
 use HiEvents\Exceptions\RefundNotPossibleException;
 use HiEvents\Mail\Order\OrderRefunded;
 use HiEvents\Repository\Eloquent\Value\Relationship;
+use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\RefundOrderDTO;
@@ -33,13 +35,16 @@ class RefundOrderHandler
 {
     public function __construct(
         private readonly StripePaymentIntentRefundService $refundService,
-        private readonly OrderRepositoryInterface $orderRepository,
-        private readonly EventRepositoryInterface $eventRepository,
-        private readonly Mailer $mailer,
-        private readonly OrderCancelService $orderCancelService,
-        private readonly DatabaseManager $databaseManager,
-        private readonly StripeClientFactory $stripeClientFactory,
-    ) {}
+        private readonly OrderRepositoryInterface         $orderRepository,
+        private readonly EventRepositoryInterface         $eventRepository,
+        private readonly AttendeeRepositoryInterface      $attendeeRepository,
+        private readonly Mailer                           $mailer,
+        private readonly OrderCancelService               $orderCancelService,
+        private readonly DatabaseManager                  $databaseManager,
+        private readonly StripeClientFactory              $stripeClientFactory,
+    )
+    {
+    }
 
     /**
      * @throws RefundNotPossibleException
@@ -48,7 +53,7 @@ class RefundOrderHandler
      */
     public function handle(RefundOrderDTO $refundOrderDTO): OrderDomainObject
     {
-        return $this->databaseManager->transaction(fn () => $this->refundOrder($refundOrderDTO));
+        return $this->databaseManager->transaction(fn() => $this->refundOrder($refundOrderDTO));
     }
 
     private function fetchOrder(int $eventId, int $orderId): OrderDomainObject
@@ -57,7 +62,7 @@ class RefundOrderHandler
             ->loadRelation(new Relationship(StripePaymentDomainObject::class, name: 'stripe_payment'))
             ->findFirstWhere(['event_id' => $eventId, 'id' => $orderId]);
 
-        if (! $order) {
+        if (!$order) {
             throw new ResourceNotFoundException(__('Order :id not found for event :eventId', [
                 'id' => $orderId,
                 'eventId' => $eventId,
@@ -72,7 +77,7 @@ class RefundOrderHandler
      */
     private function validateRefundability(OrderDomainObject $order): void
     {
-        if (! $order->getStripePayment()) {
+        if (!$order->getStripePayment()) {
             throw new RefundNotPossibleException(__('There is no Stripe data associated with this order.'));
         }
 
@@ -80,6 +85,18 @@ class RefundOrderHandler
             throw new RefundNotPossibleException(
                 __('There is already a refund pending for this order.
                 Please wait for the refund to be processed before requesting another one.')
+            );
+        }
+
+        $attendees = $this->attendeeRepository->findWhere([
+            AttendeeDomainObject::ORDER_ID => $order->getId(),
+        ]);
+
+        $checkedInCount = $attendees->filter(fn(AttendeeDomainObject $a) => $a->getCheckedInAt() !== null)->count();
+
+        if ($checkedInCount > 0) {
+            throw new RefundNotPossibleException(
+                __(':count attendee(s) on this order have already been checked in. Please undo check-ins before refunding.', ['count' => $checkedInCount])
             );
         }
     }

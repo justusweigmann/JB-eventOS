@@ -10,7 +10,9 @@ class GetWaitlistEntriesHandler
 {
     public function __construct(
         private readonly WaitlistEntryRepositoryInterface $waitlistEntryRepository,
-    ) {}
+    )
+    {
+    }
 
     public function handle(int $eventId, QueryParamsDTO $queryParams): LengthAwarePaginator
     {

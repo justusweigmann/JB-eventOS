@@ -13,7 +13,8 @@ class DeleteAllFailedJobsAction extends BaseAction
 {
     public function __construct(
         private readonly DeleteFailedJobHandler $handler,
-    ) {}
+    ) {
+    }
 
     public function __invoke(): JsonResponse
     {
