@@ -101,7 +101,9 @@ export const CollectInformation = () => {
                 last_name: "",
                 email: "",
                 email_confirmation: "",
-                address: {},
+                address: {
+                    country: "DE",
+                },
                 questions: {},
                 opted_into_marketing: false,
             },
@@ -571,24 +573,24 @@ export const CollectInformation = () => {
                             <InputGroup>
                                 <TextInput
                                     withAsterisk
-                                    label={t`City`}
-                                    placeholder={t`City`}
-                                    {...form.getInputProps("order.address.city")}
+                                    label={t`ZIP / Postal Code`}
+                                    placeholder={t`ZIP or Postal Code`}
+                                    {...form.getInputProps("order.address.zip_or_postal_code")}
                                 />
                                 <TextInput
                                     withAsterisk
-                                    label={t`State or Region`}
-                                    placeholder={t`State or Region`}
-                                    {...form.getInputProps("order.address.state_or_region")}
+                                    label={t`City`}
+                                    placeholder={t`City`}
+                                    {...form.getInputProps("order.address.city")}
                                 />
                             </InputGroup>
 
                             <InputGroup>
                                 {/* Postal Code and Country */}
                                 <TextInput
-                                    label={t`ZIP / Postal Code`}
-                                    placeholder={t`ZIP or Postal Code`}
-                                    {...form.getInputProps("order.address.zip_or_postal_code")}
+                                    label={t`State or Region`}
+                                    placeholder={t`State or Region`}
+                                    {...form.getInputProps("order.address.state_or_region")}
                                 />
                                 <NativeSelect
                                     withAsterisk
@@ -604,6 +606,7 @@ export const CollectInformation = () => {
 
                     {event?.settings?.show_marketing_opt_in && (
                         <Checkbox
+                            label={t`Marketing Opt-In`}
                             mt="md"
                             label={t`Keep me updated on news and events from ${event?.organizer?.name || t`this organizer`}`}
                             {...form.getInputProps('order.opted_into_marketing', {type: 'checkbox'})}

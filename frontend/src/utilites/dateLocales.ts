@@ -53,7 +53,7 @@ export const localeFormats: Record<SupportedLocales, {
         dayName: 'dddd, D. MMMM',
         timeOnly: 'HH:mm',
         timezone: 'z',
-        dateTimePicker: 'MMM DD, YYYY [at] h:mm A'
+        dateTimePicker: 'D. MMM YYYY [um] HH:mm'
     },
     'fr': {
         fullDateTime: 'ddd D MMM YYYY HH:mm',
