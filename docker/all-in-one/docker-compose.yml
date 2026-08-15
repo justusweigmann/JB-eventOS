@@ -1,5 +1,6 @@
 services:
   all-in-one:
+    container_name: hi-events-app
     build:
       context: ./../../
       dockerfile: Dockerfile.all-in-one
@@ -55,6 +56,7 @@ services:
         condition: service_healthy
 
   redis:
+    container_name: hi-events-redis
     image: redis:7-alpine
     restart: unless-stopped
     healthcheck:
@@ -66,6 +68,7 @@ services:
       - redisdata:/data
 
   postgres:
+    container_name: hi-events-postgres
     image: postgres:17-alpine
     restart: unless-stopped
     healthcheck:
