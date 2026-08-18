@@ -1,0 +1,115 @@
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.templateSelect {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    color: #444;
+
+    select {
+        font-size: 14px;
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    font-size: 16px;
+    color: #666;
+}
+
+// .sheet entspricht dem bedruckbaren Bereich eines Avery-Bogens.
+// Die mm-Werte für Ränder (padding) werden inline aus dem gewählten
+// Template gesetzt, hier nur der Reset/Kontext.
+.sheet {
+    position: relative;
+    box-sizing: border-box;
+    width: 210mm; // A4-Breite; bei Bedarf anpassen, falls anderes Papierformat genutzt wird
+}
+
+.sheet::after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+.card {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding: 1.5mm;
+    overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
+
+    // Auf dem Bildschirm (Vorschau) hilfreich, beim Etikettendruck aber
+    // eher vermeiden, da die Linie leicht neben der echten Stanzung liegt.
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+}
+
+.qrWrapper {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info {
+    margin-left: 2mm;
+    text-align: left;
+    overflow: hidden;
+}
+
+.name {
+    font-size: 9pt;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.detail {
+    font-size: 7pt;
+    color: #888;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media print {
+    .container {
+        padding: 0;
+        max-width: none;
+    }
+
+    .card {
+        border: none; // Avery-Etiketten sind bereits gestanzt, keine Druckhilfslinie nötig
+    }
+}
