@@ -10,7 +10,7 @@
         "ext-intl": "*",
         "ext-xmlwriter": "*",
         "barryvdh/laravel-dompdf": "^3.0",
-        "brick/money": "^0.10.1",
+        "brick/money": "^0.14.1",
         "dedoc/scramble": "^0.13",
         "doctrine/dbal": "^3.6",
         "ezyang/htmlpurifier": "^4.17",
