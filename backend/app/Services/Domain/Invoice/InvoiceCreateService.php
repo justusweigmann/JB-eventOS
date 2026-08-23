@@ -55,19 +55,28 @@ class InvoiceCreateService
         ]);
     }
 
-    private function getLatestInvoiceNumber(int $eventId, EventSettingDomainObject $eventSettings): string
-    {
-        $latestInvoice = $this->invoiceRepository->findLatestInvoiceForEvent($eventId);
+    private function getLatestInvoiceNumber(
+        int $eventId,
+        EventSettingDomainObject $eventSettings
+    ): string {
+        $latestInvoice = $this->invoiceRepository
+            ->findLatestInvoiceForEvent($eventId);
 
         $startNumber = $eventSettings->getInvoiceStartNumber() ?? 1;
         $prefix = $eventSettings->getInvoicePrefix() ?? '';
 
         if (! $latestInvoice) {
-            return $prefix.$startNumber;
+            return $prefix . $startNumber;
         }
 
-        $nextInvoiceNumber = (int) preg_replace('/\D+/', '', $latestInvoice->getInvoiceNumber()) + 1;
+        $latestNumber = $latestInvoice->getInvoiceNumber();
 
-        return $prefix.$nextInvoiceNumber;
+        if ($prefix !== '' && str_starts_with($latestNumber, $prefix)) {
+            $latestNumber = substr($latestNumber, strlen($prefix));
+        }
+
+        $nextInvoiceNumber = ((int) $latestNumber) + 1;
+
+        return $prefix . $nextInvoiceNumber;
     }
 }
