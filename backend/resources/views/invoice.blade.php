@@ -1,5 +1,4 @@
 @php use Carbon\Carbon; @endphp
-@php use HiEvents\Helper\Currency; @endphp
 @php use HiEvents\DomainObjects\Status\InvoiceStatus; @endphp
 @php /** @var \HiEvents\DomainObjects\EventDomainObject $event */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
@@ -15,8 +14,8 @@
         : ($isVoid ? 'status-void' : 'status-unpaid');
 
     $statusLabel = $isPaid
-        ? __('Paid')
-        : ($isVoid ? __('Void') : __('Unpaid'));
+        ? 'Bezahlt'
+        : ($isVoid ? 'Storniert' : 'Offen');
 
     $issueDate = $invoice->getIssueDate()
         ? Carbon::parse($invoice->getIssueDate())->format('d.m.Y')
@@ -26,7 +25,19 @@
         ? Carbon::parse($invoice->getDueDate())->format('d.m.Y')
         : null;
 
-    $currency = $order->getCurrency();
+    $currency = strtoupper($order->getCurrency());
+
+    $formatAmount = function ($amount) use ($currency) {
+        $formatter = new \NumberFormatter(
+            'de_DE',
+            \NumberFormatter::CURRENCY
+        );
+
+        return $formatter->formatCurrency(
+            (float) $amount,
+            $currency
+        );
+    };
 @endphp
 
 <!DOCTYPE html>
@@ -36,8 +47,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
-        {{ $eventSettings->getInvoiceLabel() ?? __('Invoice') }}
-        #{{ $invoice->getInvoiceNumber() }}
+        {{ $eventSettings->getInvoiceLabel() ?? 'Rechnung' }}
+        {{ $invoice->getInvoiceNumber() }}
     </title>
 
     <style>
@@ -102,10 +113,6 @@
             font-weight: bold;
         }
 
-        /*
-         * Wrapper erhält den Außenrahmen.
-         * Die Tabelle selbst hat keine Zellrahmen und deshalb keine vertikalen Linien.
-         */
         .invoice-info-grid-wrapper {
             width: 100%;
             margin: 0 auto 20px;
@@ -119,7 +126,6 @@
             table-layout: fixed;
             border-collapse: separate;
             border-spacing: 0;
-            font-family: 'DejaVu Sans', Arial, sans-serif;
             text-align: center;
         }
 
@@ -130,14 +136,12 @@
             vertical-align: middle;
             border: 0;
             text-align: center;
-            font-family: 'DejaVu Sans', Arial, sans-serif;
         }
 
         .info-label {
             display: block;
             margin-bottom: 8px;
             color: #777;
-            font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 10px;
             line-height: 1.1;
             font-weight: 700;
@@ -149,7 +153,6 @@
         .info-value {
             display: block;
             color: #1a1a1a;
-            font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 13px;
             line-height: 1.25;
             font-weight: 700;
@@ -162,7 +165,6 @@
             padding: 5px 10px;
             border: 1px solid transparent;
             border-radius: 5px;
-            font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 10px;
             line-height: 1.2;
             font-weight: 700;
@@ -401,7 +403,7 @@
         <tr>
             <td style="width: 55%;">
                 <h1 class="logo-title">
-                    {{ $eventSettings->getInvoiceLabel() ?? __('Invoice') }}
+                    {{ $eventSettings->getInvoiceLabel() ?? 'Rechnung' }}
                 </h1>
 
                 <p class="header-event-name">
@@ -432,30 +434,21 @@
             <tbody>
                 <tr>
                     <td>
-                        <span class="info-label">
-                            {{ __('Invoice Number') }}
-                        </span>
-
+                        <span class="info-label">Rechnungsnummer</span>
                         <span class="info-value">
-                            #{{ $invoice->getInvoiceNumber() }}
+                            {{ $invoice->getInvoiceNumber() }}
                         </span>
                     </td>
 
                     <td>
-                        <span class="info-label">
-                            {{ __('Date Issued') }}
-                        </span>
-
+                        <span class="info-label">Ausstellungsdatum</span>
                         <span class="info-value">
                             {{ $issueDate }}
                         </span>
                     </td>
 
                     <td>
-                        <span class="info-label">
-                            {{ __('Due Date') }}
-                        </span>
-
+                        <span class="info-label">Fälligkeitsdatum</span>
                         <span class="info-value">
                             {{ (!$isPaid && !$isVoid && $dueDate) ? $dueDate : '—' }}
                         </span>
@@ -463,19 +456,15 @@
 
                     <td>
                         <span class="info-label">
-                            {{ $isPaid ? __('Amount Paid') : __('Amount Due') }}
+                            {{ $isPaid ? 'Bezahlt' : 'Betrag offen' }}
                         </span>
-
                         <span class="info-value">
-                            {{ Currency::format($order->getTotalGross(), $currency) }}
+                            {{ $formatAmount($order->getTotalGross()) }}
                         </span>
                     </td>
 
                     <td>
-                        <span class="info-label">
-                            {{ __('Status') }}
-                        </span>
-
+                        <span class="info-label">Status</span>
                         <span class="status-badge {{ $statusClass }}">
                             {{ $statusLabel }}
                         </span>
@@ -486,9 +475,7 @@
     </div>
 
     <div class="billing-section">
-        <div class="billing-title">
-            {{ __('Billed To') }}
-        </div>
+        <div class="billing-title">Rechnungsempfänger</div>
 
         <div class="billing-name">
             {{ $order->getFullName() }}
@@ -508,21 +495,10 @@
     <table class="items">
         <thead>
             <tr>
-                <th class="col-description">
-                    {{ __('Description') }}
-                </th>
-
-                <th class="col-rate align-right">
-                    {{ __('Rate') }}
-                </th>
-
-                <th class="col-qty align-right">
-                    {{ __('Qty') }}
-                </th>
-
-                <th class="col-amount align-right">
-                    {{ __('Amount') }}
-                </th>
+                <th class="col-description">Beschreibung</th>
+                <th class="col-rate align-right">Einzelpreis</th>
+                <th class="col-qty align-right">Menge</th>
+                <th class="col-amount align-right">Betrag</th>
             </tr>
         </thead>
 
@@ -558,23 +534,14 @@
                     <td class="align-right">
                         @if($orderItem['price_before_discount'])
                             <div class="item-price-original">
-                                {{ Currency::format(
-                                    $orderItem['price_before_discount'],
-                                    $currency
-                                ) }}
+                                {{ $formatAmount($orderItem['price_before_discount']) }}
                             </div>
 
                             <div>
-                                {{ Currency::format(
-                                    $orderItem['price'],
-                                    $currency
-                                ) }}
+                                {{ $formatAmount($orderItem['price']) }}
                             </div>
                         @else
-                            {{ Currency::format(
-                                $orderItem['price'],
-                                $currency
-                            ) }}
+                            {{ $formatAmount($orderItem['price']) }}
                         @endif
                     </td>
 
@@ -585,23 +552,16 @@
                     <td class="align-right">
                         @if($orderItem['price_before_discount'])
                             <div class="item-price-original">
-                                {{ Currency::format(
-                                    $orderItem['price_before_discount'] * $orderItem['quantity'],
-                                    $currency
+                                {{ $formatAmount(
+                                    $orderItem['price_before_discount'] * $orderItem['quantity']
                                 ) }}
                             </div>
 
                             <div>
-                                {{ Currency::format(
-                                    $orderItem['total_before_additions'],
-                                    $currency
-                                ) }}
+                                {{ $formatAmount($orderItem['total_before_additions']) }}
                             </div>
                         @else
-                            {{ Currency::format(
-                                $orderItem['total_before_additions'],
-                                $currency
-                            ) }}
+                            {{ $formatAmount($orderItem['total_before_additions']) }}
                         @endif
                     </td>
                 </tr>
@@ -611,20 +571,17 @@
 
     <table class="totals">
         <tr class="subtotal">
-            <td>{{ __('Subtotal') }}</td>
+            <td>Zwischensumme</td>
             <td>
-                {{ Currency::format(
-                    $order->getTotalBeforeAdditions(),
-                    $currency
-                ) }}
+                {{ $formatAmount($order->getTotalBeforeAdditions()) }}
             </td>
         </tr>
 
         @if($totalDiscount > 0)
             <tr class="breakdown">
-                <td>{{ __('Total Discount') }}</td>
+                <td>Rabatt</td>
                 <td>
-                    -{{ Currency::format($totalDiscount, $currency) }}
+                    {{ $formatAmount(-$totalDiscount) }}
                 </td>
             </tr>
         @endif
@@ -638,15 +595,15 @@
                     </td>
 
                     <td>
-                        {{ Currency::format($tax['value'], $currency) }}
+                        {{ $formatAmount($tax['value']) }}
                     </td>
                 </tr>
             @endforeach
 
             <tr class="subtotal">
-                <td>{{ __('Total Tax') }}</td>
+                <td>Steuern gesamt</td>
                 <td>
-                    {{ Currency::format($order->getTotalTax(), $currency) }}
+                    {{ $formatAmount($order->getTotalTax()) }}
                 </td>
             </tr>
         @endif
@@ -660,44 +617,38 @@
                     </td>
 
                     <td>
-                        {{ Currency::format($fee['value'], $currency) }}
+                        {{ $formatAmount($fee['value']) }}
                     </td>
                 </tr>
             @endforeach
 
             <tr class="subtotal">
-                <td>{{ __('Total Service Fee') }}</td>
+                <td>Servicegebühren gesamt</td>
                 <td>
-                    {{ Currency::format($order->getTotalFee(), $currency) }}
+                    {{ $formatAmount($order->getTotalFee()) }}
                 </td>
             </tr>
         @endif
 
         <tr class="total-line">
-            <td>{{ __('Total') }}</td>
+            <td>Gesamtbetrag</td>
             <td>
-                {{ Currency::format(
-                    $order->getTotalGross(),
-                    $currency
-                ) }}
+                {{ $formatAmount($order->getTotalGross()) }}
             </td>
         </tr>
 
         @if($isPaid)
             <tr class="amount-paid-line">
-                <td>{{ __('Amount Paid') }}</td>
+                <td>Bezahlt</td>
                 <td>
-                    -{{ Currency::format(
-                        $order->getTotalGross(),
-                        $currency
-                    ) }}
+                    {{ $formatAmount(-$order->getTotalGross()) }}
                 </td>
             </tr>
 
             <tr class="balance-due-line">
-                <td>{{ __('Balance Due') }}</td>
+                <td>Offener Betrag</td>
                 <td>
-                    {{ Currency::format(0, $currency) }}
+                    {{ $formatAmount(0) }}
                 </td>
             </tr>
         @endif
@@ -706,11 +657,11 @@
     @if(!$isPaid && !$isVoid && $invoice->getDueDate())
         <div class="invoice-notes">
             <p>
-                {{ __('Für die Bestätigung Deiner Reservierung erwarten wir eine Überweisung bis zum') }}
+                Für die Bestätigung Deiner Reservierung erwarten wir eine Überweisung bis zum
                 <strong>{{ $dueDate }}</strong>
-                {{ __('unter Angabe der Rechnungs-Nr.') }}
+                unter Angabe der Rechnungs-Nr.
                 <strong>{{ $invoice->getInvoiceNumber() }}</strong>
-                {{ __('an:') }}
+                an:
             </p>
 
             @if($eventSettings->getOfflinePaymentInstructions())
@@ -730,7 +681,7 @@
     <div class="invoice-footer">
         @if($eventSettings->getSupportEmail())
             <p>
-                {{ __('For any queries, please contact us at') }}
+                Bei Fragen erreichst Du uns unter
                 {{ $eventSettings->getSupportEmail() }}
             </p>
         @endif
@@ -738,7 +689,7 @@
         @if((bool) $eventSettings->getInvoiceTaxDetails())
             <div class="tax-info">
                 <p>
-                    <strong>{{ __('Tax Information') }}:</strong>
+                    <strong>Steuerinformationen:</strong>
                     {!! $eventSettings->getInvoiceTaxDetails() !!}
                 </p>
             </div>
