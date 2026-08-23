@@ -42,6 +42,7 @@ class PaymentSuccessButOrderExpiredMail extends BaseMail
         return new Content(
             markdown: 'emails.orders.payment-success-but-order-expired',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'event' => $this->event,
                 'order' => $this->order,
                 'organizer' => $this->organizer,

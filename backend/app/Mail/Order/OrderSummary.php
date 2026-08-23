@@ -17,9 +17,6 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
-/**
- * @uses /backend/resources/views/emails/orders/summary.blade.php
- */
 class OrderSummary extends BaseMail
 {
     private readonly ?RenderedEmailTemplateDTO $renderedTemplate;
@@ -59,9 +56,13 @@ class OrderSummary extends BaseMail
             return new Content(
                 markdown: 'emails.custom-template',
                 with: [
+                    ...$this->getMailHeaderData($this->organizer),
                     'renderedBody' => $this->renderedTemplate->body,
                     'renderedCta' => $this->renderedTemplate->cta,
                     'eventSettings' => $this->eventSettings,
+                    'event' => $this->event,
+                    'organizer' => $this->organizer,
+                    'order' => $this->order,
                 ],
             );
         }
@@ -69,6 +70,7 @@ class OrderSummary extends BaseMail
         return new Content(
             markdown: 'emails.orders.summary',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'eventSettings' => $this->eventSettings,
                 'event' => $this->event,
                 'order' => $this->order,

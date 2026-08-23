@@ -45,9 +45,12 @@ class EventMessage extends BaseMail
 
     public function content(): Content
     {
+        $organizer = $this->event->getOrganizer();
+
         return new Content(
             markdown: 'emails.event.message',
             with: [
+                ..($organizer ? $this->getMailHeaderData($organizer) : []),
                 'messageData' => $this->messageData,
                 'event' => $this->event,
                 'eventSettings' => $this->eventSettings,

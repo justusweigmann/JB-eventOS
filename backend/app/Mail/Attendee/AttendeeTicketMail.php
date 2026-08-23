@@ -81,6 +81,7 @@ class AttendeeTicketMail extends BaseMail
         return new Content(
             markdown: 'emails.orders.attendee-ticket',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'event' => $this->event,
                 'attendee' => $this->attendee,
                 'eventSettings' => $this->eventSettings,

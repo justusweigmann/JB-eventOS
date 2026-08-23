@@ -41,6 +41,7 @@ class OrderDetailsChangedMail extends BaseMail
         return new Content(
             markdown: 'emails.orders.order-details-changed',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'event' => $this->event,
                 'organizer' => $this->organizer,
                 'eventSettings' => $this->eventSettings,

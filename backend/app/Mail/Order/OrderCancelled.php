@@ -43,6 +43,7 @@ class OrderCancelled extends BaseMail
         return new Content(
             markdown: 'emails.orders.order-cancelled',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'event' => $this->event,
                 'order' => $this->order,
                 'organizer' => $this->organizer,

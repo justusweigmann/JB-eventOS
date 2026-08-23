@@ -43,6 +43,7 @@ class OrderFailed extends BaseMail
         return new Content(
             markdown: 'emails.orders.order-failed',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'event' => $this->event,
                 'order' => $this->order,
                 'organizer' => $this->organizer,

@@ -44,6 +44,7 @@ class OrderRefunded extends BaseMail
         return new Content(
             markdown: 'emails.orders.order-refunded',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'event' => $this->event,
                 'order' => $this->order,
                 'organizer' => $this->organizer,
