@@ -8,6 +8,7 @@ use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Mail\BaseMail;
 use HiEvents\Values\MoneyValue;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
@@ -29,6 +30,10 @@ class OrderRefunded extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address(
+                address: (string) config('mail.from.address'),
+                name: $this->getFromName($this->organizer, $this->event),
+            ),
             replyTo: $this->eventSettings->getSupportEmail(),
             subject: __('You\'ve received a refund'),
         );
@@ -44,7 +49,7 @@ class OrderRefunded extends BaseMail
                 'organizer' => $this->organizer,
                 'eventSettings' => $this->eventSettings,
                 'refundAmount' => $this->refundAmount,
-            ]
+            ],
         );
     }
 }

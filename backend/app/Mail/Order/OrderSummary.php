@@ -12,6 +12,7 @@ use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Helper\Url;
 use HiEvents\Mail\BaseMail;
 use HiEvents\Services\Domain\Email\DTO\RenderedEmailTemplateDTO;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -39,9 +40,14 @@ class OrderSummary extends BaseMail
 
     public function envelope(): Envelope
     {
-        $subject = $this->renderedTemplate?->subject ?? __('Your Order is Confirmed!').'  🎉';
+        $subject = $this->renderedTemplate?->subject
+            ?? __('Your Order is Confirmed!') . ' 🎉';
 
         return new Envelope(
+            from: new Address(
+                address: (string) config('mail.from.address'),
+                name: $this->getFromName($this->organizer, $this->event),
+            ),
             replyTo: $this->eventSettings->getSupportEmail(),
             subject: $subject,
         );
@@ -56,11 +62,10 @@ class OrderSummary extends BaseMail
                     'renderedBody' => $this->renderedTemplate->body,
                     'renderedCta' => $this->renderedTemplate->cta,
                     'eventSettings' => $this->eventSettings,
-                ]
+                ],
             );
         }
 
-        // Fallback to original template
         return new Content(
             markdown: 'emails.orders.summary',
             with: [
@@ -74,7 +79,7 @@ class OrderSummary extends BaseMail
                     $this->event->getId(),
                     $this->order->getShortId(),
                 ),
-            ]
+            ],
         );
     }
 
