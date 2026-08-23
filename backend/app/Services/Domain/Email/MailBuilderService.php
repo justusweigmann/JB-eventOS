@@ -101,9 +101,24 @@ class MailBuilderService
     private function loadOrganizerImages(
         OrganizerDomainObject $organizer,
     ): OrganizerDomainObject {
-        return $this->organizerRepository
+        $loadedOrganizer = $this->organizerRepository
             ->loadRelation(ImageDomainObject::class)
             ->findById($organizer->getId());
+
+        $logo = $loadedOrganizer->getImages()?->first(fn (ImageDomainObject $image) => $image->getType() === 'logo');
+        $images = $loadedOrganizer->getImages();
+        $organizerLogoUrl = $logo?->getUrl();
+
+        logger()->debug('LOGO HEADER MailBuilderService.php', [
+            'organizerName' => $loadedOrganizer->getName(),
+            'organizerWebsite' => $loadedOrganizer->getWebsite(),
+            'organizerLogoUrl' => $organizerLogoUrl,
+            'organizerLogoPath' => $logo?->getPath(),
+            'imagesLoaded' => $images !== null,
+            'imagesCount' => $images?->count(),
+        ]);
+
+        return $loadedOrganizer;
     }
 
     private function renderAttendeeTicketTemplate(

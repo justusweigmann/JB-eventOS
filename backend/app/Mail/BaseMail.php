@@ -50,7 +50,7 @@ abstract class BaseMail extends Mailable implements ShouldQueue
             ? Url::getCdnUrl($logo->getPath())
             : null;
 
-        logger()->warning('ORGANIZER MAIL HEADER DATA', [
+        logger()->debug('LOGO HEADER BaseMail.php', [
             'organizerName' => $organizer->getName(),
             'organizerWebsite' => $organizer->getWebsite(),
             'organizerLogoUrl' => $organizerLogoUrl,

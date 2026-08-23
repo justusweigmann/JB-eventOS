@@ -59,14 +59,6 @@ class OrderSummary extends BaseMail
             $this->organizer,
         );
 
-        logger()->warning('ORDER SUMMARY MAIL DATA', [
-            'eventTitle' => $this->event->getTitle(),
-            'eventId' => $this->event->getId(),
-            'organizerName' => $this->organizer->getName(),
-            'organizerWebsite' => $this->organizer->getWebsite(),
-            'headerData' => $headerData,
-        ]);
-
         if ($this->renderedTemplate) {
             return new Content(
                 markdown: 'emails.custom-template',
