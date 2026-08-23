@@ -43,7 +43,10 @@ class OrderSummary extends BaseMail
         return new Envelope(
             from: new Address(
                 address: (string) config('mail.from.address'),
-                name: $this->getFromName($this->organizer, $this->event),
+                name: $this->getFromName(
+                    $this->organizer,
+                    $this->event,
+                ),
             ),
             replyTo: $this->eventSettings->getSupportEmail(),
             subject: $subject,
@@ -52,11 +55,23 @@ class OrderSummary extends BaseMail
 
     public function content(): Content
     {
+        $headerData = $this->getMailHeaderData(
+            $this->organizer,
+        );
+
+        logger()->warning('ORDER SUMMARY MAIL DATA', [
+            'eventTitle' => $this->event->getTitle(),
+            'eventId' => $this->event->getId(),
+            'organizerName' => $this->organizer->getName(),
+            'organizerWebsite' => $this->organizer->getWebsite(),
+            'headerData' => $headerData,
+        ]);
+
         if ($this->renderedTemplate) {
             return new Content(
                 markdown: 'emails.custom-template',
                 with: [
-                    ...$this->getMailHeaderData($this->organizer),
+                    ...$headerData,
                     'renderedBody' => $this->renderedTemplate->body,
                     'renderedCta' => $this->renderedTemplate->cta,
                     'eventSettings' => $this->eventSettings,
@@ -70,14 +85,16 @@ class OrderSummary extends BaseMail
         return new Content(
             markdown: 'emails.orders.summary',
             with: [
-                ...$this->getMailHeaderData($this->organizer),
+                ...$headerData,
                 'eventSettings' => $this->eventSettings,
                 'event' => $this->event,
                 'order' => $this->order,
                 'organizer' => $this->organizer,
                 'occurrence' => $this->occurrence,
                 'orderUrl' => sprintf(
-                    Url::getFrontEndUrlFromConfig(Url::ORDER_SUMMARY),
+                    Url::getFrontEndUrlFromConfig(
+                        Url::ORDER_SUMMARY,
+                    ),
                     $this->event->getId(),
                     $this->order->getShortId(),
                 ),

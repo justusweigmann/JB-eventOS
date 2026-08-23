@@ -25,10 +25,12 @@ class EventMessage extends BaseMail
 
     public function envelope(): Envelope
     {
+        $organizer = $this->event->getOrganizer();
+
         $fromName = trim(
             (string) (
-                $this->event->getOrganizer()?->getName()
-                ?: $this->event->getName()
+                $organizer?->getName()
+                ?: $this->event->getTitle()
                 ?: config('mail.from.name')
             )
         );
@@ -50,7 +52,15 @@ class EventMessage extends BaseMail
         return new Content(
             markdown: 'emails.event.message',
             with: [
-                ..($organizer ? $this->getMailHeaderData($organizer) : []),
+                ...(
+                    $organizer
+                        ? $this->getMailHeaderData($organizer)
+                        : [
+                            'mailOrganizerLogoUrl' => null,
+                            'mailOrganizerName' => null,
+                            'mailOrganizerWebsite' => null,
+                        ]
+                ),
                 'messageData' => $this->messageData,
                 'event' => $this->event,
                 'eventSettings' => $this->eventSettings,

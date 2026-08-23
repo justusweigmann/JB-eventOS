@@ -8,6 +8,7 @@ use HiEvents\DomainObjects\Enums\EmailTemplateType;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventOccurrenceDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
+use HiEvents\DomainObjects\ImageDomainObject;
 use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
@@ -15,6 +16,7 @@ use HiEvents\Helper\DateHelper;
 use HiEvents\Mail\Attendee\AttendeeTicketMail;
 use HiEvents\Mail\Occurrence\OccurrenceCancellationMail;
 use HiEvents\Mail\Order\OrderSummary;
+use HiEvents\Repository\Interfaces\OrganizerRepositoryInterface;
 use HiEvents\Services\Domain\Email\DTO\RenderedEmailTemplateDTO;
 use HiEvents\Services\Domain\Order\OfflinePaymentInstructionsRenderService;
 
@@ -24,7 +26,9 @@ class MailBuilderService
         private readonly EmailTemplateService $emailTemplateService,
         private readonly EmailTokenContextBuilder $tokenContextBuilder,
         private readonly OfflinePaymentInstructionsRenderService $offlinePaymentInstructionsRenderService,
-    ) {}
+        private readonly OrganizerRepositoryInterface $organizerRepository,
+    ) {
+    }
 
     public function buildAttendeeTicketMail(
         AttendeeDomainObject $attendee,
@@ -34,6 +38,8 @@ class MailBuilderService
         OrganizerDomainObject $organizer,
         ?EventOccurrenceDomainObject $occurrence = null,
     ): AttendeeTicketMail {
+        $organizer = $this->loadOrganizerImages($organizer);
+
         $renderedTemplate = $this->renderAttendeeTicketTemplate(
             $attendee,
             $order,
@@ -62,6 +68,8 @@ class MailBuilderService
         ?InvoiceDomainObject $invoice = null,
         ?EventOccurrenceDomainObject $occurrence = null,
     ): OrderSummary {
+        $organizer = $this->loadOrganizerImages($organizer);
+
         $renderedTemplate = $this->renderOrderSummaryTemplate(
             $order,
             $event,
@@ -71,7 +79,12 @@ class MailBuilderService
         );
 
         if (! $renderedTemplate) {
-            $this->offlinePaymentInstructionsRenderService->render($order, $event, $organizer, $eventSettings);
+            $this->offlinePaymentInstructionsRenderService->render(
+                $order,
+                $event,
+                $organizer,
+                $eventSettings,
+            );
         }
 
         return new OrderSummary(
@@ -83,6 +96,14 @@ class MailBuilderService
             occurrence: $occurrence,
             renderedTemplate: $renderedTemplate,
         );
+    }
+
+    private function loadOrganizerImages(
+        OrganizerDomainObject $organizer,
+    ): OrganizerDomainObject {
+        return $this->organizerRepository
+            ->loadRelation(ImageDomainObject::class)
+            ->findById($organizer->getId());
     }
 
     private function renderAttendeeTicketTemplate(
@@ -97,7 +118,7 @@ class MailBuilderService
             type: EmailTemplateType::ATTENDEE_TICKET,
             accountId: $event->getAccountId(),
             eventId: $event->getId(),
-            organizerId: $organizer->getId()
+            organizerId: $organizer->getId(),
         );
 
         if (! $template) {
@@ -113,7 +134,10 @@ class MailBuilderService
             $occurrence,
         );
 
-        return $this->emailTemplateService->renderTemplate($template, $context);
+        return $this->emailTemplateService->renderTemplate(
+            $template,
+            $context,
+        );
     }
 
     private function renderOrderSummaryTemplate(
@@ -127,7 +151,7 @@ class MailBuilderService
             type: EmailTemplateType::ORDER_CONFIRMATION,
             accountId: $event->getAccountId(),
             eventId: $event->getId(),
-            organizerId: $organizer->getId()
+            organizerId: $organizer->getId(),
         );
 
         if (! $template) {
@@ -142,7 +166,10 @@ class MailBuilderService
             $occurrence,
         );
 
-        return $this->emailTemplateService->renderTemplate($template, $context);
+        return $this->emailTemplateService->renderTemplate(
+            $template,
+            $context,
+        );
     }
 
     public function buildOccurrenceCancellationMail(
@@ -152,6 +179,8 @@ class MailBuilderService
         EventSettingDomainObject $eventSettings,
         bool $refundOrders = false,
     ): OccurrenceCancellationMail {
+        $organizer = $this->loadOrganizerImages($organizer);
+
         $renderedTemplate = $this->renderOccurrenceCancellationTemplate(
             $event,
             $occurrence,
@@ -160,8 +189,13 @@ class MailBuilderService
             $refundOrders,
         );
 
-        $startDate = DateHelper::convertFromUTC($occurrence->getStartDate(), $event->getTimezone());
-        $formattedDate = (new Carbon($startDate))->format('F j, Y g:i A');
+        $startDate = DateHelper::convertFromUTC(
+            $occurrence->getStartDate(),
+            $event->getTimezone(),
+        );
+
+        $formattedDate = (new Carbon($startDate))
+            ->format('F j, Y g:i A');
 
         return new OccurrenceCancellationMail(
             event: $event,
@@ -185,7 +219,7 @@ class MailBuilderService
             type: EmailTemplateType::OCCURRENCE_CANCELLATION,
             accountId: $event->getAccountId(),
             eventId: $event->getId(),
-            organizerId: $organizer->getId()
+            organizerId: $organizer->getId(),
         );
 
         if (! $template) {
@@ -200,6 +234,9 @@ class MailBuilderService
             $refundOrders,
         );
 
-        return $this->emailTemplateService->renderTemplate($template, $context);
+        return $this->emailTemplateService->renderTemplate(
+            $template,
+            $context,
+        );
     }
 }
