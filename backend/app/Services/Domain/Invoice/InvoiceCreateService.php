@@ -89,16 +89,26 @@ class InvoiceCreateService
 
         $numberPart = $latestInvoiceNumber;
 
+        // Remove configured prefix if present
         if ($prefix !== '' && str_starts_with($numberPart, $prefix)) {
             $numberPart = substr($numberPart, strlen($prefix));
         }
 
+        // Allow an optional separator like '-', '_' etc. directly after the prefix
+        // e.g. "2026T-0001" or "2026T_0001" -> "0001"
+        $numberPart = ltrim($numberPart, "-_");
+
+        // Extract trailing digits if there are extra characters
+        // e.g. "0001A" -> "0001", "2026T0001X" -> "0001"
+        if (preg_match('/(\d+)$/', $numberPart, $matches)) {
+            $numberPart = $matches[1];
+        }
+
         if (! preg_match('/^\d+$/', $numberPart)) {
-            throw new \UnexpectedValueException(
-                sprintf(
-                    'Die letzte Rechnungsnummer "%s" enthält keinen gültigen numerischen Anteil.',
-                    $latestInvoiceNumber
-                )
+            // Fallback: ignore latest invoice and start from configured start number
+            return $prefix . $this->formatInvoiceSequence(
+                $startNumber,
+                $numberLength
             );
         }
 
