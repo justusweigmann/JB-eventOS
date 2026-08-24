@@ -573,7 +573,6 @@ export const CollectInformation = () => {
                                     label={t`ZIP / Postal Code`}
                                     placeholder={t`ZIP or Postal Code`}
                                     {...form.getInputProps("order.address.zip_or_postal_code")}
-<<<<<<< HEAD
                                 />
                                 <TextInput
                                     withAsterisk
@@ -581,18 +580,8 @@ export const CollectInformation = () => {
                                     placeholder={t`City`}
                                     {...form.getInputProps("order.address.city")}
                                 />
-=======
-                                />
-                                <TextInput
-                                    withAsterisk
-                                    label={t`City`}
-                                    placeholder={t`City`}
-                                    {...form.getInputProps("order.address.city")}
-                                />
->>>>>>> cc6e52e01631c04234e72ad860e15e3904453fd5
                             </InputGroup>
                             <InputGroup>
-                                {/* Postal Code and Country */}
                                 <TextInput
                                     label={t`State or Region`}
                                     placeholder={t`State or Region`}
@@ -606,10 +595,6 @@ export const CollectInformation = () => {
                                 />
                             </InputGroup>
                         </>
-
-
-
-
 
                     )}
 
