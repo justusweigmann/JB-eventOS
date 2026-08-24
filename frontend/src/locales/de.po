@@ -13354,3 +13354,18 @@ msgstr "Postleitzahl"
 #: src/components/routes/product-widget/CollectInformation/index.tsx:590
 msgid "ZIP or Postal Code"
 msgstr "Postleitzahl"
+
+#: src/components/layouts/EventHomepage/index.tsx:599
+#: src/components/layouts/OrganizerHomepage/index.tsx:328
+msgid "Legal Notice"
+msgstr "Impressum"
+
+#: src/components/layouts/EventHomepage/index.tsx:599
+#: src/components/layouts/OrganizerHomepage/index.tsx:328
+msgid "All rights reserved."
+msgstr "Alle Rechte vorbehalten."
+
+#: src/components/layouts/EventHomepage/index.tsx:599
+#: src/components/layouts/OrganizerHomepage/index.tsx:328
+msgid "The Hi.Events App service is provided by"
+msgstr "Das Hosting für die Hi.Events-App übernimmt"

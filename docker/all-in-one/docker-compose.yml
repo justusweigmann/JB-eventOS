@@ -4,14 +4,18 @@ services:
       context: ./../../
       dockerfile: Dockerfile.all-in-one
     restart: unless-stopped
+    container_name: hi-events-app
     ports:
-      - "8123:80"
+      - "1122:80"
     environment:
       - VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
       - VITE_API_URL_CLIENT=${VITE_API_URL_CLIENT}
       - VITE_API_URL_SERVER=${VITE_API_URL_SERVER}
       - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
       - VITE_APP_NAME=${VITE_APP_NAME}
+      - VITE_TOS_URL=${VITE_TOS_URL}
+      - VITE_PRIVACY_URL=${VITE_PRIVACY_URL}
+      - VITE_LEGAL_NOTICE_URL=${VITE_LEGAL_NOTICE_URL}
       - LOG_CHANNEL=${LOG_CHANNEL}
       - QUEUE_CONNECTION=${QUEUE_CONNECTION}
       - APP_KEY=${APP_KEY}
@@ -57,16 +61,18 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    container_name: hi-events-redis
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
-      - redisdata:/data
+      - /event-data/redis:/data
 
   postgres:
     image: postgres:17-alpine
+    container_name: hi-events-postgres
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-hi-events}" ]
@@ -78,8 +84,4 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
     volumes:
-      - pgdata:/var/lib/postgresql/data
-
-volumes:
-  pgdata:
-  redisdata:
+      - /event-data/postgres:/var/lib/postgresql/data

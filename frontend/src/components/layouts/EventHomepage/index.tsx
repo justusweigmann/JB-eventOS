@@ -687,21 +687,35 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                         <div className={classes.footerSection}>
                             <div className={classes.footerLinks}>
                                 <Anchor
-                                    href={getConfig('VITE_PRIVACY_URL', 'https://hi.events/privacy-policy?utm_source=app-event-footer')}
+                                    href={organizer?.settings?.legal_notice_url || getConfig('VITE_LEGAL_NOTICE_URL', 'https://hi.events/legal-notice?utm_source=app-event-footer')}
+                                    className={classes.footerLink}
+                                >
+                                    {t`Legal Notice`}
+                                </Anchor>
+                                <Anchor
+                                    href={organizer?.settings?.privacy_policy_url || getConfig('VITE_PRIVACY_URL', 'https://hi.events/privacy-policy?utm_source=app-event-footer')}
                                     className={classes.footerLink}
                                 >
                                     {t`Privacy Policy`}
                                 </Anchor>
                                 <Anchor
-                                    href={getConfig('VITE_TOS_URL', 'https://hi.events/terms-of-service?utm_source=app-event-footer')}
+                                    href={organizer?.settings?.terms_of_service_url || getConfig('VITE_TOS_URL', 'https://hi.events/terms-of-service?utm_source=app-event-footer')}
                                     className={classes.footerLink}
                                 >
                                     {t`Terms of Service`}
                                 </Anchor>
                             </div>
-                            <PoweredByFooter className={classes.poweredByFooter}/>
+                                <PoweredByFooter className={classes.poweredByFooter}/>
+                                <p className={classes.copyright}>
+                                    &copy; {new Date().getFullYear()} {organizer?.name || ''}. {t`All rights reserved.`}
+                                </p>
+                                <p className={classes.SAASDisclaimer}>
+                                    {t`The Hi.Events App service is provided by`}{' '}
+                                    <a href="https://justben.de" target="_blank" rel="noopener noreferrer">
+                                        Justus Weigmann - Digitalisierungsberatung
+                                    </a>. {t`All rights reserved.`}
+                                </p>
                         </div>
-                    </div>
 
                     {showFloatingCheckoutButton && (
                         <button
