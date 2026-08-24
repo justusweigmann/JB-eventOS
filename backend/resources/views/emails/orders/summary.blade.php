@@ -10,7 +10,7 @@
 
 @php
     $displayStart = $occurrence?->getStartDate() ?? $event->getStartDate();
-    $displayDate = (new Carbon(DateHelper::convertFromUTC($displayStart, $event->getTimezone())))->format('F j, Y');
+    $displayDate = (new Carbon(DateHelper::convertFromUTC($displayStart, $event->getTimezone())))->format('F j, Y');co
     $displayTime = (new Carbon(DateHelper::convertFromUTC($displayStart, $event->getTimezone())))->format('g:i A');
 @endphp
 

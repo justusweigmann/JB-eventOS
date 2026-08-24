@@ -1,5 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>{{ config('app.name') }}</title>
@@ -69,72 +70,13 @@
                 cellspacing="0"
                 role="presentation"
             >
-                <tr>
-                    <td
-                        class="header"
-                        style="
-                            padding: 32px 0 28px;
-                            text-align: center;
-                        "
-                    >
-                        @php
-                            $logoUrl = !empty($mailOrganizerLogoUrl ?? null)
-                                ? $mailOrganizerLogoUrl
-                                : (
-                                    config('app.email_logo_url')
-                                    ?: rtrim(
-                                        (string) config('app.frontend_url'),
-                                        '/'
-                                    ) . '/logos/hi-events-stacked-light.png'
-                                );
-
-                            $logoLinkUrl = !empty($mailOrganizerWebsite ?? null)
-                                ? $mailOrganizerWebsite
-                                : (
-                                    config('app.email_logo_link_url')
-                                    ?: config('app.frontend_url')
-                                );
-
-                            $logoAltText = !empty($mailOrganizerName ?? null)
-                                ? $mailOrganizerName
-                                : config('app.name');
-                        @endphp
-
-                        <a
-                            href="{{ $logoLinkUrl }}"
-                            style="
-                                color: #191029;
-                                font-size: 19px;
-                                font-weight: 700;
-                                text-decoration: none;
-                                display: inline-block;
-                            "
-                        >
-                            <img
-                                src="{{ $logoUrl }}"
-                                class="logo"
-                                alt="{{ $logoAltText }}"
-                                style="
-                                    display: block;
-                                    width: auto;
-                                    max-width: 100%;
-                                    height: auto;
-                                    max-height: 250px;
-                                    object-fit: contain;
-                                    margin: 0 auto;
-                                    border: 0;
-                                "
-                            >
-                        </a>
-                    </td>
-                </tr>
+                {{-- Header nur aus dem Slot --}}
+                {!! $header ?? '' !!}
 
                 <tr>
                     <td
                         class="body"
                         width="100%"
-                        cellpadding="0"
-                        cellspacing="0"
                         style="border: hidden !important;"
                     >
                         <table
@@ -152,7 +94,10 @@
                             "
                         >
                             <tr>
-                                <td class="content-cell">
+                                <td
+                                    class="content-cell"
+                                    style="padding: 32px;"
+                                >
                                     {!! Illuminate\Mail\Markdown::parse($slot) !!}
 
                                     {!! $subcopy ?? '' !!}

@@ -13,6 +13,7 @@ use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Helper\DateHelper;
+use HiEvents\Helper\Url;
 use HiEvents\Mail\Attendee\AttendeeTicketMail;
 use HiEvents\Mail\Occurrence\OccurrenceCancellationMail;
 use HiEvents\Mail\Order\OrderSummary;
@@ -98,6 +99,42 @@ class MailBuilderService
         );
     }
 
+    public function buildOccurrenceCancellationMail(
+        EventDomainObject $event,
+        EventOccurrenceDomainObject $occurrence,
+        OrganizerDomainObject $organizer,
+        EventSettingDomainObject $eventSettings,
+        bool $refundOrders = false,
+    ): OccurrenceCancellationMail {
+        $organizer = $this->loadOrganizerImages($organizer);
+
+        $renderedTemplate = $this->renderOccurrenceCancellationTemplate(
+            $event,
+            $occurrence,
+            $eventSettings,
+            $organizer,
+            $refundOrders,
+        );
+
+        $startDate = DateHelper::convertFromUTC(
+            $occurrence->getStartDate(),
+            $event->getTimezone(),
+        );
+
+        $formattedDate = (new Carbon($startDate))
+            ->format('F j, Y g:i A');
+
+        return new OccurrenceCancellationMail(
+            event: $event,
+            occurrence: $occurrence,
+            organizer: $organizer,
+            eventSettings: $eventSettings,
+            formattedDate: $formattedDate,
+            refundOrders: $refundOrders,
+            renderedTemplate: $renderedTemplate,
+        );
+    }
+
     private function loadOrganizerImages(
         OrganizerDomainObject $organizer,
     ): OrganizerDomainObject {
@@ -105,17 +142,28 @@ class MailBuilderService
             ->loadRelation(ImageDomainObject::class)
             ->findById($organizer->getId());
 
-        $logo = $loadedOrganizer->getImages()?->first(fn (ImageDomainObject $image) => $image->getType() === 'logo');
         $images = $loadedOrganizer->getImages();
-        $organizerLogoUrl = $logo?->getUrl();
+
+        $logo = $images?->first(
+            static fn (ImageDomainObject $image): bool =>
+                $image->getType() === 'ORGANIZER_LOGO'
+        );
+
+        $organizerLogoUrl = $logo
+            ? Url::getCdnUrl($logo->getPath())
+            : null;
 
         logger()->debug('LOGO HEADER MailBuilderService.php', [
+            'organizerId' => $loadedOrganizer->getId(),
             'organizerName' => $loadedOrganizer->getName(),
             'organizerWebsite' => $loadedOrganizer->getWebsite(),
             'organizerLogoUrl' => $organizerLogoUrl,
             'organizerLogoPath' => $logo?->getPath(),
             'imagesLoaded' => $images !== null,
             'imagesCount' => $images?->count(),
+            'imageTypes' => $images?->map(
+                static fn (ImageDomainObject $image): string => $image->getType()
+            )->values()->all(),
         ]);
 
         return $loadedOrganizer;
@@ -184,42 +232,6 @@ class MailBuilderService
         return $this->emailTemplateService->renderTemplate(
             $template,
             $context,
-        );
-    }
-
-    public function buildOccurrenceCancellationMail(
-        EventDomainObject $event,
-        EventOccurrenceDomainObject $occurrence,
-        OrganizerDomainObject $organizer,
-        EventSettingDomainObject $eventSettings,
-        bool $refundOrders = false,
-    ): OccurrenceCancellationMail {
-        $organizer = $this->loadOrganizerImages($organizer);
-
-        $renderedTemplate = $this->renderOccurrenceCancellationTemplate(
-            $event,
-            $occurrence,
-            $eventSettings,
-            $organizer,
-            $refundOrders,
-        );
-
-        $startDate = DateHelper::convertFromUTC(
-            $occurrence->getStartDate(),
-            $event->getTimezone(),
-        );
-
-        $formattedDate = (new Carbon($startDate))
-            ->format('F j, Y g:i A');
-
-        return new OccurrenceCancellationMail(
-            event: $event,
-            occurrence: $occurrence,
-            organizer: $organizer,
-            eventSettings: $eventSettings,
-            formattedDate: $formattedDate,
-            refundOrders: $refundOrders,
-            renderedTemplate: $renderedTemplate,
         );
     }
 

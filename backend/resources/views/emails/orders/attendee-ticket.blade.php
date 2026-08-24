@@ -1,77 +1,77 @@
-@php use Carbon\Carbon; use HiEvents\Helper\DateHelper; @endphp
-@php /** @var \HiEvents\DomainObjects\EventDomainObject $event */ @endphp
-@php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
-@php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
-@php /** @var \HiEvents\DomainObjects\AttendeeDomainObject $attendee */ @endphp
+@php use Carbon\Carbon; use HiEvents\Helper\Currency; use HiEvents\Helper\DateHelper; @endphp
 @php /** @var \HiEvents\DomainObjects\OrderDomainObject $order */ @endphp
+@php /** @var \HiEvents\DomainObjects\EventDomainObject $event */ @endphp
+@php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
+@php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventOccurrenceDomainObject|null $occurrence */ @endphp
-@php /** @var string $ticketUrl */ @endphp
-@php /** @see \HiEvents\Mail\Attendee\AttendeeTicketMail */ @endphp
+@php /** @var string $orderUrl */ @endphp
+
+@php /** @see \HiEvents\Mail\Order\OrderSummary */ @endphp
 
 @php
-    $tz = $event->getTimezone();
     $displayStart = $occurrence?->getStartDate() ?? $event->getStartDate();
-    $displayEnd = $occurrence?->getEndDate() ?? $event->getEndDate();
-
-    $formatDateTime = static fn(?string $utc) => $utc
-        ? (new Carbon(DateHelper::convertFromUTC($utc, $tz)))->format('D, M j, Y · g:i A')
-        : null;
-    $formatTime = static fn(?string $utc) => $utc
-        ? (new Carbon(DateHelper::convertFromUTC($utc, $tz)))->format('g:i A')
-        : null;
-
-    $startFormatted = $formatDateTime($displayStart);
-    $endFormatted = null;
-    if ($displayStart && $displayEnd) {
-        // Same day → show just the end time; cross-day → show the full end timestamp.
-        $sameDay = substr($displayStart, 0, 10) === substr($displayEnd, 0, 10);
-        $endFormatted = $sameDay ? $formatTime($displayEnd) : $formatDateTime($displayEnd);
-    }
-
-    $venueName = $effectiveVenueName ?? null;
-    $addressString = $effectiveAddressString ?? null;
-    $productTitle = $attendee->getProduct()?->getTitle();
+    $displayDate = (new Carbon(DateHelper::convertFromUTC($displayStart, $event->getTimezone())))->format('F j, Y');
+    $displayTime = (new Carbon(DateHelper::convertFromUTC($displayStart, $event->getTimezone())))->format('g:i A');
 @endphp
 
 <x-mail::message>
-# {{ __('You\'re going to') }} {{ $event->getTitle() }}! 🎉
+# {{ __('Your Order is Confirmed! ') }} 🎉
 
-@if($order->isOrderAwaitingOfflinePayment())
-<div style="border-radius: 4px; background-color: #f8d7da; color: #842029; margin-bottom: 1.5rem; padding: 1rem;">
+@if($order->isOrderAwaitingOfflinePayment() === false)
+
 <p>
-{{ __('ℹ️ Your order is pending payment. Tickets have been issued but will not be valid until payment is received.') }}
+{{ __('Congratulations! Your order for :eventTitle on :eventDate at :eventTime was successful. Please find your order details below.', ['eventTitle' => $event->getTitle(), 'eventDate' => $displayDate, 'eventTime' => $displayTime]) }}
 </p>
+
+@else
+
+<div>
+<p>
+{{ __('Your order is pending payment. Tickets have been issued but will not be valid until payment is received.') }}
+</p>
+
+<div style="border-radius: 4px; background-color: #d7e8f8; color: #204e84; margin-bottom: 1.5rem; padding: 1rem;">
+<h2>{{ __('Payment Instructions') }}</h2>
+{{ __('Please follow the instructions below to complete your payment.') }}
+{!! $eventSettings->getOfflinePaymentInstructions() !!}
 </div>
+</div>
+
 @endif
 
-{{ __('Please find your ticket details below.') }}
+<p>
 
-@if($startFormatted || $venueName || $addressString || $productTitle)
-<div style="border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin: 16px 0; line-height: 1.6;">
-@if($startFormatted)
-<strong>{{ __('Date & Time:') }}</strong> {{ $startFormatted }}@if($endFormatted) – {{ $endFormatted }}@endif<br>
+## {{ __('Event Details') }}
+**{{ __('Event Name:') }}** {{ $event->getTitle() }}
+    <br>
+**{{ __('Date & Time:') }}** {{ __(':date at :time', ['date' => $displayDate, 'time' => $displayTime]) }}
 @if($occurrence?->getLabel())
-<strong>{{ __('Session:') }}</strong> {{ $occurrence->getLabel() }}<br>
-@endif
-@endif
-@if($venueName || $addressString)
-<strong>{{ __('Location:') }}</strong> {{ trim(($venueName ? $venueName . ($addressString ? ', ' : '') : '') . ($addressString ?? '')) }}<br>
-@endif
-@if($productTitle)
-<strong>{{ __('Ticket:') }}</strong> {{ $productTitle }}<br>
-@endif
-<strong>{{ __('Attendee:') }}</strong> {{ trim($attendee->getFirstName() . ' ' . $attendee->getLastName()) }}
-</div>
+    <br>
+**{{ __('Session:') }}** {{ $occurrence->getLabel() }}
 @endif
 
-<x-mail::button :url="$ticketUrl">
-{{ __('View Ticket') }}
+</p>
+
+@if($eventSettings->getPostCheckoutMessage() && $order->isOrderCompleted())
+<p>
+
+## {{ __('Additional Information') }}
+
+{!! $eventSettings->getPostCheckoutMessage() !!}
+
+</p>
+@endif
+
+## {{ __('Order Summary') }}
+- **{{ __('Order Number:') }}** {{ $order->getPublicId() }}
+- **{{ __('Total Amount:') }}** {{ Currency::format($order->getTotalGross(), $event->getCurrency()) }}
+
+<x-mail::button :url="$orderUrl">
+    {{ __('View Order Summary & Tickets') }}
 </x-mail::button>
 
-{{ __('If you have any questions or need assistance, please reply to this email or contact the event organizer') }}
-{{ __('at') }} <a href="mailto:{{$eventSettings->getSupportEmail()}}">{{$eventSettings->getSupportEmail()}}</a>.
+{{ __('If you have any questions or need assistance, please contact') }} <a href="mailto:{{ $organizer->getEmail() }}">{{ $organizer->getEmail() }}</a>.
 
 {{ __('Best regards,') }}<br>
 {{ $organizer->getName() ?: config('app.name') }}
-
 </x-mail::message>
