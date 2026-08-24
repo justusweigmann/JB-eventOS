@@ -44,13 +44,13 @@ class OrderFailed extends BaseMail
             markdown: 'emails.orders.order-failed',
             with: [
                 ...$this->getMailHeaderData($this->organizer),
-                'event' => $this->event,
-                'order' => $this->order,
-                'organizer' => $this->organizer,
+                'event'         => $this->event,
+                'order'         => $this->order,
+                'organizer'     => $this->organizer,
                 'eventSettings' => $this->eventSettings,
-                'supportEmail' => $this->eventSettings->getSupportEmail()
+                'supportEmail'  => $this->eventSettings->getSupportEmail()
                     ?: $this->organizer->getEmail(),
-                'eventUrl' => sprintf(
+                'eventUrl'      => sprintf(
                     Url::getFrontEndUrlFromConfig(Url::EVENT_HOMEPAGE),
                     $this->event->getId(),
                     $this->event->getSlug(),

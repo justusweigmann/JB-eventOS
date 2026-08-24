@@ -55,21 +55,17 @@ class OrderSummary extends BaseMail
 
     public function content(): Content
     {
-        $headerData = $this->getMailHeaderData(
-            $this->organizer,
-        );
-
         if ($this->renderedTemplate) {
             return new Content(
                 markdown: 'emails.custom-template',
                 with: [
-                    ...$headerData,
+                    ...$this->getMailHeaderData($this->organizer),
                     'renderedBody' => $this->renderedTemplate->body,
-                    'renderedCta' => $this->renderedTemplate->cta,
-                    'eventSettings' => $this->eventSettings,
-                    'event' => $this->event,
-                    'organizer' => $this->organizer,
-                    'order' => $this->order,
+                    'renderedCta'  => $this->renderedTemplate->cta,
+                    'eventSettings'=> $this->eventSettings,
+                    'event'        => $this->event,
+                    'organizer'    => $this->organizer,
+                    'order'        => $this->order,
                 ],
             );
         }
@@ -77,13 +73,13 @@ class OrderSummary extends BaseMail
         return new Content(
             markdown: 'emails.orders.summary',
             with: [
-                ...$headerData,
+                ...$this->getMailHeaderData($this->organizer),
                 'eventSettings' => $this->eventSettings,
-                'event' => $this->event,
-                'order' => $this->order,
-                'organizer' => $this->organizer,
-                'occurrence' => $this->occurrence,
-                'orderUrl' => sprintf(
+                'event'         => $this->event,
+                'order'         => $this->order,
+                'organizer'     => $this->organizer,
+                'occurrence'    => $this->occurrence,
+                'orderUrl'      => sprintf(
                     Url::getFrontEndUrlFromConfig(
                         Url::ORDER_SUMMARY,
                     ),
@@ -101,11 +97,11 @@ class OrderSummary extends BaseMail
         }
 
         $invoice = Pdf::loadView('invoice', [
-            'order' => $this->order,
-            'event' => $this->event,
-            'organizer' => $this->organizer,
+            'order'         => $this->order,
+            'event'         => $this->event,
+            'organizer'     => $this->organizer,
             'eventSettings' => $this->eventSettings,
-            'invoice' => $this->invoice,
+            'invoice'       => $this->invoice,
         ]);
 
         return [

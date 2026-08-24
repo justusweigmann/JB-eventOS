@@ -7,6 +7,7 @@ use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Mail\BaseMail;
+use HiEvents\Helper\Url;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -43,9 +44,9 @@ class PaymentSuccessButOrderExpiredMail extends BaseMail
             markdown: 'emails.orders.payment-success-but-order-expired',
             with: [
                 ...$this->getMailHeaderData($this->organizer),
-                'event' => $this->event,
-                'order' => $this->order,
-                'organizer' => $this->organizer,
+                'event'         => $this->event,
+                'order'         => $this->order,
+                'organizer'     => $this->organizer,
                 'eventSettings' => $this->eventSettings,
             ],
         );

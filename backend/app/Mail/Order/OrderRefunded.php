@@ -8,6 +8,7 @@ use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Mail\BaseMail;
 use HiEvents\Values\MoneyValue;
+use HiEvents\Helper\Url;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -45,11 +46,11 @@ class OrderRefunded extends BaseMail
             markdown: 'emails.orders.order-refunded',
             with: [
                 ...$this->getMailHeaderData($this->organizer),
-                'event' => $this->event,
-                'order' => $this->order,
-                'organizer' => $this->organizer,
+                'event'         => $this->event,
+                'order'         => $this->order,
+                'organizer'     => $this->organizer,
                 'eventSettings' => $this->eventSettings,
-                'refundAmount' => $this->refundAmount,
+                'refundAmount'  => $this->refundAmount,
             ],
         );
     }

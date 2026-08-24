@@ -3,6 +3,16 @@
 @php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
 @php /** @var array $changedFields */ @endphp
 
+@if(isset($mailOrganizerLogoUrl))
+    <img
+        src="{{ $mailOrganizerLogoUrl }}"
+        alt="Organizer Logo"
+        style="max-height: 150px; center; display: block; margin-left: auto; margin-right: auto; margin-top: 2rem; margin-bottom: 1rem;"
+    >
+@else
+    LOGO FEHLT IM MAIL-VIEW
+@endif
+
 <x-mail::message>
 # {{ __('Order Details Changed') }}
 

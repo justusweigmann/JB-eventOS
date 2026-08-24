@@ -5,6 +5,7 @@ namespace HiEvents\Mail\Order;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
+use HiEvents\Helper\Url;
 use HiEvents\Mail\BaseMail;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
@@ -42,8 +43,8 @@ class OrderDetailsChangedMail extends BaseMail
             markdown: 'emails.orders.order-details-changed',
             with: [
                 ...$this->getMailHeaderData($this->organizer),
-                'event' => $this->event,
-                'organizer' => $this->organizer,
+                'event'         => $this->event,
+                'organizer'     => $this->organizer,
                 'eventSettings' => $this->eventSettings,
                 'changedFields' => $this->changedFields,
             ],
