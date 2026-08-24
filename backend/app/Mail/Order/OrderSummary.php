@@ -56,8 +56,6 @@ class OrderSummary extends BaseMail
     public function content(): Content
     {
         
-        $this->logOrderPaymentContext($this->order, $this->organizer);
-        
         if ($this->renderedTemplate) {
             return new Content(
                 markdown: 'emails.custom-template',
