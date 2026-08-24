@@ -717,33 +717,34 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                                 </p>
                         </div>
 
-                    {showFloatingCheckoutButton && (
-                        <button
-                            className={classes.scrollToTicketsButton}
-                            onClick={() => continueButtonNode?.click()}
-                        >
-                            <IconTicket size={18}/>
-                            {selectedCart.total > 0
-                                ? `${continueButtonText} (${formatCurrency(selectedCart.total, event.currency)})`
-                                : continueButtonText}
-                        </button>
-                    )}
-                    {!showFloatingCheckoutButton && showScrollButton && (
-                        <button
-                            className={classes.scrollToTicketsButton}
-                            onClick={scrollToTickets}
-                        >
-                            <IconTicket size={18}/>
-                            {getTicketsButtonText}
-                        </button>
-                    )}
+                        {showFloatingCheckoutButton && (
+                            <button
+                                className={classes.scrollToTicketsButton}
+                                onClick={() => continueButtonNode?.click()}
+                            >
+                                <IconTicket size={18}/>
+                                {selectedCart.total > 0
+                                    ? `${continueButtonText} (${formatCurrency(selectedCart.total, event.currency)})`
+                                    : continueButtonText}
+                            </button>
+                        )}
+                        {!showFloatingCheckoutButton && showScrollButton && (
+                            <button
+                                className={classes.scrollToTicketsButton}
+                                onClick={scrollToTickets}
+                            >
+                                <IconTicket size={18}/>
+                                {getTicketsButtonText}
+                            </button>
+                        )}
 
-                    {/* Contact Modal */}
-                    <ContactOrganizerModal
-                        opened={contactModalOpen}
-                        onClose={() => setContactModalOpen(false)}
-                        organizer={organizer}
-                    />
+                        {/* Contact Modal */}
+                        <ContactOrganizerModal
+                            opened={contactModalOpen}
+                            onClose={() => setContactModalOpen(false)}
+                            organizer={organizer}
+                        />
+                    </div>
                 </div>
                 {consentPending && (
                     <CookieConsentBanner onConsent={onConsent}/>

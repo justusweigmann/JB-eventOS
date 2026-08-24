@@ -101,13 +101,7 @@ export const CollectInformation = () => {
                 last_name: "",
                 email: "",
                 email_confirmation: "",
-<<<<<<< HEAD
                 address: {country: "DE",},
-=======
-                address: {
-                    country: "DE",
-                },
->>>>>>> cc6e52e01631c04234e72ad860e15e3904453fd5
                 questions: {},
                 opted_into_marketing: false,
             },
