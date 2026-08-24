@@ -4,6 +4,7 @@ namespace HiEvents\Mail;
 
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\ImageDomainObject;
+use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Helper\Url;
 use HiEvents\Repository\Interfaces\OrganizerRepositoryInterface;
@@ -52,20 +53,6 @@ abstract class BaseMail extends Mailable implements ShouldQueue
             ? Url::getCdnUrl($logo->getPath())
             : null;
 
-        logger()->debug('LOGO HEADER BaseMail.php', [
-            'organizerId' => $organizer->getId(),
-            'organizerName' => $organizer->getName(),
-            'organizerWebsite' => $organizer->getWebsite(),
-            'organizerLogoUrl' => $organizerLogoUrl,
-            'organizerLogoPath' => $logo?->getPath(),
-            'imagesLoaded' => $images !== null,
-            'imagesCount' => $images?->count(),
-            'imageTypes' => $images?->map(
-                static fn (ImageDomainObject $image): string =>
-                    $image->getType()
-            )->values()->all(),
-        ]);
-
         return [
             'mailOrganizerLogoUrl' => $organizerLogoUrl,
             'mailOrganizerName' => $organizer->getName(),
@@ -83,12 +70,6 @@ abstract class BaseMail extends Mailable implements ShouldQueue
         $loadedOrganizer = app(OrganizerRepositoryInterface::class)
             ->loadRelation(ImageDomainObject::class)
             ->findById($organizer->getId());
-
-        logger()->debug('BaseMail organizer reload', [
-            'organizerId' => $organizer->getId(),
-            'imagesLoaded' => $loadedOrganizer->getImages() !== null,
-            'imagesCount' => $loadedOrganizer->getImages()?->count(),
-        ]);
 
         return $loadedOrganizer;
     }

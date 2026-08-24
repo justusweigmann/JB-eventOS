@@ -11,12 +11,14 @@ use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\ImageDomainObject;
 use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
+use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Helper\DateHelper;
 use HiEvents\Helper\Url;
 use HiEvents\Mail\Attendee\AttendeeTicketMail;
 use HiEvents\Mail\Occurrence\OccurrenceCancellationMail;
 use HiEvents\Mail\Order\OrderSummary;
+use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrganizerRepositoryInterface;
 use HiEvents\Services\Domain\Email\DTO\RenderedEmailTemplateDTO;
 use HiEvents\Services\Domain\Order\OfflinePaymentInstructionsRenderService;
@@ -28,6 +30,7 @@ class MailBuilderService
         private readonly EmailTokenContextBuilder $tokenContextBuilder,
         private readonly OfflinePaymentInstructionsRenderService $offlinePaymentInstructionsRenderService,
         private readonly OrganizerRepositoryInterface $organizerRepository,
+        private readonly OrderRepositoryInterface $orderRepository,
     ) {
     }
 
@@ -39,6 +42,7 @@ class MailBuilderService
         OrganizerDomainObject $organizer,
         ?EventOccurrenceDomainObject $occurrence = null,
     ): AttendeeTicketMail {
+        $order = $this->loadFreshOrder($order);
         $organizer = $this->loadOrganizerImages($organizer);
 
         $renderedTemplate = $this->renderAttendeeTicketTemplate(
@@ -69,6 +73,7 @@ class MailBuilderService
         ?InvoiceDomainObject $invoice = null,
         ?EventOccurrenceDomainObject $occurrence = null,
     ): OrderSummary {
+        $order = $this->loadFreshOrder($order);
         $organizer = $this->loadOrganizerImages($organizer);
 
         $renderedTemplate = $this->renderOrderSummaryTemplate(
@@ -133,6 +138,23 @@ class MailBuilderService
             refundOrders: $refundOrders,
             renderedTemplate: $renderedTemplate,
         );
+    }
+
+    private function loadFreshOrder(
+        OrderDomainObject $order,
+    ): OrderDomainObject {
+        $freshOrder = $this->orderRepository
+            ->loadRelation(OrderItemDomainObject::class)
+            ->findById($order->getId());
+
+        logger()->debug('MAIL ORDER FRESH RELOAD', [
+            'orderId' => $order->getId(),
+            'statusBefore' => $order->getStatus(),
+            'statusAfterReload' => $freshOrder->getStatus(),
+            'wasStale' => $order->getStatus() !== $freshOrder->getStatus(),
+        ]);
+
+        return $freshOrder;
     }
 
     private function loadOrganizerImages(
