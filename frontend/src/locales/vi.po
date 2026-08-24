@@ -549,7 +549,7 @@ msgstr "Cần hành động: Cần thông tin VAT"
 
 #: src/components/common/AdminEventsTable/index.tsx:112
 #: src/components/common/AffiliateTable/index.tsx:167
-#: src/components/common/EntityActions/index.tsx:27
+#: src/components/common/EntityActions/index.tsx:28
 #: src/components/common/OrdersTable/index.tsx:356
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:506
 #: src/components/common/WaitlistTable/index.tsx:56
@@ -1028,7 +1028,7 @@ msgstr "Đã có tài khoản? <0>{0}</0>"
 msgid "Already in"
 msgstr "Đã có sẵn"
 
-#: src/components/modals/RefundOrderModal/index.tsx:86
+#: src/components/modals/RefundOrderModal/index.tsx:93
 msgid "Already Refunded"
 msgstr "Đã hoàn tiền"
 
@@ -1036,11 +1036,11 @@ msgstr "Đã hoàn tiền"
 msgid "Already use Stripe on another organizer? Reuse that connection."
 msgstr "Bạn đã dùng Stripe ở một nhà tổ chức khác? Hãy dùng lại kết nối đó."
 
-#: src/components/modals/RefundOrderModal/index.tsx:132
+#: src/components/modals/RefundOrderModal/index.tsx:139
 msgid "Also cancel this order"
 msgstr "Cũng hủy đơn hàng này"
 
-#: src/components/modals/CancelOrderModal/index.tsx:75
+#: src/components/modals/CancelOrderModal/index.tsx:73
 msgid "Also refund this order"
 msgstr "Cũng hoàn tiền đơn hàng này"
 
@@ -1132,7 +1132,7 @@ msgstr "Thông báo"
 msgid "Anonymize"
 msgstr "Ẩn danh hóa"
 
-#: src/components/common/QuestionAndAnswerList/index.tsx:97
+#: src/components/common/QuestionAndAnswerList/index.tsx:76
 msgid "Answer updated successfully."
 msgstr "Câu trả lời đã được cập nhật thành công."
 
@@ -1273,7 +1273,7 @@ msgstr "Bạn có chắc muốn hủy {count} ngày không? Những người tha
 msgid "Are you sure you want to cancel this attendee? This will void their ticket"
 msgstr "Bạn có chắc mình muốn hủy người tham dự này không? Điều này sẽ làm mất hiệu lực vé của họ"
 
-#: src/components/routes/event/OccurrenceDetail/index.tsx:59
+#: src/components/routes/event/OccurrenceDetail/index.tsx:57
 #: src/components/routes/event/OccurrencesTab/cancelOccurrenceDialog.tsx:36
 #: src/components/routes/event/OccurrencesTab/OccurrenceEditModal/index.tsx:326
 msgid "Are you sure you want to cancel this date? Affected attendees will be notified by email."
@@ -1300,7 +1300,7 @@ msgid "Are you sure you want to delete this configuration? This may affect accou
 msgstr "Bạn có chắc chắn muốn xóa cấu hình này không? Điều này có thể ảnh hưởng đến các tài khoản đang sử dụng nó."
 
 #: src/components/modals/ManageOccurrenceModal/index.tsx:58
-#: src/components/routes/event/OccurrenceDetail/index.tsx:84
+#: src/components/routes/event/OccurrenceDetail/index.tsx:82
 #: src/components/routes/event/OccurrencesTab/index.tsx:184
 msgid "Are you sure you want to delete this date? This action cannot be undone."
 msgstr "Bạn có chắc muốn xóa ngày này không? Không thể hoàn tác thao tác này."
@@ -1471,6 +1471,10 @@ msgstr "người tham dự"
 msgid "Attendee"
 msgstr "Người tham dự"
 
+#: src/components/common/QuestionAndAnswerList/index.tsx:261
+msgid "Attendee answers"
+msgstr "Câu trả lời của người tham dự"
+
 #: src/components/forms/WebhookForm/index.tsx:115
 msgid "Attendee Cancelled"
 msgstr "Người tham dự đã hủy bỏ"
@@ -1535,6 +1539,7 @@ msgstr "người tham dự"
 
 #: src/components/common/EventCard/index.tsx:251
 #: src/components/common/EventCard/index.tsx:366
+#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:60
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:420
 #: src/components/common/StatBoxes/index.tsx:73
 #: src/components/layouts/Event/index.tsx:131
@@ -1563,8 +1568,7 @@ msgstr "Danh sách người tham dự đã được xuất"
 msgid "Attendees registered"
 msgstr "Người tham dự đã đăng ký"
 
-#: src/components/routes/event/EventDashboard/index.tsx:305
-#: src/components/routes/event/OccurrenceDetail/index.tsx:183
+#: src/components/common/StatsCharts/index.tsx:55
 msgid "Attendees Registered"
 msgstr "Người tham dự đã đăng ký"
 
@@ -1633,11 +1637,11 @@ msgstr "Có sẵn sau khi hoàn tất thanh toán"
 msgid "Available times on {dayName}"
 msgstr "Các giờ còn trống vào {dayName}"
 
-#: src/components/modals/RefundOrderModal/index.tsx:93
+#: src/components/modals/RefundOrderModal/index.tsx:100
 msgid "Available to Refund"
 msgstr "Có thể hoàn tiền"
 
-#: src/components/common/Editor/Controls/LiquidTokenControl.tsx:52
+#: src/components/common/Editor/Controls/LiquidTokenControl/LiquidTokenControl.tsx:52
 msgid "Available Tokens"
 msgstr "Token có sẵn"
 
@@ -1898,7 +1902,7 @@ msgstr "Không thể check-in"
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:131
 #: src/components/common/LocationPicker/index.tsx:352
 #: src/components/common/PromoCodeTable/index.tsx:40
-#: src/components/common/QuestionAndAnswerList/index.tsx:149
+#: src/components/common/QuestionAndAnswerList/index.tsx:125
 #: src/components/common/WaitlistTable/index.tsx:114
 #: src/components/common/WaitlistTable/index.tsx:135
 #: src/components/forms/ProductForm/ProductDrawer.tsx:134
@@ -1926,12 +1930,12 @@ msgstr "Hủy"
 msgid "Cancel {count} date(s)"
 msgstr "Hủy {count} ngày"
 
-#: src/components/modals/RefundOrderModal/index.tsx:133
+#: src/components/modals/RefundOrderModal/index.tsx:140
 msgid "Cancel all products and release them back to the pool"
 msgstr "Hủy tất cả sản phẩm và trả lại pool có sẵn"
 
-#: src/components/routes/event/OccurrenceDetail/index.tsx:55
-#: src/components/routes/event/OccurrenceDetail/index.tsx:72
+#: src/components/routes/event/OccurrenceDetail/index.tsx:53
+#: src/components/routes/event/OccurrenceDetail/index.tsx:70
 #: src/components/routes/event/OccurrencesTab/cancelOccurrenceDialog.tsx:32
 #: src/components/routes/event/OccurrencesTab/cancelOccurrenceDialog.tsx:49
 #: src/components/routes/event/OccurrencesTab/OccurrenceEditModal/index.tsx:322
@@ -1954,7 +1958,7 @@ msgstr "Hủy yêu cầu xóa"
 msgid "Cancel email change"
 msgstr "Hủy thay đổi email"
 
-#: src/hooks/useOrderActions.tsx:156
+#: src/hooks/useOrderActions.tsx:154
 msgid "Cancel order"
 msgstr "Hủy đơn hàng"
 
@@ -1962,11 +1966,11 @@ msgstr "Hủy đơn hàng"
 msgid "Cancel Order"
 msgstr "Hủy đơn hàng"
 
-#: src/components/modals/CancelOrderModal/index.tsx:57
+#: src/components/modals/CancelOrderModal/index.tsx:55
 msgid "Cancel Order {0}"
 msgstr "Hủy đơn hàng {0}"
 
-#: src/components/modals/CancelOrderModal/index.tsx:66
+#: src/components/modals/CancelOrderModal/index.tsx:64
 msgid "Canceling will cancel all attendees associated with this order, and release the tickets back into the available pool."
 msgstr "Hủy sẽ hủy tất cả người tham dự liên quan đến đơn hàng này và trả vé về pool có sẵn."
 
@@ -2388,7 +2392,7 @@ msgstr "đóng"
 #: src/components/layouts/CheckIn/AttendeeDetailSheet.tsx:208
 #: src/components/modals/JoinWaitlistModal/index.tsx:116
 #: src/components/modals/JoinWaitlistModal/index.tsx:143
-#: src/components/modals/RefundOrderModal/index.tsx:163
+#: src/components/modals/RefundOrderModal/index.tsx:170
 #: src/components/routes/event/OccurrencesTab/RecurrenceScheduleDrawer/index.tsx:872
 #: src/components/routes/product-widget/SelectProducts/index.tsx:952
 msgid "Close"
@@ -2532,8 +2536,7 @@ msgstr "Hoàn thành"
 msgid "Completed orders"
 msgstr "Đơn hàng đã hoàn thành"
 
-#: src/components/routes/event/EventDashboard/index.tsx:303
-#: src/components/routes/event/OccurrenceDetail/index.tsx:181
+#: src/components/common/StatsCharts/index.tsx:53
 msgid "Completed Orders"
 msgstr "Đơn hàng đã hoàn thành"
 
@@ -2834,7 +2837,7 @@ msgstr "Sao chép URL check-in"
 msgid "Copy Code"
 msgstr "Sao chép mã"
 
-#: src/hooks/useOrderActions.tsx:142
+#: src/hooks/useOrderActions.tsx:140
 msgid "Copy customer link"
 msgstr "Sao chép liên kết khách hàng"
 
@@ -3224,11 +3227,11 @@ msgstr "Mẫu tùy chỉnh"
 msgid "Customer"
 msgstr "Khách hàng"
 
-#: src/hooks/useOrderActions.tsx:64
+#: src/hooks/useOrderActions.tsx:65
 msgid "Customer link copied to clipboard"
 msgstr "Đã sao chép liên kết khách hàng vào clipboard"
 
-#: src/components/modals/RefundOrderModal/index.tsx:126
+#: src/components/modals/RefundOrderModal/index.tsx:133
 msgid "Customer will receive an email confirming the refund"
 msgstr "Khách hàng sẽ nhận email xác nhận hoàn tiền"
 
@@ -3313,7 +3316,7 @@ msgstr "Khiêu vũ"
 #: src/components/common/CapacityAssignmentList/index.tsx:153
 #: src/components/common/CheckInListList/index.tsx:174
 #: src/components/common/CheckInListTable/index.tsx:223
-#: src/components/common/EntityActions/index.tsx:57
+#: src/components/common/EntityActions/index.tsx:58
 #: src/components/common/LocationsTable/index.tsx:68
 #: src/components/common/OrganizerWebhookTable/index.tsx:116
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:532
@@ -3324,7 +3327,7 @@ msgid "Danger zone"
 msgstr "Vùng nguy hiểm"
 
 #: src/components/common/DangerZone/index.tsx:30
-#: src/components/common/EntityActions/index.tsx:31
+#: src/components/common/EntityActions/index.tsx:32
 #: src/components/routes/account/ManageAccount/index.tsx:36
 #: src/components/routes/account/ManageAccount/sections/DangerZone/index.tsx:80
 #: src/components/routes/event/OccurrencesTab/OccurrenceEditModal/index.tsx:555
@@ -3365,7 +3368,7 @@ msgstr "Ngày và giờ"
 msgid "Date Cancellation"
 msgstr "Hủy ngày"
 
-#: src/components/routes/event/OccurrenceDetail/index.tsx:76
+#: src/components/routes/event/OccurrenceDetail/index.tsx:74
 #: src/components/routes/event/OccurrencesTab/cancelOccurrenceDialog.tsx:54
 msgid "Date cancelled"
 msgstr "Đã hủy ngày"
@@ -3379,7 +3382,7 @@ msgid "Date created successfully"
 msgstr "Đã tạo ngày thành công"
 
 #: src/components/modals/ManageOccurrenceModal/index.tsx:61
-#: src/components/routes/event/OccurrenceDetail/index.tsx:87
+#: src/components/routes/event/OccurrenceDetail/index.tsx:85
 #: src/components/routes/event/OccurrencesTab/index.tsx:186
 msgid "Date deleted"
 msgstr "Đã xóa ngày"
@@ -3389,7 +3392,7 @@ msgid "Date deleted successfully"
 msgstr "Đã xóa ngày thành công"
 
 #: src/components/modals/ManageOccurrenceModal/index.tsx:75
-#: src/components/routes/event/OccurrenceDetail/index.tsx:101
+#: src/components/routes/event/OccurrenceDetail/index.tsx:99
 msgid "Date reactivated"
 msgstr "Đã kích hoạt lại ngày"
 
@@ -3450,7 +3453,7 @@ msgstr "Từ chối"
 msgid "Decrease"
 msgstr "Giảm"
 
-#: src/components/common/NumberSelector/index.tsx:109
+#: src/components/common/NumberSelector/index.tsx:111
 msgid "Decrease quantity"
 msgstr "Giảm số lượng"
 
@@ -3772,7 +3775,7 @@ msgstr "Tải xuống .ics"
 msgid "Download CSV"
 msgstr "Tải xuống CSV"
 
-#: src/hooks/useOrderActions.tsx:149
+#: src/hooks/useOrderActions.tsx:147
 msgid "Download invoice"
 msgstr "Tải xuống hóa đơn"
 
@@ -3789,7 +3792,7 @@ msgid "Download sales, attendee, and financial reports for all completed orders.
 msgstr "Tải xuống báo cáo bán hàng, người tham dự và tài chính cho tất cả đơn hàng đã hoàn thành."
 
 #: src/components/layouts/Checkout/index.tsx:186
-#: src/hooks/useOrderActions.tsx:75
+#: src/hooks/useOrderActions.tsx:76
 msgid "Downloading Invoice"
 msgstr "Tải xuống hóa đơn"
 
@@ -3909,7 +3912,7 @@ msgstr "Ưu đãi sớm"
 #: src/components/routes/event/OccurrencesTab/OccurrenceMenu.tsx:52
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:240
 #: src/hooks/useAttendeeActions.tsx:82
-#: src/hooks/useOrderActions.tsx:106
+#: src/hooks/useOrderActions.tsx:104
 msgid "Edit"
 msgstr "Chỉnh sửa"
 
@@ -3932,7 +3935,7 @@ msgstr "Chỉnh sửa đối tác"
 msgid "Edit Announcement"
 msgstr "Chỉnh sửa thông báo"
 
-#: src/components/common/QuestionAndAnswerList/index.tsx:159
+#: src/components/common/QuestionAndAnswerList/index.tsx:135
 msgid "Edit Answer"
 msgstr "Chỉnh sửa câu trả lời"
 
@@ -4389,7 +4392,7 @@ msgstr "Các mục sẽ xuất hiện ở đây khi khách hàng tham gia danh s
 
 #: src/components/common/OrganizerWebhookTable/index.tsx:149
 #: src/components/layouts/Checkout/index.tsx:194
-#: src/hooks/useOrderActions.tsx:83
+#: src/hooks/useOrderActions.tsx:84
 msgid "Error"
 msgstr "Lỗi"
 
@@ -4555,7 +4558,7 @@ msgstr "Tiêu đề sự kiện"
 msgid "Event Too New"
 msgstr "Sự kiện quá mới"
 
-#: src/components/routes/event/EventDashboard/index.tsx:264
+#: src/components/routes/event/EventDashboard/index.tsx:262
 msgid "Event totals"
 msgstr "Tổng của sự kiện"
 
@@ -4750,7 +4753,7 @@ msgstr "Không thể chỉ định cấu hình"
 msgid "Failed to cancel attendee"
 msgstr "Không thể hủy người tham dự"
 
-#: src/components/routes/event/OccurrenceDetail/index.tsx:77
+#: src/components/routes/event/OccurrenceDetail/index.tsx:75
 #: src/components/routes/event/OccurrencesTab/cancelOccurrenceDialog.tsx:57
 #: src/components/routes/event/OccurrencesTab/OccurrenceEditModal/index.tsx:348
 msgid "Failed to cancel date"
@@ -4764,7 +4767,7 @@ msgstr "Không hủy được các ngày"
 msgid "Failed to cancel message"
 msgstr "Không thể hủy tin nhắn"
 
-#: src/components/modals/CancelOrderModal/index.tsx:46
+#: src/components/modals/CancelOrderModal/index.tsx:44
 msgid "Failed to cancel order"
 msgstr "Không thể hủy đơn hàng"
 
@@ -4799,7 +4802,7 @@ msgid "Failed to delete configuration"
 msgstr "Không thể xóa cấu hình"
 
 #: src/components/modals/ManageOccurrenceModal/index.tsx:64
-#: src/components/routes/event/OccurrenceDetail/index.tsx:90
+#: src/components/routes/event/OccurrenceDetail/index.tsx:88
 #: src/components/routes/event/OccurrencesTab/index.tsx:187
 msgid "Failed to delete date"
 msgstr "Không xóa được ngày"
@@ -4842,7 +4845,7 @@ msgid "Failed to delete template"
 msgstr "Không thể xóa mẫu"
 
 #: src/components/layouts/Checkout/index.tsx:195
-#: src/hooks/useOrderActions.tsx:84
+#: src/hooks/useOrderActions.tsx:85
 msgid "Failed to download invoice. Please try again."
 msgstr "Không thể tải hóa đơn. Vui lòng thử lại."
 
@@ -4884,7 +4887,7 @@ msgid "Failed to offer tickets"
 msgstr "Không thể cung cấp vé"
 
 #: src/components/modals/ManageOccurrenceModal/index.tsx:76
-#: src/components/routes/event/OccurrenceDetail/index.tsx:102
+#: src/components/routes/event/OccurrenceDetail/index.tsx:100
 msgid "Failed to reactivate date"
 msgstr "Không kích hoạt lại được ngày"
 
@@ -4981,7 +4984,7 @@ msgstr "Không thể cập nhật xác minh tài khoản"
 msgid "Failed to update affiliate"
 msgstr "Không thể cập nhật đối tác"
 
-#: src/components/common/QuestionAndAnswerList/index.tsx:102
+#: src/components/common/QuestionAndAnswerList/index.tsx:81
 msgid "Failed to update answer."
 msgstr "Không thể cập nhật câu trả lời."
 
@@ -5308,7 +5311,7 @@ msgstr "Toàn quyền sở hữu dữ liệu"
 msgid "Full event"
 msgstr "Toàn bộ sự kiện"
 
-#: src/components/modals/RefundOrderModal/index.tsx:110
+#: src/components/modals/RefundOrderModal/index.tsx:117
 msgid "Full refund"
 msgstr "Hoàn tiền toàn bộ"
 
@@ -5386,7 +5389,7 @@ msgstr "GitHub"
 msgid "Go back"
 msgstr "Quay lại"
 
-#: src/components/routes/event/OccurrenceDetail/index.tsx:72
+#: src/components/routes/event/OccurrenceDetail/index.tsx:70
 #: src/components/routes/event/OccurrencesTab/cancelOccurrenceDialog.tsx:49
 #: src/components/routes/event/OccurrencesTab/index.tsx:223
 #: src/components/routes/event/OccurrencesTab/OccurrenceEditModal/index.tsx:339
@@ -5442,10 +5445,9 @@ msgstr "Doanh thu gộp"
 msgid "Gross sales"
 msgstr "Tổng doanh số"
 
+#: src/components/common/StatsCharts/index.tsx:79
 #: src/components/modals/ManageOccurrenceModal/index.tsx:182
 #: src/components/routes/admin/Dashboard/index.tsx:259
-#: src/components/routes/event/EventDashboard/index.tsx:342
-#: src/components/routes/event/OccurrenceDetail/index.tsx:213
 #: src/components/routes/event/Reports/OccurrenceSummaryReport/index.tsx:83
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:30
 msgid "Gross Sales"
@@ -5505,7 +5507,7 @@ msgstr "Đây là component React bạn có thể sử dụng để nhúng widge
 msgid "Here is your affiliate link"
 msgstr "Đây là liên kết đối tác của bạn"
 
-#: src/components/routes/event/EventDashboard/index.tsx:206
+#: src/components/routes/event/EventDashboard/index.tsx:204
 msgid "Hi {0} 👋"
 msgstr "Chào {0} 👋"
 
@@ -5691,7 +5693,7 @@ msgstr "Mã này có thể được sử dụng bao nhiêu lần?"
 msgid "How VAT is applied to the platform fees we charge you."
 msgstr "Cách áp dụng VAT cho phí nền tảng mà chúng tôi thu của bạn."
 
-#: src/components/common/Editor/index.tsx:90
+#: src/components/common/Editor/Editor.tsx:90
 msgid "HTML character limit exceeded: {htmlLength}/{maxLength}"
 msgstr "Vượt quá giới hạn ký tự HTML: {htmllesth}/{maxlength}"
 
@@ -5871,7 +5873,7 @@ msgstr "Bao gồm 1 sản phẩm"
 msgid "Increase"
 msgstr "Tăng"
 
-#: src/components/common/NumberSelector/index.tsx:136
+#: src/components/common/NumberSelector/index.tsx:138
 msgid "Increase quantity"
 msgstr "Tăng số lượng"
 
@@ -5885,8 +5887,8 @@ msgstr "Người tham dự riêng lẻ"
 msgid "Insert Image"
 msgstr "Chèn hình ảnh"
 
-#: src/components/common/Editor/Controls/LiquidTokenControl.tsx:43
-#: src/components/common/Editor/Controls/LiquidTokenControl.tsx:44
+#: src/components/common/Editor/Controls/LiquidTokenControl/LiquidTokenControl.tsx:43
+#: src/components/common/Editor/Controls/LiquidTokenControl/LiquidTokenControl.tsx:44
 msgid "Insert Liquid Token"
 msgstr "Chèn token Liquid"
 
@@ -5969,7 +5971,7 @@ msgid "Invoice"
 msgstr "Hóa đơn"
 
 #: src/components/layouts/Checkout/index.tsx:191
-#: src/hooks/useOrderActions.tsx:80
+#: src/hooks/useOrderActions.tsx:81
 msgid "Invoice downloaded successfully"
 msgstr "Hóa đơn được tải xuống thành công"
 
@@ -6306,8 +6308,8 @@ msgstr "Ngày đã tải"
 msgid "Loading preview..."
 msgstr "Đang tải xem trước..."
 
-#: src/components/common/Editor/Controls/LiquidTokenControl.tsx:26
-#: src/components/common/Editor/Controls/LiquidTokenControl.tsx:27
+#: src/components/common/Editor/Controls/LiquidTokenControl/LiquidTokenControl.tsx:26
+#: src/components/common/Editor/Controls/LiquidTokenControl/LiquidTokenControl.tsx:27
 msgid "Loading tokens..."
 msgstr "Đang tải token..."
 
@@ -6428,7 +6430,7 @@ msgstr "Làm cho câu hỏi này bắt buộc"
 #: src/components/common/CapacityAssignmentList/index.tsx:140
 #: src/components/common/CheckInListList/index.tsx:143
 #: src/components/common/CheckInListTable/index.tsx:219
-#: src/components/common/EntityActions/index.tsx:43
+#: src/components/common/EntityActions/index.tsx:44
 #: src/components/common/LocationsTable/index.tsx:57
 #: src/components/common/OrganizerWebhookTable/index.tsx:96
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:500
@@ -6459,7 +6461,7 @@ msgstr "Quản lý sự kiện"
 msgid "Manage on Stripe"
 msgstr "Quản lý trên Stripe"
 
-#: src/hooks/useOrderActions.tsx:99
+#: src/hooks/useOrderActions.tsx:97
 msgid "Manage order"
 msgstr "Quản lý đơn hàng"
 
@@ -6526,7 +6528,7 @@ msgstr "Xác minh thủ công"
 msgid "March"
 msgstr "Tháng 3"
 
-#: src/hooks/useOrderActions.tsx:128
+#: src/hooks/useOrderActions.tsx:126
 msgid "Mark as paid"
 msgstr "Đánh dấu đã trả tiền"
 
@@ -6582,7 +6584,7 @@ msgstr "Tin nhắn cho người tham dự"
 msgid "Message attendees with specific tickets"
 msgstr "Nhắn tin cho người tham dự có vé cụ thể"
 
-#: src/hooks/useOrderActions.tsx:114
+#: src/hooks/useOrderActions.tsx:112
 msgid "Message buyer"
 msgstr "Tin nhắn cho người mua"
 
@@ -6713,7 +6715,7 @@ msgstr "tháng"
 msgid "more"
 msgstr "nữa"
 
-#: src/components/common/EntityActions/index.tsx:98
+#: src/components/common/EntityActions/index.tsx:159
 #: src/components/routes/event/OccurrencesTab/OccurrenceMenu.tsx:171
 msgid "More actions"
 msgstr "Thao tác khác"
@@ -6762,10 +6764,6 @@ msgstr "Hồ sơ của tôi"
 msgid "My Tickets"
 msgstr "Vé Của Tôi"
 
-#: src/components/common/QuestionAndAnswerList/index.tsx:178
-msgid "N/A"
-msgstr "Không áp dụng"
-
 #: src/components/common/WidgetEditor/index.tsx:364
 msgid "Nam placerat elementum..."
 msgstr "Nam placerat elementum..."
@@ -6798,8 +6796,7 @@ msgstr "Tên là bắt buộc"
 msgid "Name must be less than 255 characters"
 msgstr "Tên phải ít hơn 255 ký tự"
 
-#: src/components/common/QuestionAndAnswerList/index.tsx:181
-#: src/components/common/QuestionAndAnswerList/index.tsx:289
+#: src/components/common/QuestionAndAnswerList/index.tsx:202
 msgid "Navigate to Attendee"
 msgstr "Đi tới người tham dự"
 
@@ -6920,7 +6917,7 @@ msgstr "Không có người tham dự để hiển thị"
 msgid "No Attendees to show"
 msgstr "Không có người tham dự để hiển thị"
 
-#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:79
+#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:81
 msgid "No attendees yet for this date."
 msgstr "Chưa có người tham dự nào cho ngày này."
 
@@ -6940,7 +6937,7 @@ msgstr "Hết chỗ"
 msgid "No Capacity Assignments"
 msgstr "Không có phân bổ sức chứa"
 
-#: src/components/common/KpiGrid/index.tsx:57
+#: src/components/common/KpiGrid/index.tsx:58
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:212
 msgid "No change"
 msgstr "Không thay đổi"
@@ -7097,7 +7094,7 @@ msgstr "Không có đơn hàng nào để hiển thị"
 msgid "No orders yet"
 msgstr "Chưa có đơn hàng nào"
 
-#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:90
+#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:92
 msgid "No orders yet for this date."
 msgstr "Chưa có đơn hàng nào cho ngày này."
 
@@ -7681,6 +7678,10 @@ msgstr "Đơn hàng & Vé"
 msgid "Order #"
 msgstr "Mã đơn"
 
+#: src/components/common/QuestionAndAnswerList/index.tsx:258
+msgid "Order answers"
+msgstr "Câu trả lời đơn hàng"
+
 #: src/components/routes/product-widget/CollectInformation/index.tsx:387
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:376
 msgid "Order cancelled"
@@ -7722,11 +7723,11 @@ msgstr "Chi tiết đơn hàng"
 msgid "Order Details"
 msgstr "Chi tiết đơn hàng"
 
-#: src/components/modals/CancelOrderModal/index.tsx:40
+#: src/components/modals/CancelOrderModal/index.tsx:38
 msgid "Order has been canceled and refunded. The order owner has been notified."
 msgstr "Đơn hàng đã được hủy và hoàn tiền. Chủ đơn hàng đã được thông báo."
 
-#: src/components/modals/CancelOrderModal/index.tsx:41
+#: src/components/modals/CancelOrderModal/index.tsx:39
 msgid "Order has been canceled and the order owner has been notified."
 msgstr "Đơn hàng đã bị hủy và chủ sở hữu đơn hàng đã được thông báo."
 
@@ -7743,7 +7744,7 @@ msgstr "Mã đơn hàng"
 msgid "Order limits"
 msgstr "Giới hạn đơn hàng"
 
-#: src/hooks/useOrderActions.tsx:50
+#: src/hooks/useOrderActions.tsx:51
 msgid "Order marked as paid"
 msgstr "Đơn hàng được đánh dấu là đã thanh toán"
 
@@ -7804,7 +7805,7 @@ msgstr "Tóm tắt đơn hàng"
 msgid "Order timeout"
 msgstr "Thời gian chờ đơn hàng"
 
-#: src/components/modals/RefundOrderModal/index.tsx:79
+#: src/components/modals/RefundOrderModal/index.tsx:86
 msgid "Order Total"
 msgstr "Tổng đơn hàng"
 
@@ -7825,6 +7826,7 @@ msgstr "Đơn hàng đã bị hủy"
 msgid "orders"
 msgstr "đơn hàng"
 
+#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:65
 #: src/components/layouts/Admin/index.tsx:17
 #: src/components/layouts/Event/index.tsx:125
 #: src/components/modals/ManageOccurrenceModal/index.tsx:178
@@ -8027,7 +8029,7 @@ msgstr "Đã thanh toán"
 msgid "Paid Accounts"
 msgstr "Tài khoản trả phí"
 
-#: src/components/modals/RefundOrderModal/index.tsx:110
+#: src/components/modals/RefundOrderModal/index.tsx:117
 msgid "Partial refund"
 msgstr "Hoàn tiền một phần"
 
@@ -8408,7 +8410,7 @@ msgstr "Vui lòng nhập mã 5 chữ số"
 msgid "Please enter your VAT number"
 msgstr "Vui lòng nhập mã số VAT của bạn"
 
-#: src/components/modals/CancelOrderModal/index.tsx:65
+#: src/components/modals/CancelOrderModal/index.tsx:63
 msgid "Please Note"
 msgstr "Xin lưu ý"
 
@@ -8463,7 +8465,7 @@ msgid "Please wait while we prepare your attendees for export..."
 msgstr "Vui lòng đợi trong khi chúng tôi chuẩn bị cho người tham dự xuất ra..."
 
 #: src/components/layouts/Checkout/index.tsx:187
-#: src/hooks/useOrderActions.tsx:76
+#: src/hooks/useOrderActions.tsx:77
 msgid "Please wait while we prepare your invoice..."
 msgstr "Vui lòng đợi trong khi chúng tôi chuẩn bị hóa đơn của bạn ..."
 
@@ -8584,7 +8586,7 @@ msgstr "In ra PDF"
 msgid "Privacy Policy"
 msgstr "Chính sách quyền riêng tư"
 
-#: src/components/modals/RefundOrderModal/index.tsx:151
+#: src/components/modals/RefundOrderModal/index.tsx:158
 msgid "Process Refund"
 msgstr "Xử lý hoàn tiền"
 
@@ -8600,6 +8602,10 @@ msgstr "Đang xử lý đơn hàng"
 #: src/components/modals/OfferWaitlistModal/index.tsx:167
 msgid "Product"
 msgstr "Sản phẩm"
+
+#: src/components/common/QuestionAndAnswerList/index.tsx:264
+msgid "Product answers"
+msgstr "Câu trả lời sản phẩm"
 
 #: src/components/forms/ProductForm/index.tsx:252
 msgid "Product Category"
@@ -8625,8 +8631,7 @@ msgstr "Sản phẩm đã xóa thành công"
 msgid "Product Price Type"
 msgstr "Loại giá sản phẩm"
 
-#: src/components/routes/event/EventDashboard/index.tsx:283
-#: src/components/routes/event/OccurrenceDetail/index.tsx:166
+#: src/components/common/StatsCharts/index.tsx:43
 #: src/components/routes/event/Reports/index.tsx:19
 msgid "Product Sales"
 msgstr "Bán Hàng"
@@ -8671,10 +8676,9 @@ msgstr "Sản phẩm"
 msgid "Products sold"
 msgstr "Sản phẩm đã bán"
 
+#: src/components/common/StatsCharts/index.tsx:54
 #: src/components/routes/admin/Dashboard/index.tsx:258
 #: src/components/routes/admin/Dashboard/index.tsx:355
-#: src/components/routes/event/EventDashboard/index.tsx:304
-#: src/components/routes/event/OccurrenceDetail/index.tsx:182
 #: src/components/routes/event/Reports/OccurrenceSummaryReport/index.tsx:73
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:68
 msgid "Products Sold"
@@ -8825,7 +8829,7 @@ msgstr "Check-in bằng mã QR"
 msgid "Qty"
 msgstr "SL"
 
-#: src/components/common/NumberSelector/index.tsx:125
+#: src/components/common/NumberSelector/index.tsx:127
 msgid "Quantity"
 msgstr "Số lượng"
 
@@ -8892,7 +8896,7 @@ msgid "Re-offer Spot"
 msgstr "Cung cấp lại suất"
 
 #: src/components/modals/ManageOccurrenceModal/index.tsx:70
-#: src/components/routes/event/OccurrenceDetail/index.tsx:96
+#: src/components/routes/event/OccurrenceDetail/index.tsx:94
 msgid "Reactivate this date? It will be reopened for future sales."
 msgstr "Kích hoạt lại ngày này? Ngày này sẽ được mở bán lại."
 
@@ -8934,7 +8938,7 @@ msgstr "Check-in gần đây"
 msgid "Recent orders"
 msgstr "Đơn hàng gần đây"
 
-#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:63
+#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:64
 msgid "Recent Orders"
 msgstr "Đơn hàng gần đây"
 
@@ -8964,6 +8968,10 @@ msgstr "Người nhận sẽ có sau khi tin nhắn được gửi"
 #: src/components/modals/SelectCheckInListModal/index.tsx:66
 msgid "Recommended"
 msgstr "Được đề xuất"
+
+#: src/components/modals/RefundOrderModal/index.tsx:158
+msgid "Record Refund"
+msgstr "Ghi nhận hoàn tiền"
 
 #: src/components/common/EventCard/index.tsx:209
 #: src/components/common/EventCard/index.tsx:322
@@ -9004,13 +9012,13 @@ msgstr "Làm mới xem trước"
 msgid "Refund all orders for these dates"
 msgstr "Hoàn tiền toàn bộ đơn hàng của những ngày này"
 
-#: src/components/routes/event/OccurrenceDetail/index.tsx:67
+#: src/components/routes/event/OccurrenceDetail/index.tsx:65
 #: src/components/routes/event/OccurrencesTab/cancelOccurrenceDialog.tsx:44
 #: src/components/routes/event/OccurrencesTab/OccurrenceEditModal/index.tsx:334
 msgid "Refund all orders for this date"
 msgstr "Hoàn tiền toàn bộ đơn hàng của ngày này"
 
-#: src/components/modals/RefundOrderModal/index.tsx:108
+#: src/components/modals/RefundOrderModal/index.tsx:115
 msgid "Refund amount"
 msgstr "Số tiền hoàn lại"
 
@@ -9022,11 +9030,11 @@ msgstr "Hoàn tiền thất bại"
 msgid "Refund Failed"
 msgstr "Hoàn tiền không thành công"
 
-#: src/hooks/useOrderActions.tsx:135
+#: src/hooks/useOrderActions.tsx:133
 msgid "Refund order"
 msgstr "Lệnh hoàn trả"
 
-#: src/components/modals/RefundOrderModal/index.tsx:192
+#: src/components/modals/RefundOrderModal/index.tsx:199
 msgid "Refund Order {0}"
 msgstr "Hoàn tiền đơn hàng {0}"
 
@@ -9038,6 +9046,10 @@ msgstr "Hoàn tiền đang chờ"
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:70
 msgid "Refund Pending"
 msgstr "Hoàn tiền chờ xử lý"
+
+#: src/components/modals/RefundOrderModal/index.tsx:60
+msgid "Refund recorded successfully."
+msgstr "Đã ghi nhận hoàn tiền thành công."
 
 #: src/components/routes/event/orders.tsx:60
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:278
@@ -9181,7 +9193,7 @@ msgstr "Gửi lại sau {resendCooldown}s"
 msgid "Resend invitation"
 msgstr "Gửi lại lời mời"
 
-#: src/hooks/useOrderActions.tsx:121
+#: src/hooks/useOrderActions.tsx:119
 msgid "Resend order email"
 msgstr "Gửi lại email đơn hàng"
 
@@ -9301,9 +9313,8 @@ msgstr "Dùng lại kết nối Stripe từ một nhà tổ chức khác trong t
 #: src/components/common/AffiliateTable/index.tsx:157
 #: src/components/common/EventCard/index.tsx:255
 #: src/components/common/EventCard/index.tsx:374
+#: src/components/common/StatsCharts/index.tsx:66
 #: src/components/routes/admin/Attribution/index.tsx:137
-#: src/components/routes/event/EventDashboard/index.tsx:315
-#: src/components/routes/event/OccurrenceDetail/index.tsx:193
 msgid "Revenue"
 msgstr "Doanh thu"
 
@@ -9418,7 +9429,7 @@ msgid "Saturday"
 msgstr "Thứ Bảy"
 
 #: src/components/common/PlatformFeesSettings/index.tsx:249
-#: src/components/common/QuestionAndAnswerList/index.tsx:142
+#: src/components/common/QuestionAndAnswerList/index.tsx:118
 #: src/components/routes/event/OccurrencesTab/OccurrenceBulkEditModal/index.tsx:272
 #: src/components/routes/event/OccurrencesTab/OccurrenceEditModal/index.tsx:306
 #: src/components/routes/event/Settings/Sections/EmailSettings/GeneralEmailSettings.tsx:81
@@ -9937,7 +9948,7 @@ msgstr "Gửi email xác nhận và vé"
 msgid "Send real-time order and attendee data to your external systems."
 msgstr "Gửi dữ liệu đơn hàng và người tham dự theo thời gian thực đến hệ thống bên ngoài của bạn."
 
-#: src/components/modals/RefundOrderModal/index.tsx:125
+#: src/components/modals/RefundOrderModal/index.tsx:132
 msgid "Send refund notification email"
 msgstr "Gửi email thông báo hoàn tiền"
 
@@ -10608,7 +10619,7 @@ msgstr "Tổng phụ"
 
 #: src/components/common/OrganizerWebhookTable/index.tsx:149
 #: src/components/layouts/Checkout/index.tsx:190
-#: src/hooks/useOrderActions.tsx:79
+#: src/hooks/useOrderActions.tsx:80
 msgid "Success"
 msgstr "Thành công"
 
@@ -11046,6 +11057,10 @@ msgstr "Liên kết bạn đã nhấp vào không hợp lệ."
 msgid "The maximum number of products for {0}is {1}"
 msgstr "Số lượng sản phẩm tối đa cho {0}là {1}"
 
+#: src/components/modals/CancelOrderModal/index.tsx:75
+msgid "The order will be marked as refunded. You will need to return the payment to the customer yourself."
+msgstr "Đơn hàng sẽ được đánh dấu là đã hoàn tiền. Bạn sẽ cần tự hoàn trả khoản thanh toán cho khách hàng."
+
 #: src/components/layouts/PublicOrganizer/OrganizerNotFound/index.tsx:9
 #: src/components/layouts/PublicOrganizer/OrganizerNotFound/index.tsx:11
 msgid "The organizer you're looking for could not be found. The page may have been moved, deleted, or the URL might be incorrect."
@@ -11138,11 +11153,11 @@ msgstr "Không có sản phẩm nào trong danh mục này"
 msgid "There are no upcoming dates for this event"
 msgstr "Sự kiện này không có ngày nào sắp tới"
 
-#: src/components/modals/RefundOrderModal/index.tsx:175
+#: src/components/modals/RefundOrderModal/index.tsx:182
 msgid "There is a refund pending. Please wait for it to complete before requesting another refund."
 msgstr "Có một khoản hoàn tiền đang chờ xử lý. Vui lòng đợi hoàn tất trước khi yêu cầu hoàn tiền khác."
 
-#: src/hooks/useOrderActions.tsx:51
+#: src/hooks/useOrderActions.tsx:52
 msgid "There was an error marking the order as paid"
 msgstr "Đã xảy ra lỗi khi đánh dấu đơn hàng là đã thanh toán"
 
@@ -11150,7 +11165,7 @@ msgstr "Đã xảy ra lỗi khi đánh dấu đơn hàng là đã thanh toán"
 msgid "There was an error processing your request. Please try again."
 msgstr "Đã xảy ra lỗi khi xử lý yêu cầu của bạn. Vui lòng thử lại."
 
-#: src/hooks/useOrderActions.tsx:58
+#: src/hooks/useOrderActions.tsx:59
 msgid "There was an error sending your message"
 msgstr "Có một lỗi khi gửi tin nhắn của bạn"
 
@@ -11246,7 +11261,7 @@ msgstr "Mã này sẽ được dùng để theo dõi doanh số. Chỉ cho phép
 msgid "This color combination may be hard to read for some users"
 msgstr "Kết hợp màu này có thể khó đọc đối với một số người dùng"
 
-#: src/components/routes/event/OccurrenceDetail/index.tsx:63
+#: src/components/routes/event/OccurrenceDetail/index.tsx:61
 #: src/components/routes/event/OccurrencesTab/cancelOccurrenceDialog.tsx:40
 #: src/components/routes/event/OccurrencesTab/OccurrenceEditModal/index.tsx:330
 msgid "This date has {orderCount} order(s) that will be affected."
@@ -11357,7 +11372,7 @@ msgstr "Ngày này đã kín chỗ"
 msgid "This order has already been paid."
 msgstr "Đơn hàng này đã được thanh toán."
 
-#: src/components/modals/RefundOrderModal/index.tsx:179
+#: src/components/modals/RefundOrderModal/index.tsx:186
 msgid "This order has already been refunded."
 msgstr "Đơn hàng này đã được hoàn trả."
 
@@ -11388,6 +11403,10 @@ msgstr "Đơn hàng này đã bị bỏ. Bạn có thể bắt đầu đơn hàn
 #: src/components/routes/product-widget/CollectInformation/index.tsx:388
 msgid "This order was cancelled. You can start a new order anytime."
 msgstr "Đơn hàng này đã bị hủy. Bạn có thể bắt đầu đơn hàng mới bất cứ lúc nào."
+
+#: src/components/modals/RefundOrderModal/index.tsx:80
+msgid "This order was paid offline. Refunding it will only update your reporting — you will need to return the payment to the customer yourself."
+msgstr "Đơn hàng này được thanh toán offline. Việc hoàn tiền chỉ cập nhật báo cáo của bạn — bạn sẽ cần tự hoàn trả khoản thanh toán cho khách hàng."
 
 #: src/components/common/StatusToggle/index.tsx:83
 msgid "This organizer profile is not published yet"
@@ -11726,8 +11745,7 @@ msgstr "Tổng phí"
 msgid "Total fees"
 msgstr "Tổng phí"
 
-#: src/components/routes/event/EventDashboard/index.tsx:341
-#: src/components/routes/event/OccurrenceDetail/index.tsx:212
+#: src/components/common/StatsCharts/index.tsx:78
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:97
 msgid "Total Fees"
 msgstr "Tổng phí"
@@ -11754,8 +11772,7 @@ msgstr "Tổng số lượng cho tất cả các ngày"
 msgid "Total refunded"
 msgstr "Tổng đã hoàn lại"
 
-#: src/components/routes/event/EventDashboard/index.tsx:344
-#: src/components/routes/event/OccurrenceDetail/index.tsx:215
+#: src/components/common/StatsCharts/index.tsx:81
 msgid "Total Refunded"
 msgstr "Tổng đã hoàn lại"
 
@@ -11763,8 +11780,7 @@ msgstr "Tổng đã hoàn lại"
 msgid "Total tax"
 msgstr "Tổng thuế"
 
-#: src/components/routes/event/EventDashboard/index.tsx:343
-#: src/components/routes/event/OccurrenceDetail/index.tsx:214
+#: src/components/common/StatsCharts/index.tsx:80
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:91
 msgid "Total Tax"
 msgstr "Tổng thuế"
@@ -11929,7 +11945,7 @@ msgstr "Hoa Kỳ"
 msgid "Unknown"
 msgstr "Không rõ"
 
-#: src/components/common/QuestionAndAnswerList/index.tsx:284
+#: src/components/common/QuestionAndAnswerList/index.tsx:191
 msgid "Unknown Attendee"
 msgstr "Người tham dự không xác định"
 
@@ -12355,7 +12371,7 @@ msgstr "Đang xác thực..."
 msgid "Vietnamese"
 msgstr "Tiếng Việt"
 
-#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:68
+#: src/components/common/OccurrenceAttendeesAndOrders/index.tsx:70
 msgid "View All"
 msgstr "Xem tất cả"
 
@@ -12729,7 +12745,7 @@ msgstr "Chào mừng bạn! Vui lòng đăng nhập để tiếp tục."
 msgid "Welcome back"
 msgstr "Chào mừng trở lại"
 
-#: src/components/routes/event/EventDashboard/index.tsx:200
+#: src/components/routes/event/EventDashboard/index.tsx:198
 msgid "Welcome back{0} 👋"
 msgstr "Chào mừng trở lại{0} 👋"
 
@@ -12997,7 +13013,7 @@ msgstr "Bạn đang thay đổi email của mình thành <0>{0}</0>."
 msgid "You are impersonating <0>{0}</0> ({1})"
 msgstr "Bạn đang mạo danh <0>{0}</0> ({1})"
 
-#: src/components/modals/RefundOrderModal/index.tsx:140
+#: src/components/modals/RefundOrderModal/index.tsx:147
 msgid "You are issuing a partial refund. The customer will be refunded {0} {1}."
 msgstr "Bạn đang thực hiện hoàn tiền một phần. Khách hàng sẽ được hoàn lại {0} {1}."
 
@@ -13047,7 +13063,7 @@ msgstr "Bạn không thể xóa cấp giá này vì đã có sản phẩm đư�
 msgid "You cannot edit the role or status of the account owner."
 msgstr "Bạn không thể chỉnh sửa vai trò hoặc trạng thái của chủ sở hữu tài khoản."
 
-#: src/components/modals/RefundOrderModal/index.tsx:170
+#: src/components/modals/RefundOrderModal/index.tsx:177
 msgid "You cannot refund a manually created order."
 msgstr "Bạn không thể hoàn trả một Đơn hàng được tạo thủ công."
 
@@ -13228,7 +13244,7 @@ msgstr "Yêu cầu email của bạn thay đổi thành <0>{0}</0> đang chờ x
 msgid "Your event is live!"
 msgstr "Sự kiện của bạn đã hoạt động!"
 
-#: src/hooks/useOrderActions.tsx:57
+#: src/hooks/useOrderActions.tsx:58
 msgid "Your message has been sent"
 msgstr "Tin nhắn của bạn đã được gửi"
 
@@ -13301,7 +13317,7 @@ msgstr "Thanh toán của bạn không thành công. Vui lòng thử lại."
 msgid "Your Plan"
 msgstr "Gói của bạn"
 
-#: src/components/modals/RefundOrderModal/index.tsx:59
+#: src/components/modals/RefundOrderModal/index.tsx:60
 msgid "Your refund is processing."
 msgstr "Hoàn lại tiền của bạn đang xử lý."
 
