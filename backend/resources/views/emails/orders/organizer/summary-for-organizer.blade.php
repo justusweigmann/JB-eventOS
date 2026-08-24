@@ -4,7 +4,10 @@
 @php /** @var \HiEvents\DomainObjects\OrderDomainObject $order */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventDomainObject $event */ @endphp
 
+<div style="margin-top: 4rem;">
+    
 <x-mail::message>
+
 # {{ __('You\'ve received a new order!') }} 🎉
 
 {{ __('Congratulations! You\'ve received a new order for ') }} <b>{{ $event->getTitle() }}</b>! {{ __('Please find the details below.') }}

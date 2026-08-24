@@ -10,22 +10,29 @@
 
 @php
     $tz = $event->getTimezone();
+
     $displayStart = $occurrence?->getStartDate() ?? $event->getStartDate();
     $displayEnd = $occurrence?->getEndDate() ?? $event->getEndDate();
 
-    $formatDateTime = static fn(?string $utc) => $utc
-        ? (new Carbon(DateHelper::convertFromUTC($utc, $tz)))->format('D, M j, Y · g:i A')
+    $formatDateTime = static fn (?string $utc) => $utc
+        ? (new Carbon(DateHelper::convertFromUTC($utc, $tz)))
+            ->format('D, M j, Y · g:i A')
         : null;
-    $formatTime = static fn(?string $utc) => $utc
-        ? (new Carbon(DateHelper::convertFromUTC($utc, $tz)))->format('g:i A')
+
+    $formatTime = static fn (?string $utc) => $utc
+        ? (new Carbon(DateHelper::convertFromUTC($utc, $tz)))
+            ->format('g:i A')
         : null;
 
     $startFormatted = $formatDateTime($displayStart);
     $endFormatted = null;
+
     if ($displayStart && $displayEnd) {
-        // Same day → show just the end time; cross-day → show the full end timestamp.
         $sameDay = substr($displayStart, 0, 10) === substr($displayEnd, 0, 10);
-        $endFormatted = $sameDay ? $formatTime($displayEnd) : $formatDateTime($displayEnd);
+
+        $endFormatted = $sameDay
+            ? $formatTime($displayEnd)
+            : $formatDateTime($displayEnd);
     }
 
     $venueName = $effectiveVenueName ?? null;
@@ -38,9 +45,9 @@
 
 @if($order->isOrderAwaitingOfflinePayment())
 <div style="border-radius: 4px; background-color: #f8d7da; color: #842029; margin-bottom: 1.5rem; padding: 1rem;">
-<p>
-{{ __('ℹ️ Your order is pending payment. Tickets have been issued but will not be valid until payment is received.') }}
-</p>
+    <p>
+        {{ __('ℹ️ Your order is pending payment. Tickets have been issued but will not be valid until payment is received.') }}
+    </p>
 </div>
 @endif
 
@@ -48,30 +55,44 @@
 
 @if($startFormatted || $venueName || $addressString || $productTitle)
 <div style="border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin: 16px 0; line-height: 1.6;">
-@if($startFormatted)
-<strong>{{ __('Date & Time:') }}</strong> {{ $startFormatted }}@if($endFormatted) – {{ $endFormatted }}@endif<br>
-@if($occurrence?->getLabel())
-<strong>{{ __('Session:') }}</strong> {{ $occurrence->getLabel() }}<br>
-@endif
-@endif
-@if($venueName || $addressString)
-<strong>{{ __('Location:') }}</strong> {{ trim(($venueName ? $venueName . ($addressString ? ', ' : '') : '') . ($addressString ?? '')) }}<br>
-@endif
-@if($productTitle)
-<strong>{{ __('Ticket:') }}</strong> {{ $productTitle }}<br>
-@endif
-<strong>{{ __('Attendee:') }}</strong> {{ trim($attendee->getFirstName() . ' ' . $attendee->getLastName()) }}
+    @if($startFormatted)
+        <strong>{{ __('Date & Time:') }}</strong>
+        {{ $startFormatted }}@if($endFormatted) – {{ $endFormatted }}@endif<br>
+
+        @if($occurrence?->getLabel())
+            <strong>{{ __('Session:') }}</strong>
+            {{ $occurrence->getLabel() }}<br>
+        @endif
+    @endif
+
+    @if($venueName || $addressString)
+        <strong>{{ __('Location:') }}</strong>
+        {{ trim(
+            ($venueName ? $venueName . ($addressString ? ', ' : '') : '')
+            . ($addressString ?? '')
+        ) }}<br>
+    @endif
+
+    @if($productTitle)
+        <strong>{{ __('Ticket:') }}</strong>
+        {{ $productTitle }}<br>
+    @endif
+
+    <strong>{{ __('Attendee:') }}</strong>
+    {{ trim($attendee->getFirstName() . ' ' . $attendee->getLastName()) }}
 </div>
 @endif
 
 <x-mail::button :url="$ticketUrl">
-{{ __('View Ticket') }}
+    {{ __('View Ticket') }}
 </x-mail::button>
 
 {{ __('If you have any questions or need assistance, please reply to this email or contact the event organizer') }}
-{{ __('at') }} <a href="mailto:{{$eventSettings->getSupportEmail()}}">{{$eventSettings->getSupportEmail()}}</a>.
+{{ __('at') }}
+<a href="mailto:{{ $eventSettings->getSupportEmail() }}">
+    {{ $eventSettings->getSupportEmail() }}
+</a>.
 
 {{ __('Best regards,') }}<br>
 {{ $organizer->getName() ?: config('app.name') }}
-
 </x-mail::message>

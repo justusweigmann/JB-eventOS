@@ -55,19 +55,89 @@ class InvoiceCreateService
         ]);
     }
 
-    private function getLatestInvoiceNumber(int $eventId, EventSettingDomainObject $eventSettings): string
-    {
-        $latestInvoice = $this->invoiceRepository->findLatestInvoiceForEvent($eventId);
+    private function getLatestInvoiceNumber(
+        int $eventId,
+        EventSettingDomainObject $eventSettings
+    ): string {
+        $latestInvoice = $this->invoiceRepository
+            ->findLatestInvoiceForEvent($eventId);
 
-        $startNumber = $eventSettings->getInvoiceStartNumber() ?? 1;
-        $prefix = $eventSettings->getInvoicePrefix() ?? '';
+        $configuredStartNumber = $eventSettings->getInvoiceStartNumber();
+        $configuredPrefix = $eventSettings->getInvoicePrefix();
 
-        if (! $latestInvoice) {
-            return $prefix.$startNumber;
+        $startNumber = max(1, (int) ($configuredStartNumber ?? 1));
+        $prefix = trim((string) ($configuredPrefix ?? ''));
+
+        $startNumberString = trim((string) ($configuredStartNumber ?? '1'));
+
+        if (! preg_match('/^\d+$/', $startNumberString)) {
+            throw new \UnexpectedValueException(
+                'Die Rechnungs-Startnummer darf nur aus Ziffern bestehen.'
+            );
         }
 
-        $nextInvoiceNumber = (int) preg_replace('/\D+/', '', $latestInvoice->getInvoiceNumber()) + 1;
+        $numberLength = strlen($startNumberString);
 
-        return $prefix.$nextInvoiceNumber;
+        if (! $latestInvoice) {
+            return $prefix . $this->formatInvoiceSequence(
+                $startNumber,
+                $numberLength
+            );
+        }
+
+        $latestInvoiceNumber = trim((string) $latestInvoice->getInvoiceNumber());
+
+        $numberPart = $latestInvoiceNumber;
+
+        // Remove configured prefix if present
+        if ($prefix !== '' && str_starts_with($numberPart, $prefix)) {
+            $numberPart = substr($numberPart, strlen($prefix));
+        }
+
+        // Allow an optional separator like '-', '_' etc. directly after the prefix
+        // e.g. "2026T-0001" or "2026T_0001" -> "0001"
+        $numberPart = ltrim($numberPart, "-_");
+
+        // Extract trailing digits if there are extra characters
+        // e.g. "0001A" -> "0001", "2026T0001X" -> "0001"
+        if (preg_match('/(\d+)$/', $numberPart, $matches)) {
+            $numberPart = $matches[1];
+        }
+
+        if (! preg_match('/^\d+$/', $numberPart)) {
+            // Fallback: ignore latest invoice and start from configured start number
+            return $prefix . $this->formatInvoiceSequence(
+                $startNumber,
+                $numberLength
+            );
+        }
+
+        $latestNumber = (int) $numberPart;
+
+        if ($latestNumber < 0) {
+            throw new \UnexpectedValueException(
+                'Die letzte Rechnungsnummer darf nicht negativ sein.'
+            );
+        }
+
+        $nextInvoiceNumber = $latestNumber + 1;
+
+        return $prefix . $this->formatInvoiceSequence(
+            $nextInvoiceNumber,
+            $numberLength
+        );
+    }
+
+    private function formatInvoiceSequence(
+        int $number,
+        int $minimumLength
+    ): string {
+
+        return str_pad(
+            (string) $number,
+            $minimumLength,
+            '0',
+            STR_PAD_LEFT
+        );
     }
 }

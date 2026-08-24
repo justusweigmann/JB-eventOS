@@ -7,6 +7,8 @@ use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Mail\BaseMail;
+use HiEvents\Helper\Url;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
@@ -27,6 +29,10 @@ class PaymentSuccessButOrderExpiredMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address(
+                address: (string) config('mail.from.address'),
+                name: $this->getFromName($this->organizer, $this->event),
+            ),
             replyTo: $this->eventSettings->getSupportEmail(),
             subject: __('We were unable to process your order'),
         );
@@ -37,11 +43,12 @@ class PaymentSuccessButOrderExpiredMail extends BaseMail
         return new Content(
             markdown: 'emails.orders.payment-success-but-order-expired',
             with: [
-                'event' => $this->event,
-                'order' => $this->order,
-                'organizer' => $this->organizer,
+                ...$this->getMailHeaderData($this->organizer),
+                'event'         => $this->event,
+                'order'         => $this->order,
+                'organizer'     => $this->organizer,
                 'eventSettings' => $this->eventSettings,
-            ]
+            ],
         );
     }
 }

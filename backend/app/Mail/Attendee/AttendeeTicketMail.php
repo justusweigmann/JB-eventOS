@@ -17,6 +17,7 @@ use HiEvents\Helper\StringHelper;
 use HiEvents\Helper\Url;
 use HiEvents\Mail\BaseMail;
 use HiEvents\Services\Domain\Email\DTO\RenderedEmailTemplateDTO;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -41,6 +42,7 @@ class AttendeeTicketMail extends BaseMail
         private readonly ?EventOccurrenceDomainObject $occurrence = null,
     ) {
         parent::__construct();
+
         $this->renderedTemplate = $renderedTemplate;
     }
 
@@ -51,6 +53,10 @@ class AttendeeTicketMail extends BaseMail
         ]);
 
         return new Envelope(
+            from: new Address(
+                address: (string) config('mail.from.address'),
+                name: $this->getFromName($this->organizer, $this->event),
+            ),
             replyTo: $this->eventSettings->getSupportEmail(),
             subject: $subject,
         );
@@ -62,10 +68,11 @@ class AttendeeTicketMail extends BaseMail
             return new Content(
                 markdown: 'emails.custom-template',
                 with: [
+                    ...$this->getMailHeaderData($this->organizer),
                     'renderedBody' => $this->renderedTemplate->body,
                     'renderedCta' => $this->renderedTemplate->cta,
                     'eventSettings' => $this->eventSettings,
-                ]
+                ],
             );
         }
 
@@ -75,6 +82,7 @@ class AttendeeTicketMail extends BaseMail
         return new Content(
             markdown: 'emails.orders.attendee-ticket',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'event' => $this->event,
                 'attendee' => $this->attendee,
                 'eventSettings' => $this->eventSettings,
@@ -89,18 +97,20 @@ class AttendeeTicketMail extends BaseMail
                     $this->event->getId(),
                     $this->attendee->getShortId(),
                 ),
-            ]
+            ],
         );
     }
 
     private function venueNameFor(?EventLocationDomainObject $eventLocation): ?string
     {
         $venue = $this->venueLocation($eventLocation);
+
         if ($venue === null) {
             return null;
         }
 
         $name = $venue->getName();
+
         if ($name !== null && $name !== '') {
             return $name;
         }
@@ -111,12 +121,14 @@ class AttendeeTicketMail extends BaseMail
     private function addressStringFor(?EventLocationDomainObject $eventLocation): ?string
     {
         $venue = $this->venueLocation($eventLocation);
+
         if ($venue === null) {
             return null;
         }
 
         $address = $venue->getStructuredAddress();
-        if (! is_array($address)) {
+
+        if (!is_array($address)) {
             return null;
         }
 
@@ -143,36 +155,47 @@ class AttendeeTicketMail extends BaseMail
         $startDateRaw = $this->occurrence?->getStartDate() ?? $this->event->getStartDate();
         $endDateRaw = $this->occurrence?->getEndDate() ?? $this->event->getEndDate();
 
-        $startDateTime = $startDateRaw ? Carbon::parse($startDateRaw, $this->event->getTimezone()) : null;
-        $endDateTime = $endDateRaw ? Carbon::parse($endDateRaw, $this->event->getTimezone()) : null;
+        $startDateTime = $startDateRaw
+            ? Carbon::parse($startDateRaw, $this->event->getTimezone())
+            : null;
+
+        $endDateTime = $endDateRaw
+            ? Carbon::parse($endDateRaw, $this->event->getTimezone())
+            : null;
 
         if ($startDateTime === null) {
             return [];
         }
 
         $eventTitle = $this->event->getTitle();
+
         if ($this->occurrence?->getLabel()) {
-            $eventTitle .= ' - '.$this->occurrence->getLabel();
+            $eventTitle .= ' - ' . $this->occurrence->getLabel();
         }
 
         $event = Event::create()
             ->name($eventTitle)
-            ->uniqueIdentifier('event-'.$this->attendee->getId())
+            ->uniqueIdentifier('event-' . $this->attendee->getId())
             ->startsAt($startDateTime)
             ->url($this->event->getEventUrl())
             ->organizer($this->organizer->getEmail(), $this->organizer->getName());
 
         if ($this->event->getDescription()) {
-            $event->description(StringHelper::previewFromHtml($this->event->getDescription()));
+            $event->description(
+                StringHelper::previewFromHtml($this->event->getDescription())
+            );
         }
 
         $occurrence = $this->occurrence ?? $this->attendee->getEventOccurrence();
         $eventLocation = $occurrence?->getEventLocation() ?? $this->event->getEventLocation();
         $address = $this->addressStringFor($eventLocation);
+
         if ($address !== null) {
             $event->address($address);
-        } elseif ($eventLocation?->getType() === LocationType::ONLINE->name
-            && $eventLocation->getOnlineEventConnectionDetails() !== null) {
+        } elseif (
+            $eventLocation?->getType() === LocationType::ONLINE->name
+            && $eventLocation->getOnlineEventConnectionDetails() !== null
+        ) {
             $event->address(__('Online event'));
         }
 
@@ -185,8 +208,10 @@ class AttendeeTicketMail extends BaseMail
             ->get();
 
         return [
-            Attachment::fromData(static fn () => $calendar, 'event.ics')
-                ->withMime('text/calendar'),
+            Attachment::fromData(
+                static fn () => $calendar,
+                'event.ics',
+            )->withMime('text/calendar'),
         ];
     }
 }

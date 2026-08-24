@@ -8,6 +8,7 @@ use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Helper\Url;
 use HiEvents\Mail\BaseMail;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
@@ -28,6 +29,10 @@ class OrderCancelled extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address(
+                address: (string) config('mail.from.address'),
+                name: $this->getFromName($this->organizer, $this->event),
+            ),
             replyTo: $this->eventSettings->getSupportEmail(),
             subject: __('Your order has been cancelled'),
         );
@@ -38,6 +43,7 @@ class OrderCancelled extends BaseMail
         return new Content(
             markdown: 'emails.orders.order-cancelled',
             with: [
+                ...$this->getMailHeaderData($this->organizer),
                 'event' => $this->event,
                 'order' => $this->order,
                 'organizer' => $this->organizer,
@@ -47,7 +53,7 @@ class OrderCancelled extends BaseMail
                     $this->event->getId(),
                     $this->event->getSlug(),
                 ),
-            ]
+            ],
         );
     }
 }
