@@ -68,6 +68,7 @@ class AttendeeTicketMail extends BaseMail
             return new Content(
                 markdown: 'emails.custom-template',
                 with: [
+                    ...$this->getMailHeaderData($this->organizer),
                     'renderedBody' => $this->renderedTemplate->body,
                     'renderedCta' => $this->renderedTemplate->cta,
                     'eventSettings' => $this->eventSettings,
