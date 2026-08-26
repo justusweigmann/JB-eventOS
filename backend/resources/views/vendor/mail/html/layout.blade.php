@@ -11,7 +11,19 @@
     <meta name="supported-color-schemes" content="light">
 
     <style>
-        @media only screen and (max-width: 640px) {
+        @media screen and (max-width: 600px) {
+            .header {
+                width: 100% !important;
+            }
+
+            .header td {
+                padding: 20px 16px 12px !important;
+            }
+
+            .header img {
+                width: 96px !important;
+                max-width: 96px !important;
+            }
             .inner-body {
                 border-radius: 0 !important;
                 width: 100% !important;
@@ -39,78 +51,69 @@
     </style>
 </head>
 
-<body
-    style="
-        box-sizing: border-box;
-        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-            Roboto, 'Helvetica Neue', Arial, sans-serif;
-        background-color: #f4f2f7;
-        color: #56506a;
-        height: 100%;
-        line-height: 1.65;
-        margin: 0;
-        padding: 0;
-        width: 100% !important;
-    "
->
-<table
-    class="wrapper"
-    width="100%"
-    cellpadding="0"
-    cellspacing="0"
-    role="presentation"
-    style="background-color: #f4f2f7; width: 100%;"
->
-    <tr>
-        <td align="center">
-            <table
-                class="content"
-                width="100%"
-                cellpadding="0"
-                cellspacing="0"
-                role="presentation"
-            >
-                {{-- Header nur aus dem Slot --}}
-                {!! $header ?? '' !!}
-
-                <tr>
-                    <td
-                        class="body"
-                        width="100%"
-                        style="border: hidden !important;"
-                    >
+<body style="box-sizing: border-box; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f2f7; color: #56506a; height: 100%; line-height: 1.65; margin: 0; padding: 0; width: 100% !important;">
+    <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f4f2f7; width: 100%;">
+        <tr>
+            <td align="center">
+                <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                    
+                    {{-- Header: Organizer oder Fallback --}}
+                    @if(isset($mailOrganizerLogoUrl))
+                        {{-- Organizer logo header --}}
                         <table
-                            class="inner-body"
+                            class="header"
                             align="center"
-                            width="600"
+                            width="100%"
                             cellpadding="0"
                             cellspacing="0"
+                            border="0"
                             role="presentation"
-                            style="
-                                background-color: #ffffff;
-                                border-radius: 16px;
-                                margin: 0 auto;
-                                width: 600px;
-                            "
+                            style="width:100%; max-width:600px; margin:0 auto; border-collapse:collapse;"
                         >
                             <tr>
-                                <td
-                                    class="content-cell"
-                                    style="padding: 32px;"
-                                >
-                                    {!! Illuminate\Mail\Markdown::parse($slot) !!}
-
-                                    {!! $subcopy ?? '' !!}
+                                <td align="center" style="padding:24px 24px 16px; text-align:center;">
+                                    <a href="{{ $mailOrganizerWebsite ?? config('app.frontend_url') }}" target="_blank" style="text-decoration:none;">
+                                        <img
+                                            src="{{ $mailOrganizerLogoUrl }}"
+                                            alt="{{ $mailOrganizerName ?? config('app.name') }}"
+                                            width="120"
+                                            border="0"
+                                            style="display:block; width:120px; max-width:100%; height:auto; margin:0 auto; border:0; outline:none; text-decoration:none;"
+                                        >
+                                    </a>
                                 </td>
                             </tr>
                         </table>
-                    </td>
-                </tr>
+                    @elseif(isset($header))
+                        {!! $header !!}
+                    @else
+                        {{-- Default app logo header --}}
+                        <x-mail::header :url="config('app.email_logo_link_url')">
+                            @if($appLogo = config('app.email_logo_url'))
+                                <img src="{{ $appLogo }}" class="logo" alt="{{ config('app.name') }}">
+                            @else
+                                <img src="{{ config('app.frontend_url') }}/logos/hi-events-stacked-light.png" class="logo" alt="{{ config('app.name') }}">
+                            @endif
+                        </x-mail::header>
+                    @endif
 
-                {!! $footer ?? '' !!}
-            </table>
-        </td>
-    </tr>
-</table>
+                    <tr>
+                        <td class="body" width="100%" style="border: hidden !important;">
+                            <table class="inner-body" align="center" width="600" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #ffffff; border-radius: 16px; margin: 0 auto; width: 600px;">
+                                <tr>
+                                    <td class="content-cell" style="padding: 32px;">
+                                        {!! Illuminate\Mail\Markdown::parse($slot) !!}
+                                        {!! $subcopy ?? '' !!}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    {!! $footer ?? '' !!}
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

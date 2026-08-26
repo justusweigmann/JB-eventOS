@@ -55,39 +55,42 @@ class OrderSummary extends BaseMail
 
     public function content(): Content
     {
-        
         if ($this->renderedTemplate) {
             return new Content(
                 markdown: 'emails.custom-template',
-                with: [
-                    ...$this->getMailHeaderData($this->organizer),
-                    'renderedBody' => $this->renderedTemplate->body,
-                    'renderedCta'  => $this->renderedTemplate->cta,
-                    'eventSettings'=> $this->eventSettings,
-                    'event'        => $this->event,
-                    'organizer'    => $this->organizer,
-                    'order'        => $this->order,
-                ],
+                with: array_merge(
+                    $this->getMailHeaderData($this->organizer),
+                    [
+                        'renderedBody'  => $this->renderedTemplate->body,
+                        'renderedCta'   => $this->renderedTemplate->cta,
+                        'eventSettings' => $this->eventSettings,
+                        'event'         => $this->event,
+                        'organizer'     => $this->organizer,
+                        'order'         => $this->order,
+                    ],
+                ),
             );
         }
 
         return new Content(
             markdown: 'emails.orders.summary',
-            with: [
-                ...$this->getMailHeaderData($this->organizer),
-                'eventSettings' => $this->eventSettings,
-                'event'         => $this->event,
-                'order'         => $this->order,
-                'organizer'     => $this->organizer,
-                'occurrence'    => $this->occurrence,
-                'orderUrl'      => sprintf(
-                    Url::getFrontEndUrlFromConfig(
-                        Url::ORDER_SUMMARY,
+            with: array_merge(
+                $this->getMailHeaderData($this->organizer),
+                [
+                    'eventSettings' => $this->eventSettings,
+                    'event'         => $this->event,
+                    'order'         => $this->order,
+                    'organizer'     => $this->organizer,
+                    'occurrence'    => $this->occurrence,
+                    'orderUrl'      => sprintf(
+                        Url::getFrontEndUrlFromConfig(
+                            Url::ORDER_SUMMARY,
+                        ),
+                        $this->event->getId(),
+                        $this->order->getShortId(),
                     ),
-                    $this->event->getId(),
-                    $this->order->getShortId(),
-                ),
-            ],
+                ],
+            ),
         );
     }
 
