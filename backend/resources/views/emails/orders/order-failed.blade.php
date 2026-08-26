@@ -1,20 +1,13 @@
 @php /** @var \HiEvents\DomainObjects\OrderDomainObject $order */ @endphp
 @php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
+@php /** @var ?string $mailOrganizerLogoUrl */ @endphp
+@php /** @var ?string $mailOrganizerName */ @endphp
+@php /** @var ?string $mailOrganizerWebsite */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventDomainObject $event */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
 @php /** @var string $eventUrl */ @endphp
 
 @php /** @see \HiEvents\Mail\Order\OrderFailed */ @endphp
-
-@if(isset($mailOrganizerLogoUrl))
-    <img
-        src="{{ $mailOrganizerLogoUrl }}"
-        alt="Organizer Logo"
-        style="max-height: 150px; center; display: block; margin-left: auto; margin-right: auto; margin-top: 2rem; margin-bottom: 1rem;"
-    >
-@else
-    LOGO FEHLT IM MAIL-VIEW
-@endif
 
 <x-mail::message>
 {{ __('Hello') }},

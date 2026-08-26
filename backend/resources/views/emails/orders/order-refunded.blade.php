@@ -1,6 +1,9 @@
 @php /** @var \HiEvents\DomainObjects\OrderDomainObject $order */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventDomainObject $event */ @endphp
 @php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
+@php /** @var ?string $mailOrganizerLogoUrl */ @endphp
+@php /** @var ?string $mailOrganizerName */ @endphp
+@php /** @var ?string $mailOrganizerWebsite */ @endphp
 @php /** @var \HiEvents\Values\MoneyValue $refundAmount */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
 

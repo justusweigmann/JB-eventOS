@@ -1,12 +1,16 @@
 @php use Carbon\Carbon; use HiEvents\Helper\Currency; use HiEvents\Helper\DateHelper; @endphp
 @php /** @var \HiEvents\DomainObjects\OrderDomainObject $order */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventDomainObject $event */ @endphp
-@php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventOccurrenceDomainObject|null $occurrence */ @endphp
 @php /** @var string $orderUrl */ @endphp
 
 @php /** @see \HiEvents\Mail\Order\OrderSummary */ @endphp
+
+@php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
+@php /** @var ?string $mailOrganizerLogoUrl */ @endphp
+@php /** @var ?string $mailOrganizerName */ @endphp
+@php /** @var ?string $mailOrganizerWebsite */ @endphp
 
 @php
     $displayStart = $occurrence?->getStartDate() ?? $event->getStartDate();
