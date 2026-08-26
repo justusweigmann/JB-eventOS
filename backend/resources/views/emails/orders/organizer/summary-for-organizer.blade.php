@@ -3,8 +3,6 @@
 @php /** @uses /backend/app/Mail/OrderSummary.php */ @endphp
 @php /** @var \HiEvents\DomainObjects\OrderDomainObject $order */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventDomainObject $event */ @endphp
-
-<div style="margin-top: 4rem;">
     
 <x-mail::message>
 
