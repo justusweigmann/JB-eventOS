@@ -14,6 +14,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 abstract class BaseMail extends Mailable implements ShouldQueue
 {
@@ -41,7 +42,14 @@ abstract class BaseMail extends Mailable implements ShouldQueue
     protected function getMailHeaderData(
         OrganizerDomainObject $organizer,
     ): array {
+        Log::debug('BaseMail::getMailHeaderData - called', [
+            'organizerId'    => $organizer->getId(),
+            'organizerName'  => $organizer->getName(),
+            'organizerEmail' => $organizer->getEmail(),
+        ]);
+
         $organizer = $this->loadOrganizerWithImages($organizer);
+
         $images = $organizer->getImages();
 
         $logo = $images?->first(
@@ -53,9 +61,17 @@ abstract class BaseMail extends Mailable implements ShouldQueue
             ? Url::getCdnUrl($logo->getPath())
             : null;
 
+        Log::debug('BaseMail::getMailHeaderData - result', [
+            'organizerId'      => $organizer->getId(),
+            'organizerName'    => $organizer->getName(),
+            'organizerWebsite' => $organizer->getWebsite(),
+            'organizerLogoUrl' => $organizerLogoUrl,
+            'imagesCount'      => $images?->count(),
+        ]);
+
         return [
             'mailOrganizerLogoUrl' => $organizerLogoUrl,
-            'mailOrganizerName' => $organizer->getName(),
+            'mailOrganizerName'    => $organizer->getName(),
             'mailOrganizerWebsite' => $organizer->getWebsite(),
         ];
     }

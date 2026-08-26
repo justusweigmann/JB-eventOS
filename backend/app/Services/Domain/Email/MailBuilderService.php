@@ -22,6 +22,7 @@ use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrganizerRepositoryInterface;
 use HiEvents\Services\Domain\Email\DTO\RenderedEmailTemplateDTO;
 use HiEvents\Services\Domain\Order\OfflinePaymentInstructionsRenderService;
+use Illuminate\Support\Facades\Log;
 
 class MailBuilderService
 {
@@ -45,6 +46,13 @@ class MailBuilderService
         $order = $this->loadFreshOrder($order);
         $organizer = $this->loadOrganizerImages($organizer);
 
+        Log::debug('MailBuilderService::buildAttendeeTicketMail - before render', [
+            'organizerId'   => $organizer->getId(),
+            'organizerName' => $organizer->getName(),
+            'organizerEmail' => $organizer->getEmail(),
+            'organizerImagesCount' => $organizer->getImages()?->count(),
+        ]);
+
         $renderedTemplate = $this->renderAttendeeTicketTemplate(
             $attendee,
             $order,
@@ -53,6 +61,13 @@ class MailBuilderService
             $organizer,
             $occurrence,
         );
+
+        Log::debug('MailBuilderService::buildAttendeeTicketMail - before new AttendeeTicketMail', [
+            'organizerId'   => $organizer->getId(),
+            'organizerName' => $organizer->getName(),
+            'organizerEmail' => $organizer->getEmail(),
+            'organizerImagesCount' => $organizer->getImages()?->count(),
+        ]);
 
         return new AttendeeTicketMail(
             order: $order,
@@ -76,6 +91,13 @@ class MailBuilderService
         $order = $this->loadFreshOrder($order);
         $organizer = $this->loadOrganizerImages($organizer);
 
+        Log::debug('MailBuilderService::buildOrderSummaryMail - before render', [
+            'organizerId'   => $organizer->getId(),
+            'organizerName' => $organizer->getName(),
+            'organizerEmail' => $organizer->getEmail(),
+            'organizerImagesCount' => $organizer->getImages()?->count(),
+        ]);
+
         $renderedTemplate = $this->renderOrderSummaryTemplate(
             $order,
             $event,
@@ -92,6 +114,13 @@ class MailBuilderService
                 $eventSettings,
             );
         }
+
+        Log::debug('MailBuilderService::buildOrderSummaryMail - before new OrderSummary', [
+            'organizerId'   => $organizer->getId(),
+            'organizerName' => $organizer->getName(),
+            'organizerEmail' => $organizer->getEmail(),
+            'organizerImagesCount' => $organizer->getImages()?->count(),
+        ]);
 
         return new OrderSummary(
             order: $order,
@@ -113,6 +142,13 @@ class MailBuilderService
     ): OccurrenceCancellationMail {
         $organizer = $this->loadOrganizerImages($organizer);
 
+        Log::debug('MailBuilderService::buildOccurrenceCancellationMail - before render', [
+            'organizerId'   => $organizer->getId(),
+            'organizerName' => $organizer->getName(),
+            'organizerEmail' => $organizer->getEmail(),
+            'organizerImagesCount' => $organizer->getImages()?->count(),
+        ]);
+
         $renderedTemplate = $this->renderOccurrenceCancellationTemplate(
             $event,
             $occurrence,
@@ -128,6 +164,13 @@ class MailBuilderService
 
         $formattedDate = (new Carbon($startDate))
             ->format('F j, Y g:i A');
+
+        Log::debug('MailBuilderService::buildOccurrenceCancellationMail - before new OccurrenceCancellationMail', [
+            'organizerId'   => $organizer->getId(),
+            'organizerName' => $organizer->getName(),
+            'organizerEmail' => $organizer->getEmail(),
+            'organizerImagesCount' => $organizer->getImages()?->count(),
+        ]);
 
         return new OccurrenceCancellationMail(
             event: $event,
@@ -146,14 +189,6 @@ class MailBuilderService
         $freshOrder = $this->orderRepository
             ->loadRelation(OrderItemDomainObject::class)
             ->findById($order->getId());
-
-        logger()->debug('MAIL ORDER FRESH RELOAD', [
-            'orderId' => $order->getId(),
-            'statusBefore' => $order->getStatus(),
-            'statusAfterReload' => $freshOrder->getStatus(),
-            'wasStale' => $order->getStatus() !== $freshOrder->getStatus(),
-        ]);
-
         return $freshOrder;
     }
 
@@ -175,17 +210,14 @@ class MailBuilderService
             ? Url::getCdnUrl($logo->getPath())
             : null;
 
-        logger()->debug('LOGO HEADER MailBuilderService.php', [
-            'organizerId' => $loadedOrganizer->getId(),
-            'organizerName' => $loadedOrganizer->getName(),
-            'organizerWebsite' => $loadedOrganizer->getWebsite(),
-            'organizerLogoUrl' => $organizerLogoUrl,
-            'organizerLogoPath' => $logo?->getPath(),
-            'imagesLoaded' => $images !== null,
-            'imagesCount' => $images?->count(),
-            'imageTypes' => $images?->map(
-                static fn (ImageDomainObject $image): string => $image->getType()
-            )->values()->all(),
+        Log::debug('MailBuilderService::loadOrganizerImages', [
+            'organizerId'        => $organizer->getId(),
+            'organizerName'      => $loadedOrganizer->getName(),
+            'organizerWebsite'   => $loadedOrganizer->getWebsite(),
+            'organizerLogoUrl'   => $organizerLogoUrl,
+            'imagesCount'        => $images?->count(),
+            'imageTypes'         => $images?->map(fn ($i) => $i->getType())->toArray(),
+            'logoFound'          => $logo !== null,
         ]);
 
         return $loadedOrganizer;
