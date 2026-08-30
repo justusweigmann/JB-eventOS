@@ -57,45 +57,8 @@
             <td align="center">
                 <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                     
-                    {{-- Header: Organizer oder Fallback --}}
-                    @if(isset($mailOrganizerLogoUrl))
-                        {{-- Organizer logo header --}}
-                        <table
-                            class="header"
-                            align="center"
-                            width="100%"
-                            cellpadding="0"
-                            cellspacing="0"
-                            border="0"
-                            role="presentation"
-                            style="width:100%; max-width:600px; margin:0 auto; border-collapse:collapse;"
-                        >
-                            <tr>
-                                <td align="center" style="padding:24px 24px 16px; text-align:center;">
-                                    <a href="{{ $mailOrganizerWebsite ?? config('app.frontend_url') }}" target="_blank" style="text-decoration:none;">
-                                        <img
-                                            src="{{ $mailOrganizerLogoUrl }}"
-                                            alt="{{ $mailOrganizerName ?? config('app.name') }}"
-                                            width="120"
-                                            border="0"
-                                            style="display:block; width:120px; max-width:100%; height:auto; margin:0 auto; border:0; outline:none; text-decoration:none;"
-                                        >
-                                    </a>
-                                </td>
-                            </tr>
-                        </table>
-                    @elseif(isset($header))
-                        {!! $header !!}
-                    @else
-                        {{-- Default app logo header --}}
-                        <x-mail::header :url="config('app.email_logo_link_url')">
-                            @if($appLogo = config('app.email_logo_url'))
-                                <img src="{{ $appLogo }}" class="logo" alt="{{ config('app.name') }}">
-                            @else
-                                <img src="{{ config('app.frontend_url') }}/logos/hi-events-stacked-light.png" class="logo" alt="{{ config('app.name') }}">
-                            @endif
-                        </x-mail::header>
-                    @endif
+                    {{-- Header aus dem Slot --}}
+                    {!! $header ?? '' !!}
 
                     <tr>
                         <td class="body" width="100%" style="border: hidden !important;">
