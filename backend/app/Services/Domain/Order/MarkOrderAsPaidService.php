@@ -1,6 +1,8 @@
 <?php
 
+
 namespace HiEvents\Services\Domain\Order;
+
 
 use Brick\Math\Exception\MathException;
 use HiEvents\DomainObjects\AttendeeDomainObject;
@@ -36,6 +38,7 @@ use HiEvents\Services\Infrastructure\DomainEvents\Events\OrderEvent;
 use Illuminate\Database\DatabaseManager;
 use Throwable;
 
+
 class MarkOrderAsPaidService
 {
     public function __construct(
@@ -51,6 +54,7 @@ class MarkOrderAsPaidService
         private readonly SendOrderDetailsService $sendOrderDetailsService,
         private readonly OccurrenceStatusValidator $occurrenceStatusValidator,
     ) {}
+
 
     /**
      * @throws ResourceConflictException|Throwable
@@ -70,6 +74,7 @@ class MarkOrderAsPaidService
                     OrderDomainObjectAbstract::EVENT_ID => $eventId,
                 ]);
 
+
             $event = $this->eventRepository
                 ->loadRelation(new Relationship(OrganizerDomainObject::class, name: 'organizer'))
                 ->loadRelation(new Relationship(EventSettingDomainObject::class))
@@ -83,15 +88,20 @@ class MarkOrderAsPaidService
                 ]))
                 ->findById($order->getEventId());
 
+
             if ($order->getStatus() !== OrderStatus::AWAITING_OFFLINE_PAYMENT->name) {
                 throw new ResourceConflictException(__('Order is not awaiting offline payment'));
             }
 
+
             $this->occurrenceStatusValidator->assertOrderOccurrencesArePurchasable($order);
+
 
             $this->updateOrderStatus($orderId);
 
-            $this->updateOrderInvoice($orderId);
+
+            $updatedInvoice = $this->updateOrderInvoice($orderId);
+
 
             $updatedOrder = $this->orderRepository
                 ->loadRelation(new Relationship(
@@ -110,6 +120,7 @@ class MarkOrderAsPaidService
                 ))
                 ->findById($orderId);
 
+
             // Update affiliate sales if this order has an affiliate
             if ($updatedOrder->getAffiliateId()) {
                 $this->affiliateRepository->incrementSales(
@@ -118,12 +129,15 @@ class MarkOrderAsPaidService
                 );
             }
 
+
             $this->updateAttendeeStatuses($updatedOrder);
+
 
             event(new OrderStatusChangedEvent(
                 order: $updatedOrder,
                 sendEmails: false
             ));
+
 
             $this->domainEventDispatcherService->dispatch(
                 new OrderEvent(
@@ -132,30 +146,43 @@ class MarkOrderAsPaidService
                 ),
             );
 
+
             $this->storeApplicationFeePayment($updatedOrder);
+
 
             $this->sendOrderDetailsService->sendCustomerOrderSummary(
                 order: $updatedOrder,
                 event: $event,
                 organizer: $event->getOrganizer(),
                 eventSettings: $event->getEventSettings(),
-                invoice: $order->getLatestInvoice(),
+                invoice: $updatedInvoice,
             );
+
 
             return $updatedOrder;
         });
     }
 
-    private function updateOrderInvoice(int $orderId): void
+
+    private function updateOrderInvoice(int $orderId): InvoiceDomainObject
     {
         $invoice = $this->invoiceRepository->findLatestInvoiceForOrder($orderId);
+
 
         if ($invoice) {
             $this->invoiceRepository->updateFromArray($invoice->getId(), [
                 'status' => InvoiceStatus::PAID->name,
             ]);
+
+
+            // Hole die aktualisierte Invoice frisch aus der DB
+            return $this->invoiceRepository->findById($invoice->getId());
         }
+
+
+        return $invoice;
     }
+
 
     private function updateOrderStatus(int $orderId): void
     {
@@ -164,6 +191,7 @@ class MarkOrderAsPaidService
             OrderDomainObjectAbstract::PAYMENT_STATUS => OrderPaymentStatus::PAYMENT_RECEIVED->name,
         ]);
     }
+
 
     private function updateAttendeeStatuses(OrderDomainObject $updatedOrder): void
     {
@@ -177,6 +205,7 @@ class MarkOrderAsPaidService
             ],
         );
     }
+
 
     /**
      * @throws MathException
@@ -197,10 +226,12 @@ class MarkOrderAsPaidService
             ))
             ->findById($updatedOrder->getEventId());
 
+
         $config = $event->getOrganizer()?->getOrganizerConfiguration();
         if (! $config) {
             return;
         }
+
 
         $this->orderApplicationFeeService->createOrderApplicationFee(
             orderId: $updatedOrder->getId(),

@@ -13369,3 +13369,33 @@ msgstr "Alle Rechte vorbehalten."
 #: src/components/layouts/OrganizerHomepage/index.tsx:328
 msgid "The Hi.Events App service is provided by"
 msgstr "Das Hosting für die Hi.Events-App übernimmt"
+
+msgid "This is a friendly reminder that your order for :eventTitle is pending payment."
+msgstr "Dies ist eine freundliche Erinnerung: Die Zahlung für Ihre Bestellung zu „:eventTitle“ steht noch aus."
+
+msgid "To complete your purchase, please proceed with the payment before"
+msgstr "Um Ihre Bestellung abzuschließen, führen Sie die Zahlung bitte bis zum folgenden Zeitpunkt durch:"
+
+msgid "After this time, your order will expire and the reserved tickets will be released."
+msgstr "Danach verfällt Ihre Bestellung und die reservierten Tickets werden wieder freigegeben."
+
+msgid "URGENT: Your order for :eventTitle will expire soon!"
+msgstr "DRINGEND: Ihre Bestellung für „:eventTitle“ läuft bald ab!"
+
+msgid "Your payment is due within the next 24 hours. To secure your tickets, please complete the payment before"
+msgstr "Ihre Zahlung ist innerhalb der nächsten 24 Stunden fällig. Um Ihre Tickets zu sichern, schließen Sie die Zahlung bitte bis zum folgenden Zeitpunkt ab:"
+
+msgid "If payment is not received by this time, your order will be automatically cancelled and the tickets will be released to other customers."
+msgstr "Geht bis zu diesem Zeitpunkt keine Zahlung ein, wird Ihre Bestellung automatisch storniert und die Tickets werden für andere Interessenten freigegeben."
+
+msgid "Complete Payment Now"
+msgstr "Jetzt bezahlen"
+
+msgid "If you have already completed the payment, you can ignore this email."
+msgstr "Falls Sie bereits bezahlt haben, können Sie diese E-Mail ignorieren."
+
+msgid "If you have any questions or need assistance, feel free to reach us at"
+msgstr "Bei Fragen oder wenn Sie Unterstützung benötigen, erreichen Sie uns unter"
+
+msgid "Best regards"
+msgstr "Mit freundlichen Grüßen"
