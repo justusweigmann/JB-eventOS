@@ -18,18 +18,26 @@ RUN yarn install --network-timeout 600000 --frozen-lockfile && yarn build
 FROM serversideup/php:8.5-fpm-alpine
 
 ENV PHP_OPCACHE_ENABLE=1
+ENV COMPOSER_MAX_PARALLEL_HTTP=4
+ENV COMPOSER_IPRESOLVE=4
 
 # Switch to root for installing extensions and packages
 USER root
 
 RUN install-php-extensions intl gd
 
-RUN apk add --no-cache nodejs yarn nginx supervisor dos2unix
+# git + weitere Tools installieren
+RUN apk add --no-cache nodejs yarn nginx supervisor dos2unix git
 
 COPY --from=node-frontend /app/frontend /app/frontend
 
 COPY ./backend /app/backend
 COPY ./VERSION /app/backend/VERSION
+
+# Source-Fallback global aktivieren (schreibt ~/.composer/config.json)
+RUN composer config --global source-fallback true
+
+# Composer install in separatem RUN, damit Config vorher geschrieben wurde
 RUN mkdir -p /app/backend/bootstrap/cache \
     && mkdir -p /app/backend/storage \
     && chown -R www-data:www-data /app/backend \

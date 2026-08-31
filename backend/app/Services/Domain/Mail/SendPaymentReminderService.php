@@ -84,6 +84,7 @@ class SendPaymentReminderService
 
         $this->mailer
             ->to($order->getEmail())
+            ->cc($organizer->getEmail())
             ->locale($order->getLocale())
             ->send(new PaymentReminderMail(
                 order: $order,
