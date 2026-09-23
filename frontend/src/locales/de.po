@@ -8110,7 +8110,7 @@ msgstr "Pausiert"
 
 #: src/components/routes/product-widget/Payment/index.tsx:151
 msgid "Pay"
-msgstr "Bezahlen"
+msgstr "Zahlungspflichtig bestellen"
 
 #: src/components/routes/product-widget/SelectProducts/Prices/Tiered/index.tsx:208
 msgid "Pay what you want"
@@ -13389,7 +13389,7 @@ msgid "If payment is not received by this time, your order will be automatically
 msgstr "Geht bis zu diesem Zeitpunkt keine Zahlung ein, wird Ihre Bestellung automatisch storniert und die Tickets werden für andere Interessenten freigegeben."
 
 msgid "Complete Payment Now"
-msgstr "Jetzt bezahlen"
+msgstr "Jetzt Zahlungspflichtig bestellen"
 
 msgid "If you have already completed the payment, you can ignore this email."
 msgstr "Falls Sie bereits bezahlt haben, können Sie diese E-Mail ignorieren."
