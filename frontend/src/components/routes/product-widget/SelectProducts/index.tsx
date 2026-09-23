@@ -42,6 +42,7 @@ import {
     EventOccurrenceStatus,
     EventType,
     Product,
+    ProductQuantityAppliesTo,
     ProductType,
     PromoCodeDiscountAppliesTo,
     PromoCodeDiscountType,
@@ -59,6 +60,7 @@ import {Constants} from "../../../../constants.ts";
 import {clearWaitlistJoinedForEvent} from "../../../../hooks/useWaitlistJoined.ts";
 import {OccurrenceSelector} from "../OccurrenceSelector";
 import {CHECKOUT_PREFILL_PARAM_KEYS} from "../../../../hooks/useCheckoutPrefill.ts";
+import {UserGeneratedContent} from "../../../common/UserGeneratedContent";
 
 const AFFILIATE_EXPIRY_DAYS = 30;
 
@@ -203,6 +205,9 @@ const SelectProducts = (props: SelectProductsProps) => {
     });
 
     const isRecurring = event?.type === EventType.RECURRING;
+    const hasPerDateQuantities = (product: Product): boolean =>
+        (product.prices?.length ?? 0) > 0
+        && product.prices!.every(price => price.quantity_applies_to === ProductQuantityAppliesTo.Occurrence);
     const activeOccurrences = useMemo(() => {
         return (event?.occurrences || []).filter(
             occ => (occ.status === EventOccurrenceStatus.ACTIVE || occ.status === EventOccurrenceStatus.SOLD_OUT) && !occ.is_past
@@ -417,8 +422,8 @@ const SelectProducts = (props: SelectProductsProps) => {
                     <IconChevronDown size={14} stroke={2} className={isExpanded ? 'open' : ''}/>
                 </button>
                 <Collapse expanded={isExpanded} transitionDuration={250}>
-                    <div className={'hi-product-description'}
-                         dangerouslySetInnerHTML={{__html: description}}/>
+                    <UserGeneratedContent className={'hi-product-description'}
+                         html={description}/>
                 </Collapse>
             </div>
         );
@@ -661,7 +666,7 @@ const SelectProducts = (props: SelectProductsProps) => {
                             {category.description && (
                                 <div className={'hi-product-category-description'}>
                                     <Spoiler maxHeight={500} showLabel={t`Show more`} hideLabel={t`Hide`}>
-                                        <div dangerouslySetInnerHTML={{__html: category.description}}/>
+                                        <UserGeneratedContent html={category.description}/>
                                     </Spoiler>
                                 </div>
                             )}
@@ -728,7 +733,7 @@ const SelectProducts = (props: SelectProductsProps) => {
                                                         {product.title}
                                                     </h3>
                                                     <div className={'hi-product-title-metadata'}>
-                                                        {(product.is_available && !!product.quantity_available && !(isRecurring && product.product_type === ProductType.Ticket)) && (
+                                                        {(product.is_available && !!product.quantity_available && (!isRecurring || product.product_type !== ProductType.Ticket || hasPerDateQuantities(product))) && (
                                                             <>
                                                                 {product.quantity_available === Constants.INFINITE_TICKETS && (
                                                                     <span className={'hi-quantity-remaining-note'}>
@@ -747,7 +752,7 @@ const SelectProducts = (props: SelectProductsProps) => {
                                                             </>
                                                         )}
 
-                                                        {(!product.is_available && product.type === 'TIERED') && (
+                                                        {(!product.is_available && product.type === 'TIERED' && isProductCollapsed) && (
                                                             <span className={'hi-product-availability'}
                                                                   data-reason={availabilityState}>
                                                                 <ProductAvailabilityMessage product={product}
@@ -836,13 +841,13 @@ const SelectProducts = (props: SelectProductsProps) => {
                                                             return (
                                                                 <div key={addonId}
                                                                      className={classNames('hi-product-addon', addon.is_highlighted && 'hi-product-addon-highlighted')}>
+                                                                    {addon.is_highlighted && addon.highlight_message && (
+                                                                        <div className={'hi-product-addon-highlight-message'}>
+                                                                            {addon.highlight_message}
+                                                                        </div>
+                                                                    )}
                                                                     <div className={'hi-product-addon-title'}>
                                                                         {addon.title}
-                                                                        {addon.is_highlighted && addon.highlight_message && (
-                                                                            <span className={'hi-product-addon-highlight-message'}>
-                                                                                {addon.highlight_message}
-                                                                            </span>
-                                                                        )}
                                                                     </div>
                                                                     <TieredPricing
                                                                         productIndex={addonFormIndex}
@@ -878,9 +883,9 @@ const SelectProducts = (props: SelectProductsProps) => {
 
             <div className={'hi-footer-row'}>
                 {event?.settings?.product_page_message && (
-                    <div dangerouslySetInnerHTML={{
-                        __html: event.settings.product_page_message.replace(/\n/g, '<br/>')
-                    }} className={'hi-product-page-message'}/>
+                    <UserGeneratedContent
+                        html={event.settings.product_page_message.replace(/\n/g, '<br/>')}
+                        className={'hi-product-page-message'}/>
                 )}
                 <Button disabled={isButtonDisabled} fullWidth className={'hi-continue-button'}
                         ref={props.continueButtonRef}

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { APIRequestContext } from '@playwright/test';
 import type { ApiClient } from './api-client';
 import type {
@@ -29,16 +31,20 @@ export interface SeededEvent {
 
 interface SeedOptions {
   organizerId: number;
+  startDate?: string;
   price?: number;
   productType?: ProductPriceType;
   eventType?: EventType;
   category?: string;
   title?: string;
   productTitle?: string;
+  productDescription?: string;
   quantityAvailable?: number;
   waitlistEnabled?: boolean;
+  showQuantityRemaining?: boolean;
   taxIds?: number[];
-  prices?: { price: number; label?: string }[];
+  prices?: { price: number; label?: string; initial_quantity_available?: number }[];
+  sequentialTierReleaseEnabled?: boolean;
   attendeeDetails?: AttendeeDetailsCollection;
 }
 
@@ -55,6 +61,19 @@ const futureStartDate = (): string => {
   return date.toISOString();
 };
 
+const pastStartDate = (): string => {
+  const date = new Date();
+  date.setDate(date.getDate() - 30);
+  date.setHours(21, 0, 0, 0);
+  return date.toISOString();
+};
+
+const coverImage = (): { name: string; mimeType: string; buffer: Buffer } => ({
+  name: 'event-cover.png',
+  mimeType: 'image/png',
+  buffer: readFileSync(fileURLToPath(new URL('../fixtures/assets/event-cover.png', import.meta.url))),
+});
+
 export async function createLiveEventWithProduct(api: ApiClient, opts: SeedOptions): Promise<SeededEvent> {
   const {
     organizerId,
@@ -70,7 +89,7 @@ export async function createLiveEventWithProduct(api: ApiClient, opts: SeedOptio
     title,
     type: eventType,
     organizer_id: organizerId,
-    start_date: futureStartDate(),
+    start_date: opts.startDate ?? futureStartDate(),
     category,
     currency: 'USD',
     timezone: 'UTC',
@@ -85,6 +104,7 @@ export async function createLiveEventWithProduct(api: ApiClient, opts: SeedOptio
 
   const created = await api.createProduct(event.id, {
     title: productTitle,
+    ...(opts.productDescription !== undefined ? { description: opts.productDescription } : {}),
     product_type: 'TICKET',
     type: productType,
     product_category_id: categoryId,
@@ -93,6 +113,8 @@ export async function createLiveEventWithProduct(api: ApiClient, opts: SeedOptio
       ...priceEntry,
     })),
     ...(opts.waitlistEnabled !== undefined ? { waitlist_enabled: opts.waitlistEnabled } : {}),
+    ...(opts.showQuantityRemaining !== undefined ? { show_quantity_remaining: opts.showQuantityRemaining } : {}),
+    ...(opts.sequentialTierReleaseEnabled !== undefined ? { sequential_tier_release_enabled: opts.sequentialTierReleaseEnabled } : {}),
     ...(opts.taxIds ? { tax_and_fee_ids: opts.taxIds } : {}),
   });
 
@@ -306,10 +328,39 @@ export async function createSoldOutEvent(
   return { ...event, consumedOrder };
 }
 
+export async function createPastEventWithCoverImage(
+  api: ApiClient,
+  organizerId: number,
+  opts: { title?: string; eventType?: EventType } = {},
+): Promise<SeededEvent> {
+  const event = await createLiveEventWithProduct(api, {
+    organizerId,
+    startDate: pastStartDate(),
+    title: opts.title,
+    eventType: opts.eventType,
+  });
+
+  if (opts.eventType === 'RECURRING') {
+    await api.createOccurrence(event.eventId, { start_date: pastStartDate() });
+  }
+
+  await api.uploadEventImage(event.eventId, coverImage());
+
+  return event;
+}
+
 export async function createRecurringLiveEvent(
   api: ApiClient,
   organizerId: number,
-  opts: { count?: number; price?: number; title?: string } = {},
+  opts: {
+    count?: number;
+    price?: number;
+    title?: string;
+    quantityAvailable?: number;
+    quantityAppliesTo?: 'OCCURRENCE' | 'EVENT';
+    waitlistEnabled?: boolean;
+    showQuantityRemaining?: boolean;
+  } = {},
 ): Promise<SeededEvent & { occurrences: Occurrence[] }> {
   const count = opts.count ?? 3;
   const price = opts.price ?? 0;
@@ -340,7 +391,13 @@ export async function createRecurringLiveEvent(
     product_type: 'TICKET',
     type: price > 0 ? 'PAID' : 'FREE',
     product_category_id: categories[0].id,
-    prices: [{ price }],
+    prices: [{
+      price,
+      ...(opts.quantityAvailable !== undefined ? { initial_quantity_available: opts.quantityAvailable } : {}),
+      ...(opts.quantityAppliesTo ? { quantity_applies_to: opts.quantityAppliesTo } : {}),
+    }],
+    ...(opts.waitlistEnabled !== undefined ? { waitlist_enabled: opts.waitlistEnabled } : {}),
+    ...(opts.showQuantityRemaining !== undefined ? { show_quantity_remaining: opts.showQuantityRemaining } : {}),
   });
   const product = await api.getProduct(event.id, created.id);
   const priceId = product.prices?.[0]?.id;

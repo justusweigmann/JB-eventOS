@@ -18,9 +18,11 @@ import type {
   CreateTaxOrFeePayload,
   CreateWebhookPayload,
   EmailTemplate,
+  EventImageType,
   EventRecord,
   EventSettings,
   EventStatus,
+  ImageRecord,
   InviteUserPayload,
   Me,
   Occurrence,
@@ -35,6 +37,9 @@ import type {
   RegisterPayload,
   TaxOrFee,
   UpdateOccurrencePayload,
+  CashlessSalesPoint,
+  CashlessSettings,
+  CreateCashlessSalesPointPayload,
   Webhook,
 } from './types';
 
@@ -130,6 +135,14 @@ export class ApiClient {
     return unwrap<EventRecord>(this.request.post('events', { headers: jsonHeaders, data: payload }));
   }
 
+  uploadEventImage(
+    eventId: number,
+    image: { name: string; mimeType: string; buffer: Buffer },
+    type: EventImageType = 'EVENT_COVER',
+  ): Promise<ImageRecord> {
+    return unwrap<ImageRecord>(this.request.post(`events/${eventId}/images`, { multipart: { image, type } }));
+  }
+
   listProductCategories(eventId: number): Promise<ProductCategory[]> {
     return unwrap<ProductCategory[]>(this.request.get(`events/${eventId}/product-categories`, { headers: jsonHeaders }));
   }
@@ -152,6 +165,10 @@ export class ApiClient {
     );
   }
 
+  listProducts(eventId: number): Promise<ProductRecord[]> {
+    return unwrap<ProductRecord[]>(this.request.get(`events/${eventId}/products`, { headers: jsonHeaders }));
+  }
+
   setEventStatus(eventId: number, status: EventStatus): Promise<void> {
     return check(this.request.put(`events/${eventId}/status`, { headers: jsonHeaders, data: { status } }));
   }
@@ -166,6 +183,38 @@ export class ApiClient {
 
   updateEventSettings(eventId: number, settings: Partial<EventSettings>): Promise<void> {
     return check(this.request.patch(`events/${eventId}/settings`, { headers: jsonHeaders, data: settings }));
+  }
+
+  updateCashlessSettings(
+    eventId: number,
+    payload: {
+      cashless_enabled: boolean;
+      cashless_min_topup_amount: number;
+      cashless_allow_remaining_balance_refund: boolean;
+      cashless_refund_deadline_at?: string | null;
+      cashless_online_topup_enabled?: boolean;
+      cashless_topup_tax_and_fee_ids?: number[];
+    },
+  ): Promise<CashlessSettings> {
+    return unwrap<CashlessSettings>(
+      this.request.put(`events/${eventId}/cashless/settings`, {
+        headers: jsonHeaders,
+        data: {
+          cashless_online_topup_enabled: true,
+          cashless_topup_tax_and_fee_ids: [],
+          ...payload,
+        },
+      }),
+    );
+  }
+
+  createCashlessSalesPoint(eventId: number, payload: CreateCashlessSalesPointPayload): Promise<CashlessSalesPoint> {
+    return unwrap<CashlessSalesPoint>(
+      this.request.post(`events/${eventId}/cashless/sales-points`, {
+        headers: jsonHeaders,
+        data: { allow_staff_topups: true, ...payload },
+      }),
+    );
   }
 
   createPromoCode(eventId: number, payload: CreatePromoCodePayload): Promise<PromoCode> {

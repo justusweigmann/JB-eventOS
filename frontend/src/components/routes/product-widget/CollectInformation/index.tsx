@@ -36,6 +36,7 @@ import classes from "./CollectInformation.module.scss";
 import {trackEvent, AnalyticsEvents} from "../../../../utilites/analytics.ts";
 import {clearWaitlistJoinedForEvent} from "../../../../hooks/useWaitlistJoined.ts";
 import {useCheckoutPrefill, CheckoutPrefill} from "../../../../hooks/useCheckoutPrefill.ts";
+import {UserGeneratedContent} from "../../../common/UserGeneratedContent";
 
 const LoadingSkeleton = () =>
     (
@@ -212,6 +213,22 @@ export const CollectInformation = () => {
     };
 
     // Reset copy option if order details become incomplete
+    useEffect(() => {
+        if (!order?.email || form.values.order.email) {
+            return;
+        }
+
+        form.setValues({
+            order: {
+                ...form.values.order,
+                first_name: order.first_name ?? '',
+                last_name: order.last_name ?? '',
+                email: order.email,
+                email_confirmation: order.email,
+            },
+        });
+    }, [order?.email]);
+
     useEffect(() => {
         if (copyOption !== 'none' && !areOrderDetailsComplete()) {
             setCopyOption('none');
@@ -742,7 +759,7 @@ export const CollectInformation = () => {
 
                 {!!event?.settings?.pre_checkout_message && (
                     <Card>
-                        <div dangerouslySetInnerHTML={{__html: event?.settings?.pre_checkout_message}}/>
+                        <UserGeneratedContent html={event?.settings?.pre_checkout_message}/>
                     </Card>
                 )}
 

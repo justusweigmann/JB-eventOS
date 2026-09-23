@@ -16,6 +16,11 @@ use HiEvents\Repository\Eloquent\AnnouncementUserRepository;
 use HiEvents\Repository\Eloquent\AttendeeCheckInRepository;
 use HiEvents\Repository\Eloquent\AttendeeRepository;
 use HiEvents\Repository\Eloquent\CapacityAssignmentRepository;
+use HiEvents\Repository\Eloquent\CashlessSalesPointRepository;
+use HiEvents\Repository\Eloquent\CashlessTopupRepository;
+use HiEvents\Repository\Eloquent\CashlessTransactionItemRepository;
+use HiEvents\Repository\Eloquent\CashlessTransactionRepository;
+use HiEvents\Repository\Eloquent\CashlessWalletRepository;
 use HiEvents\Repository\Eloquent\CheckInListRepository;
 use HiEvents\Repository\Eloquent\EmailTemplateRepository;
 use HiEvents\Repository\Eloquent\EventDailyStatisticRepository;
@@ -25,6 +30,7 @@ use HiEvents\Repository\Eloquent\EventOccurrenceRepository;
 use HiEvents\Repository\Eloquent\EventOccurrenceStatisticRepository;
 use HiEvents\Repository\Eloquent\EventRepository;
 use HiEvents\Repository\Eloquent\EventSettingsRepository;
+use HiEvents\Repository\Eloquent\EventSpamCheckRepository;
 use HiEvents\Repository\Eloquent\EventStatisticRepository;
 use HiEvents\Repository\Eloquent\ImageRepository;
 use HiEvents\Repository\Eloquent\InvoiceRepository;
@@ -74,6 +80,11 @@ use HiEvents\Repository\Interfaces\AnnouncementUserRepositoryInterface;
 use HiEvents\Repository\Interfaces\AttendeeCheckInRepositoryInterface;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CapacityAssignmentRepositoryInterface;
+use HiEvents\Repository\Interfaces\CashlessSalesPointRepositoryInterface;
+use HiEvents\Repository\Interfaces\CashlessTopupRepositoryInterface;
+use HiEvents\Repository\Interfaces\CashlessTransactionItemRepositoryInterface;
+use HiEvents\Repository\Interfaces\CashlessTransactionRepositoryInterface;
+use HiEvents\Repository\Interfaces\CashlessWalletRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
 use HiEvents\Repository\Interfaces\EmailTemplateRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventDailyStatisticRepositoryInterface;
@@ -83,6 +94,7 @@ use HiEvents\Repository\Interfaces\EventOccurrenceRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventOccurrenceStatisticRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventSettingsRepositoryInterface;
+use HiEvents\Repository\Interfaces\EventSpamCheckRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventStatisticRepositoryInterface;
 use HiEvents\Repository\Interfaces\ImageRepositoryInterface;
 use HiEvents\Repository\Interfaces\InvoiceRepositoryInterface;
@@ -149,6 +161,7 @@ class RepositoryServiceProvider extends ServiceProvider
         ImageRepositoryInterface::class => ImageRepository::class,
         ProductPriceRepositoryInterface::class => ProductPriceRepository::class,
         EventStatisticRepositoryInterface::class => EventStatisticRepository::class,
+        EventSpamCheckRepositoryInterface::class => EventSpamCheckRepository::class,
         EventDailyStatisticRepositoryInterface::class => EventDailyStatisticRepository::class,
         EventSettingsRepositoryInterface::class => EventSettingsRepository::class,
         OrganizerRepositoryInterface::class => OrganizerRepository::class,
@@ -156,6 +169,11 @@ class RepositoryServiceProvider extends ServiceProvider
         CapacityAssignmentRepositoryInterface::class => CapacityAssignmentRepository::class,
         StripeCustomerRepositoryInterface::class => StripeCustomerRepository::class,
         CheckInListRepositoryInterface::class => CheckInListRepository::class,
+        CashlessWalletRepositoryInterface::class => CashlessWalletRepository::class,
+        CashlessTransactionRepositoryInterface::class => CashlessTransactionRepository::class,
+        CashlessTransactionItemRepositoryInterface::class => CashlessTransactionItemRepository::class,
+        CashlessSalesPointRepositoryInterface::class => CashlessSalesPointRepository::class,
+        CashlessTopupRepositoryInterface::class => CashlessTopupRepository::class,
         AttendeeCheckInRepositoryInterface::class => AttendeeCheckInRepository::class,
         ProductCategoryRepositoryInterface::class => ProductCategoryRepository::class,
         InvoiceRepositoryInterface::class => InvoiceRepository::class,

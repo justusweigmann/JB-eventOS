@@ -4,7 +4,7 @@ import "../../../styles/widget/default.scss";
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {EventDocumentHead} from "../../common/EventDocumentHead";
 import {eventCoverImage, eventHomepageUrl, imageUrl, organizerHomepageUrl} from "../../../utilites/urlHelper.ts";
-import {Event, EventOccurrence, EventType, OrganizerStatus} from "../../../types.ts";
+import {Event, EventLifecycleStatus, EventOccurrence, EventType, OrganizerStatus} from "../../../types.ts";
 import {EventNotAvailable} from "./EventNotAvailable";
 import {
     IconArrowUpRight,
@@ -18,6 +18,7 @@ import {
     IconMaximize,
     IconShare,
     IconTicket,
+    IconWallet,
     IconWorld
 } from "@tabler/icons-react";
 import {Anchor} from "@mantine/core";
@@ -32,7 +33,7 @@ import {getConfig} from "../../../utilites/config.ts";
 import {computeThemeVariables, validateThemeSettings} from "../../../utilites/themeUtils.ts";
 import {useOrganizerTrackingPixels} from "../../../hooks/useOrganizerTrackingPixels";
 import {trackPixelEvent, hasActivePixels} from "../../../utilites/trackingPixels";
-import {CookieConsentBanner} from "../../common/CookieConsentBanner";
+import {CookieSettingsLink} from "../../common/CookieSettingsLink";
 import {removeTransparency} from "../../../utilites/colorHelper.ts";
 import {ensureHomepageFontLoaded} from "../../../utilites/fontLoader.ts";
 import {ShareComponent} from "../../common/ShareIcon";
@@ -40,6 +41,7 @@ import {EventDateRange} from "../../common/EventDateRange";
 import {CalendarOptionsPopover} from "../../common/CalendarOptionsPopover";
 import {isDateInPast} from "../../../utilites/dates.ts";
 import {formatCurrency} from "../../../utilites/currency.ts";
+import {UserGeneratedContent} from "../../common/UserGeneratedContent";
 
 interface EventHomepageProps {
     event?: Event;
@@ -78,19 +80,19 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
         return () => observer.disconnect();
     }, [continueButtonNode]);
 
-    const {consentPending, consentGranted, onConsent} = useOrganizerTrackingPixels(
+    const {pixelsReady} = useOrganizerTrackingPixels(
         event?.organizer?.settings?.tracking_pixels
     );
 
     useEffect(() => {
-        if (event && consentGranted && hasActivePixels()) {
+        if (event && pixelsReady && hasActivePixels()) {
             trackPixelEvent({
                 eventName: 'ViewContent',
                 contentName: event.title,
                 contentId: event.id,
             });
         }
-    }, [event?.id, consentGranted]);
+    }, [event?.id, pixelsReady]);
 
     useEffect(() => {
         let showTimer: NodeJS.Timeout;
@@ -188,7 +190,13 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
             config: socialMediaConfig[platform as keyof typeof socialMediaConfig]
         })) : [];
 
+    const eventHasEnded = event.lifecycle_status === EventLifecycleStatus.ENDED;
+
     const getStatusBadge = () => {
+        if (eventHasEnded) {
+            return {text: t`Sales ended`};
+        }
+
         const products = event.products || event.product_categories?.flatMap(c => c.products || []) || [];
 
         if (products.length > 0 && products.every(p => p.is_sold_out)) {
@@ -209,7 +217,7 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                 <StatusToggle
                     entityType="event"
                     entityId={event.id}
-                    currentStatus={event.status as 'DRAFT' | 'LIVE'}
+                    currentStatus={event.status as 'DRAFT' | 'LIVE' | 'PENDING_MANUAL_REVIEW'}
                     entityName={event.title}
                     onSuccess={() =>
                         setTimeout(() => {
@@ -474,9 +482,9 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                                     <div className={classes.sectionHeader}>
                                         <h2 className={classes.sectionTitle}>{t`About`}</h2>
                                     </div>
-                                    <div
+                                    <UserGeneratedContent
                                         className={classes.description}
-                                        dangerouslySetInnerHTML={{__html: event.description}}
+                                        html={event.description}
                                     />
                                 </div>
                             )}
@@ -582,6 +590,25 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                                 />
                             </div>
 
+                            {event.settings?.cashless_enabled && event.settings?.cashless_online_topup_enabled && (
+                                <div className={classes.section} id="cashless">
+                                    <div className={classes.sectionHeader}>
+                                        <h2 className={classes.sectionTitle}>{t`Cashless`}</h2>
+                                    </div>
+                                    <p className={classes.description}>
+                                        {t`Already have a ticket? Top up the balance attached to it and pay at the event with its QR code.`}
+                                    </p>
+                                    <a
+                                        href={`/cashless/${event.id}`}
+                                        className={classes.cashlessLink}
+                                        data-testid="event-cashless-topup-link"
+                                    >
+                                        <IconWallet size={18}/>
+                                        {t`Top up my balance`}
+                                    </a>
+                                </div>
+                            )}
+
                             {/* Organizer Section */}
                             {organizer && organizer.status === OrganizerStatus.LIVE && (
                                 <div className={classes.section} id="organizer">
@@ -624,9 +651,9 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                                             </div>
 
                                             {organizer.description && (
-                                                <div
+                                                <UserGeneratedContent
                                                     className={classes.organizerBio}
-                                                    dangerouslySetInnerHTML={{__html: organizer.description}}
+                                                    html={organizer.description}
                                                 />
                                             )}
 
@@ -700,6 +727,7 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                                 </Anchor>
                             </div>
                             <PoweredByFooter className={classes.poweredByFooter}/>
+                            <CookieSettingsLink/>
                         </div>
                     </div>
 
@@ -714,7 +742,7 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                                 : continueButtonText}
                         </button>
                     )}
-                    {!showFloatingCheckoutButton && showScrollButton && (
+                    {!showFloatingCheckoutButton && showScrollButton && !eventHasEnded && (
                         <button
                             className={classes.scrollToTicketsButton}
                             onClick={scrollToTickets}
@@ -731,9 +759,6 @@ const EventHomepage = ({...loaderData}: EventHomepageProps) => {
                         organizer={organizer}
                     />
                 </div>
-                {consentPending && (
-                    <CookieConsentBanner onConsent={onConsent}/>
-                )}
             </main>
         </>
     );

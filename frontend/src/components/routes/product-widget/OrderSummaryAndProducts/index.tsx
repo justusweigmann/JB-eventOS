@@ -15,6 +15,7 @@ import {
     IconMapPin,
     IconMenuOrder,
     IconPrinter,
+    IconWallet,
     IconSend,
     IconTicket,
     IconUser
@@ -51,6 +52,7 @@ import {useResendOrderConfirmationPublic} from "../../../../mutations/useResendO
 import {Attendee, Event, LocationType, Order, Product} from "../../../../types.ts";
 import classes from './OrderSummaryAndProducts.module.scss';
 import {clearWaitlistJoinedForEvent} from "../../../../hooks/useWaitlistJoined.ts";
+import {UserGeneratedContent} from "../../../common/UserGeneratedContent";
 // Purchase tracking is handled by the parent Checkout layout
 
 const PaymentStatus = ({order}: { order: Order }) => {
@@ -121,6 +123,17 @@ const GuestListItem = ({
                         <IconPrinter size={18}/>
                     </ActionIcon>
                 </Tooltip>
+                {event.settings?.cashless_enabled && !isCancelled && (
+                    <Tooltip label={t`Cashless balance`}>
+                        <ActionIcon
+                            variant="subtle"
+                            onClick={() => window?.open(`/cashless/${event.id}/${attendee.short_id}`, '_blank')}
+                            data-testid="attendee-cashless-button"
+                        >
+                            <IconWallet size={18}/>
+                        </ActionIcon>
+                    </Tooltip>
+                )}
                 {allowSelfEdit && !isCancelled && (
                     <>
                         <Tooltip label={t`Edit Attendee`}>
@@ -402,7 +415,7 @@ const PostCheckoutMessage = ({ message }: { message: string }) => (
     <div style={{ marginTop: '20px', marginBottom: '40px' }}>
         <h1 className={classes.heading}>{t`Additional Information`}</h1>
         <Card>
-            <div dangerouslySetInnerHTML={{ __html: message }} />
+            <UserGeneratedContent html={message} />
         </Card>
     </div>
 );
@@ -411,11 +424,7 @@ const OfflinePaymentInstructions = ({ event }: { event: Event }) => (
     <div style={{ marginTop: '20px', marginBottom: '40px' }}>
         <h2>{t`Payment Instructions`}</h2>
         <Card>
-            <div
-                dangerouslySetInnerHTML={{
-                    __html: event?.settings?.offline_payment_instructions || "",
-                }}
-            />
+            <UserGeneratedContent html={event?.settings?.offline_payment_instructions || ""} />
         </Card>
     </div>
 );

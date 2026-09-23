@@ -44,6 +44,14 @@ export interface EventRecord {
   status: EventStatus;
 }
 
+export type EventImageType = 'EVENT_COVER' | 'TICKET_LOGO';
+
+export interface ImageRecord {
+  id: number;
+  url: string;
+  type: EventImageType;
+}
+
 export interface ProductCategory {
   id: number;
   name: string;
@@ -80,6 +88,7 @@ export interface CreateProductPricePayload {
   price: number;
   label?: string;
   initial_quantity_available?: number;
+  quantity_applies_to?: 'OCCURRENCE' | 'EVENT';
 }
 
 export interface CreateProductPayload {
@@ -96,8 +105,11 @@ export interface CreateProductPayload {
   min_per_order?: number;
   is_hidden?: boolean;
   is_hidden_without_promo_code?: boolean;
+  show_quantity_remaining?: boolean;
+  waitlist_enabled?: boolean;
   sale_start_date?: string;
   sale_end_date?: string;
+  sequential_tier_release_enabled?: boolean;
 }
 
 export interface CreateProductCategoryPayload {
@@ -184,7 +196,8 @@ export interface UpdateOccurrencePayload {
 
 export interface OccurrencePriceOverridePayload {
   product_price_id: number;
-  price: number;
+  price?: number | null;
+  quantity_available?: number | null;
 }
 
 export interface QuestionRecord {
@@ -322,4 +335,31 @@ export interface RecurrenceRule {
   times_of_day?: (string | { time: string; label?: string; duration_minutes?: number })[];
   duration_minutes?: number;
   default_capacity?: number;
+}
+
+export interface CashlessSettings {
+  event_id: number;
+  cashless_enabled: boolean;
+  cashless_topup_product_id: number | null;
+  cashless_min_topup_amount: number;
+  cashless_allow_remaining_balance_refund: boolean;
+  cashless_refund_deadline_at: string | null;
+  cashless_online_topup_enabled: boolean;
+  cashless_topup_tax_and_fee_ids: number[];
+}
+
+export interface CreateCashlessSalesPointPayload {
+  name: string;
+  product_ids: number[];
+  allow_staff_topups?: boolean;
+  access_pin?: string | null;
+  description?: string | null;
+}
+
+export interface CashlessSalesPoint {
+  id: number;
+  short_id: string;
+  name: string;
+  has_access_pin: boolean;
+  allow_staff_topups: boolean;
 }
